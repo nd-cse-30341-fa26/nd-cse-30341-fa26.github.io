@@ -1,0 +1,497 @@
+title:      Operating System Principles
+navigation:
+    - name: "Logistics"
+      link: "#logistics"
+    - name: "Schedule"
+      link: "#schedule"
+    - name: "Policies"
+      link: "#policies"
+    - name: "Resources"
+      link: "#resources"
+internal:
+external:
+    staff:      'data/staff.yaml'
+    schedule:   'data/schedule.yaml'
+extensions:
+  - toc
+body:       |
+
+    **CSE 30341** is a required course in the [Computer Science and
+    Engineering] program at the [University of Notre Dame].  This class
+    introduces many different aspects of modern operating systems such as
+    process structure and synchronization, interprocess communication,
+    concurrency and parallelism with threads, virtual memory, resource
+    allocation, file systems, security, and distributed systems.
+
+    [Computer Science and Engineering]: http://cse.nd.edu
+    [University of Notre Dame]: http://www.nd.edu
+
+    <div class="flex-row" markdown="1">
+
+      <div class="centered">
+        <img src="static/img/house-of-cards.png" class="responsive" style="max-width: 420px; padding: 10px;">
+      </div>
+
+      <div class="flex-col" markdown="1">
+
+      Upon successful completion of this course, students will be able to:
+
+      - **Describe** the basic components of a modern operating system.
+
+      - **Understand** the symbiotic relationship between computer architecture
+        and operating system design.
+
+      - **Discuss** how operating systems provide abstractions for
+        virtualization, concurrency, and persistence.
+
+      - **Construct** applications that utilize processes, threads, interprocess
+        communication, and synchronization primitives to solve problems requiring
+        concurrent or parallel computation.
+
+      - **Explain** how resources such as CPU time and memory are allocated and
+        managed by the operating system.
+
+      - **Evaluate** the trade-offs embedded in different operating system
+        techniques, algorithms, and data structures.
+
+      - **Analyze** the performance of applications in a variety of system contexts.
+
+      </div>
+
+    </div>
+
+    ## Logistics
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+    ### Class Information
+
+    <i class="icon">{{ "calendar-clock" | embed_icon }}</i> Date/Time
+    : **T/TH** 9:30 AM - 10:45 AM
+
+    <i class="icon">{{ "map-marker" | embed_icon }}</i> Location
+    : **126** DeBartolo Hall
+
+    <i class="icon">{{ "video" | embed_icon }}</i> Zoom Meeting
+    : [927 9403 8154](https://notredame.zoom.us/j/92794038154)
+
+    <i class="icon">{{ "email" | embed_icon }}</i> Mailing List
+    : [fa26-cse-30341-01-group@nd.edu](mailto:fa26-cse-30341-01-group@nd.edu)
+
+    <i class="icon">{{ "chat-sleep-outline" | embed_icon }}</i> Zulip
+    : [#osp-fa26-class](https://zulip.ndlug.org/#narrow/channel/9-osp-fa26-class)
+
+    <i class="icon">{{ "github" | embed_icon }}</i> GitHub
+    : [nd-cse-30341-fa26](https://github.com/nd-cse-30341-fa26)
+
+    </div>
+
+    <div class="flex-col" markdown="1">
+
+    ### Course Staff
+
+    <dl>
+    {% for p in page.external['staff'] %}
+    <dt><i class="icon">{{ p['icon'] | embed_icon }}</i> {{ p['role'] }}</dt>
+    <dd>{{ p['name'] }} (<a href="mailto:{{ p['netid'] }}@nd.edu">{{ p['netid'] }}@nd.edu</a>)</dd>
+    {% endfor %}
+    </dl>
+
+    </div>
+
+    </div>
+
+    ### Office Hours
+
+    <div class="centered">
+      <img src="static/img/office-hours.svg" class="responsive">
+    </div>
+
+    ## Schedule
+
+    <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Topics</th>
+        <th>Assignments</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for unit in page.external['schedule'] %}
+    {% if not unit.get('days') %}
+    <tr>
+    {% if 'break' in unit['name'].lower() %}
+    <td colspan="3" class="unit"><i class="muted">{{ unit['name'] }}</i></td>
+    {% else %}
+    <td colspan="3" class="unit">{{ unit['name'] }}</td>
+    {% endif %}
+    </tr>
+    {% endif %}
+    {% for day in unit['days'] %}
+    <tr>
+      <td class="date">{{ day['date'] }}</td>
+      <td class="topics">
+      {{ day['topics'] }}
+      {% for item in day.get('items', []) %}
+      {% set item_link = item.get('link', '') %}
+      {% if item['name'].lower().startswith('exam') %}
+      {% set item_color = 'danger' %}
+      {% elif item['name'].lower().startswith('slides') %}
+      {% set item_color = 'success' %}
+      {% set item_link = ''.join(item['name'].lower().split()) + '.html' %}
+      {% elif item['name'].lower().startswith('panopto') %}
+      {% set item_color = 'info' %}
+      {% else %}
+      {% set item_color = 'default' %}
+      {% endif %}
+      <a class="badge {{ item_color }}-btn" href="{{ item_link }}">{{ item['name'] }}</a>
+      {% endfor %}
+      </td>
+      <td class="assignments">
+      {% for assignment in day.get('assignments', []) %}
+      {% if assignment.lower().startswith('reading') %}
+      {% set assignment_color = 'primary' %}
+      {% elif assignment.lower().startswith('project') %}
+      {% set assignment_color = 'caution' %}
+      {% else %}
+      {% set assignment_color = 'default' %}
+      {% endif %}
+      {% set assignment_link = ''.join(assignment.lower().split()) + '.html' %}
+      <a class="badge {{ assignment_color }}-btn" href="{{ assignment_link }}">
+      {{ assignment }}
+      </a>
+      {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+    {% if unit.get('days') %}
+    <tr>
+    <td colspan="3" class="week">&nbsp;</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+    </table>
+
+    <div class="alert info-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "calendar-check" | embed_icon }}</i> Due Dates
+
+    All **Readings** are to be submitted to your own **private** [GitHub] repository.
+    Unless specified otherwise:
+
+    - **Readings** are due by **noon** on the **Tuesday** of each week.
+    - **Projects** are due by **noon** on the **Tuesday** of the week assigned.
+
+    **Note**: As described below, there is a **grace period** that allows for
+      **late** submissions with **no penalty** up to **12** hours after each
+      **deadline**.
+
+    </div>
+
+    [GitHub]: https://github.com
+
+    ## Policies
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+
+    ### Coursework
+
+    <table class="bordered">
+      <thead>
+        <th>Component</th>
+        <th>Description</th>
+        <th>Points</th>
+      </thead>
+      <tbody>
+        <tr class="info-bg">
+          <td class="centered"><span class="badge primary-btn">Readings</span></td>
+          <td>Weekly individual assignments.</td>
+          <td class="centered">10 &times; 1</td>
+        </tr>
+        <tr class="caution-bg">
+          <td class="centered"><span class="badge caution-btn">Projects</span></td>
+          <td>Quarterly group projects.</td>
+          <td class="centered">4 &times; 5</td>
+        </tr>
+        <tr class="danger-bg">
+          <td class="centered"><span class="badge danger-btn">Exams</span></td>
+          <td>Quarterly in-person exams.</td>
+          <td class="centered">3 &times; 15, 25</td>
+        </tr>
+        <tr class="success-bg">
+          <td class="centered" style="font-weight: bold;">Total</td>
+          <td></td>
+          <td class="centered" style="font-weight: bold;">100</td>
+        </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+    <div class="flex-col" markdown="1">
+
+    ### Grading
+
+    <table class="bordered">
+      <thead>
+        <th>Grade</th>
+        <th>Points</th>
+        <th>Grade</th>
+        <th>Points</th>
+        <th>Grade</th>
+        <th>Points</th>
+      </thead>
+      <tbody>
+        <tr class="centered success-bg">
+          <td></td>
+          <td></td>
+          <td style="font-weight: bold;">A</td>
+          <td>300 - 280</td>
+          <td style="font-weight: bold;">A-</td>
+          <td>280 - 270</td>
+        </tr>
+        <tr class="centered info-bg">
+          <td style="font-weight: bold;">B+</td>
+          <td>270 - 260</td>
+          <td style="font-weight: bold;">B</td>
+          <td>260 - 250</td>
+          <td style="font-weight: bold;">B-</td>
+          <td>250 - 240</td>
+        </tr>
+        <tr class="centered caution-bg">
+          <td style="font-weight: bold;">C+</td>
+          <td>240 - 230</td>
+          <td style="font-weight: bold;">C</td>
+          <td>230 - 220</td>
+          <td style="font-weight: bold;">C-</td>
+          <td>220 - 210</td>
+        </tr>
+        <tr class="centered danger-bg">
+          <td style="font-weight: bold;">D&nbsp;</td>
+          <td>210 - 200</td>
+          <td style="font-weight: bold;">F</td>
+          <td>200 - 0&nbsp;&nbsp;</td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+    </div>
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+    ### Participation
+
+    Students are expected to **attend** lecture and **participate** regularly
+    during class by answering questions, contributing to discussions, and
+    helping other students.
+
+    Foreseeable absences should be discussed with the instructor ahead of time.
+    </div>
+
+    <div class="flex-col" markdown="1">
+    ### Community
+
+    Recalling one of the tenets of the [Hacker Ethic]:
+
+    > Hackers should be judged by their hacking, not criteria such as degrees,
+    age, race, sex, or position.
+
+    Students are expected to be **respectful** to their fellow classmates and
+    the course staff.
+
+    </div>
+
+    </div>
+
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+    ### Students with Disabilities
+
+    Any student who has a documented disability and is registered with [Sara
+    Bea Accessibility Services] should speak with the professor as soon as
+    possible regarding accommodations. Students who are not registered should
+    contact the [Center for Student Support and Care].
+
+    </div>
+
+    <div class="flex-col" markdown="1">
+    ### Late Work
+
+    In the case of a serious illness or other excused absence, as defined by
+    university policies, coursework will be accepted late by the same number of
+    days as the excused absence.
+
+    Otherwise, there is an automatic **25% late penalty** for submissions
+    turned in **12 hours** past the **posted deadline**.
+
+    No assignments will be accepted after the **last day of class** without the
+    permission of the instructor.
+
+    </div>
+
+    </div>
+
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+    ### Classroom Recording
+
+    Lectures in this course will be recorded using **Zoom**, uploaded to
+    **Panopto**, and shared on **Canvas** and the course website.
+
+    Except for faculty and staff who require access, no content will be shared
+    with individuals outside of the course without prior authorization.
+
+    These recordings are jointly copyrighted by the [University of Notre Dame]
+    and the instructor. Posting them to other websites (including YouTube,
+    Facebook, SnapChat, etc.) or elsewhere without express, written permission
+    may result in disciplinary action and possible civil prosecution.
+
+    </div>
+
+    <div class="flex-col" markdown="1">
+    ### Academic Dishonesty
+
+    Any academic misconduct in this course is considered a **serious offense**,
+    and the strongest possible **academic penalties** will be pursued for such
+    behavior. Students may discuss high-level ideas with other students (or
+    **AI tools**), but at the time of implementation (i.e. programming), each
+    person must do his/her own work. Use of the Internet as a reference is
+    allowed but directly copying code or other information is cheating. It is
+    cheating to copy, to allow another person to copy, all or part of an exam
+    or assignment, or to fake program output. It is also a violation of the
+    [Undergraduate Academic Code of Honor] to observe and then fail to report
+    academic dishonesty. Each student is **responsible** for the security and
+    **integrity** of their own work.
+
+    </div>
+
+    </div>
+
+    [Hacker Ethic]: https://en.wikipedia.org/wiki/Hacker_ethic
+    [Sara Bea Accessibility Services]: https://supportandcare.nd.edu/for-students/current-students/accessibility-support/
+    [Center for Student Support and Care]: https://supportandcare.nd.edu/
+    [Undergraduate Academic Code of Honor]: https://honorcode.nd.edu/
+
+    <div class="alert danger-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "alert" | embed_icon }}</i> CSE Guide to the Honor Code
+
+    For the assignments in this class, students are allowed to consult printed
+    and online resources and to discuss the class material with other students.
+    Students may also consult **AI Tools** such as **CoPilot** or **ChatGPT**
+    for help explaining concepts, debugging problems, or as a reference.
+    Viewing or consulting solutions, such as those from other students,
+    previous semesters, or generated by **AI Tools** is **never allowed**.
+
+    Likewise, students may copy **small and trivial** snippets from books,
+    online sources, and **AI Tools** as long as you **cite them properly**.
+    However, students **may not copy** solutions or **significant** portions of
+    code from other students or online sources, nor may students generate
+    solutions via **AI Tools**.
+
+    Finally, when preparing for exams in this class, **students may not access
+    exams from previous semesters**, nor may students look at or copy solutions
+    from other current or former students.
+
+    <table class="bordered" style="border-color: var(--danger);">
+      <thead>
+        <th></th>
+        <th>Resources</th>
+        <th>Solutions</th>
+      </thead>
+      <tbody>
+        <tr style="font-weight: bold;">
+          <td class="centered">Consulting</td>
+          <td class="centered success-bg">Allowed</td>
+          <td class="centered danger-bg">Not Allowed</td>
+        </tr>
+        <tr style="font-weight: bold;">
+          <td class="centered">Copying</td>
+          <td class="centered caution-bg">Cite</td>
+          <td class="centered danger-bg">Not Allowed</td>
+        </tr>
+      </tbody>
+    </table>
+
+    See the [CSE Guide to the Honor Code] for definitions of the above terms and
+    specific examples of what is allowed and not allowed when consulting
+    resources.
+
+    If students are unclear about whether certain forms of consultation or
+    common work are acceptable or what the standards for citation are, then
+    students are responsible for consulting with the instructor to resolve any
+    confusion.
+
+    If the instructor sees behavior that is, in their judgement, academically
+    dishonest, they are required to file either an [Honor Code Violation Report] or
+    a formal report to the [College of Engineering] Honesty Committee.
+
+    </div>
+
+    [CSE Guide to the Honor Code]: https://cse.nd.edu/undergraduate/cse-guide-to-the-honor-code/
+    [Honor Code Violation Report]: https://honorcode.nd.edu/honor-code-violation-report/
+    [College of Engineering]: https://engineering.nd.edu/
+
+    ## Resources
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+    ### Textbooks
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+    <div class="centered">
+    <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/"><img src="static/img/ostep.jpg"></a>
+    </div>
+    </div>
+
+    <div class="flex-col" markdown="1">
+    Title
+    : <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/">Operating Systems: Three Easy Pieces</a>
+
+    Authors
+    : Remzi Arpaci-Dusseau, Andrea Arpaci-Dusseau
+    </div>
+
+    </div>
+
+    </div>
+
+    <div class="flex-col" markdown="1">
+    ### Guides
+
+    - [Beej's Guide to Git](https://beej.us/guide/bggit/)
+    - [Beej's Guide to C Programming](https://beej.us/guide/bgc/)
+    - [Beej's Guide to Interprocess Communication](https://beej.us/guide/bgipc/)
+    - [Beej's Guide to Network Programming](https://beej.us/guide/bgnet/)
+
+    ### Manual Pages
+
+    - [Linux man pages online](https://man7.org/linux/man-pages/index.html)
+    - [POSIX Standard](https://pubs.opengroup.org/onlinepubs/9799919799/)
+
+    ### Tutorials
+
+    - [Learning the Shell](https://linuxcommand.org/lc3_learning_the_shell.php)
+    - [POSIX Threads Programming](https://hpc-tutorials.llnl.gov/posix/)
+
+    </div>
+
+    </div>
+

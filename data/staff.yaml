@@ -1,0 +1,47 @@
+- name:     Peter Bui
+  role:     Instructor
+  icon:     human-male-board
+  netid:    pbui
+  github:   pbui
+
+- name:     Samuel Neisewander
+  role:     Teaching Assistant
+  icon:     account-question
+  netid:    sneisewa
+  github:   samneisewanderND
+
+- name:     Leonardo Molina
+  role:     Teaching Assistant
+  icon:     account-question
+  netid:    lmolina3
+  github:   lmolina32
+
+- name:     Aynaz Namik
+  role:     Teaching Assistant
+  icon:     account-question
+  netid:    anamik
+  github:   aynmk7
+
+- name:     Emmalyn Holmquist
+  role:     Teaching Assistant
+  icon:     account-question
+  netid:    eholmqui
+  github:   eholmquist01
+
+- name:     Norah Swatland
+  role:     Teaching Assistant
+  icon:     account-question
+  netid:    nswatlan
+  github:   nswatlan
+
+- name:     Kaitlyn Dooley
+  role:     Teaching Assistant
+  icon:     account-question
+  netid:    kdooley3
+  github:   KaitDooley
+
+- name:     Henry Jochaniewicz
+  role:     Teaching Assistant
+  icon:     account-question
+  netid:    hjochani
+  github:   henryJ099123

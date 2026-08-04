@@ -1,0 +1,215 @@
+- name:     "Unit 01: Virtualization with Processes"
+
+- name:     Hardware, Operating Systems
+  days:
+      - date:           Tue 08/25
+        topics:         Syllabus, Computer Hardware, Boot Sequence
+        assignments:
+          - Reading 01
+        items:
+          - name:       Slides 00
+          - name:       Slides 01
+
+      - date:           Thu 08/27
+        topics:         OS Taxonomy, History, Themes
+        items:
+          - name:       Slides 02
+
+- name:     System Calls, Processes
+  days:
+      - date:           Tue 09/01
+        topics:         System Calls
+        assignments:
+          - Reading 02
+        items:
+          - name:       Slides 03
+
+      - date:           Thu 09/03
+        topics:         Processes
+        items:
+          - name:       Slides 04
+
+- name:     Scheduling
+  days:
+      - date:           Tue 09/08
+        topics:         FIFO, Round Robin
+        assignments:
+          - Reading 03
+        items:
+          - name:       Slides 04
+
+      - date:           Thu 09/10
+        topics:         MLFQ, Lottery
+        items:
+          - name:       Slides 06
+
+- name:     Exam 01
+  days:
+      - date:           Tue 09/15
+        topics:         Concurrency
+        assignments:
+          - Project 01
+        items:
+          - name:       Slides 07
+
+      - date:           Thu 09/17
+        topics:         ''
+        items:
+          - name:       Exam 01
+
+- name:     "Unit 02: Concurrency with Threads"
+
+- name:     Threads, Locks
+  days:
+      - date:           Tue 09/22
+        topics:         Events, Threads
+        assignments:
+          - Reading 04
+        items:
+          - name:       Slides 08
+
+      - date:           Thu 09/24
+        topics:         Locks
+        items:
+          - name:       Slides 09
+
+- name:     Condition Variables
+  days:
+      - date:           Tue 09/29
+        topics:         Condition Variables
+        assignments:
+          - Reading 05
+        items:
+          - name:       Slides 10
+
+      - date:           Thu 10/01
+        topics:         Structures
+
+- name:     Semaphores
+  days:
+      - date:           Tue 10/06
+        topics:         Semaphores
+        assignments:
+          - Reading 06
+        items:
+          - name:       Slides 11
+
+      - date:           Thu 10/08
+        topics:         Patterns
+
+- name:     Exam 02
+  days:
+      - date:           Tue 10/13
+        topics:         Concurrency Bugs
+        assignments:
+          - Project 02
+        items:
+          - name:       Slides 12
+
+      - date:           Thu 10/15
+        topics:         ''
+        items:
+          - name:       Exam 02
+
+- name:   "Fall Break"
+
+- name:   "Unit 03: Virtualization with Memory"
+
+- name:     Virtual Memory
+  days:
+      - date:           Tue 10/27
+        topics:         Address Space, Translation
+        assignments:
+          - Reading 07
+        items:
+          - name:       Slides 13
+
+      - date:           Thu 10/29
+        topics:         Free-Space Management
+        items:
+          - name:       Slides 14
+
+- name:     Heap Allocation, Segmentation
+  days:
+      - date:           Tue 11/03
+        topics:         Heap Allocation
+        assignments:
+          - Reading 08
+
+      - date:           Thu 11/05
+        topics:         Segmentation
+        items:
+          - name:       Slides 15
+
+- name:     Paging
+  days:
+      - date:           Tue 11/10
+        topics:         Paging
+        assignments:
+          - Reading 09
+        items:
+          - name:       Slides 16
+
+      - date:           Thu 11/12
+        topics:         TLB / Multi-Level
+        items:
+          - name:       Slides 17
+
+- name:     Exam 03
+  days:
+      - date:           Tue 11/17
+        topics:         Swapping
+        assignments:
+          - Project 03
+        items:
+          - name:       Slides 18
+
+      - date:           Thu 11/19
+        topics:         ''
+        items:
+          - name:       Exam 03
+
+- name:     "Unit 04: Persistence with File Systems"
+
+- name:     I/O Devices
+  days:
+      - date:           Tue 11/24
+        topics:         I/O Devices, RAID
+        assignments:
+          - Reading 10
+        items:
+          - name:       Slides 19
+          - name:       Slides 20
+
+      - date:           Thu 11/26
+        topics:         Thanksgiving
+
+- name:     File Systems
+  days:
+      - date:           Tue 12/01
+        topics:         File Systems
+        assignments:
+          - Reading 11
+        items:
+          - name:       Slides 21
+
+      - date:           Thu 12/03
+        topics:         FFS, LFS
+        items:
+          - name:       Slides 22
+
+- name:     Consistency, Integrity
+  days:
+      - date:           Tue 12/08
+        topics:         Consistency, Integrity
+        assignments:
+          - Project 04
+        items:
+          - name:       Slides 23
+
+- name:     Exam 04
+  days:
+      - date:           XXX 12/XX
+        topics:         ''
+        items:
+          - name:       Exam 04
