@@ -3,7 +3,7 @@ title: "Lecture 00: Syllabus"
 description: "Course Syllabus for CSE 30341 Operating System Principles (Fall 2026)"
 author: Peter Bui
 keywords: lecture,osp,syllabus
-url: https://pnutz.h4x0r.space/courses/cse.30341.fa26/lecture00.html
+url: https://pnutz.h4x0r.space/courses/cse.30341.fa26/slides00.html
 theme: domer-slides:
 ---
 
@@ -32,7 +32,7 @@ theme: domer-slides:
 # Introduction: <span class="gold">Whoami</span>
 
 <div class="slide-centered">
-    <img src="static/img/whoami.png" class="padding-10">
+    <img src="static/img/slides00-whoami.png" class="padding-10">
 </div>
 
 ---
@@ -41,9 +41,9 @@ theme: domer-slides:
 
 <div class="slide-centered">
 
-![w:350px](static/img/lecture00-news-windows.png)
-![w:350px](static/img/lecture00-news-macos.png)
-![w:350px](static/img/lecture00-news-linux.png)
+![w:350px](static/img/slides00-news-windows.png)
+![w:350px](static/img/slides00-news-macos.png)
+![w:350px](static/img/slides00-news-linux.png)
 
 </div>
 
@@ -52,7 +52,7 @@ theme: domer-slides:
 # Motivation: <span class="gold">The Journey Continues...</span>
 
 <div class="slide-centered">
-    <img src="static/img/cse-curriculum.png" class="padding-10">
+    <img src="static/img/slides00-cse-curriculum.png" class="padding-10">
 </div>
 
 ---
@@ -60,7 +60,7 @@ theme: domer-slides:
 # Motivation: <span class="gold">House of Cards</span>
 
 <div class="slide-centered">
-    <img src="static/img/house-of-cards-slides00.png" class="padding-10">
+    <img src="static/img/slides00-house-of-cards.png" class="padding-10">
 </div>
 
 ---
