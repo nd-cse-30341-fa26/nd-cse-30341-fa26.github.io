@@ -1,0 +1,367 @@
+/* domer-slides.css
+ * @theme domer-slides */
+
+/* Imports */
+
+@import "gaia";
+@import "https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap";
+
+/* Variables */
+
+:root {
+    color-scheme: light dark;
+
+    --nord00: #2e3440;  /* Darkest */
+    --nord01: #3b4252;
+    --nord02: #434c5e;
+    --nord03: #4c566a;
+
+    --nord04: #d8dee9;
+    --nord05: #e5e9f0;
+    --nord06: #eceff4;  /* Lightest */
+
+    --nord07: #8fbcbb;  /* Cyanest */
+    --nord08: #88c0d0;
+    --nord09: #81a1c1;
+    --nord10: #5e81ac;  /* Bluest */
+
+    --nord11: #bf616a;  /* Red */
+    --nord12: #d08770;  /* Orange */
+    --nord13: #ebcb8b;  /* Yellow */
+    --nord14: #a3be8c;  /* Green */
+    --nord15: #b48ead;  /* Magenta */
+
+    /**
+     * Notre Dame Palette:
+     * https://onmessage.nd.edu/university-branding/colors/
+     **/
+    --nd-blue: #0c2340;
+    --nd-blue-dark: #081629;
+    --nd-blue-light: #1c4f8f;
+    --nd-gold: #ae9142;
+    --nd-gold-dark: #8c7535;
+    --nd-gold-light: #d39f10;
+    --nd-gray: #555;
+    --nd-gray-dark: #333;
+    --nd-gray-light: #d2d2d2;
+    --nd-gray-extra-light: #e2e2e2;
+    --nd-gray-extra-extra-light: #f2f2f2;
+    --nd-sky-blue: #e1e8f2;
+    --nd-sky-blue-light: #edf2f9;
+    --nd-sky-blue-dark: #c1cddd;
+    --nd-green: #0a843d;
+    --nd-green-light: #b3dac5;
+    --nd-warm-white: #efe9d9;
+    --nd-warm-white-light: #f8f4ec;
+
+    /**
+     * Google Palette:
+     * https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets
+     **/
+    --red-light: #f4cccc;
+    --red-dark: #990000;
+    --orange-light: #fce5cd;
+    --orange-dark: #b45f06;
+    --yellow-light: #fff2cc;
+    --yellow-dark: #bf9000;
+    --green-light: #d9ead3;
+    --green-dark: #38761d;
+    --cyan-light: #d0e0e3;
+    --cyan-dark: #134f5c;
+    --blue-light: #cfe2f3;
+    --blue-dark: #0b5394;
+    --purple-light: #d9d2e9;
+    --purple-dark: #351c75;
+    --magenta-light: #ead1dc;
+    --magenta-dark: #741b47;
+
+    --accent: light-dark(var(--nd-green), var(--nd-green));
+    --primary: light-dark(var(--nd-blue), var(--nd-blue-light));
+    --info: var(--blue-dark);
+    --success: var(--green-dark);
+    --caution: var(--yellow-dark);
+    --warning: var(--orange-dark);
+    --danger: var(--red-dark);
+    --code: var(--purple-dark);
+    --link: var(--nd-gold);
+    --border: light-dark(var(--nd-gold), var(--nd-gold-light));
+    --muted: light-dark(var(--nd-gray), var(--nd-warm-white));
+    --heading: light-dark(var(--nd-blue), var(--nd-green));
+    --alert: light-dark(var(--nd-warm-white-light), var(--nd-sky-blue));
+    --table-background: light-dark(var(--nd-warm-white), var(--nd-warm-white));
+    --terminal-background: var(--nord01);
+    --terminal-foreground: var(--nord05);
+    --image-background: light-dark(var(--nd-warm-white), var(--nd-warm-white));
+    --badge-background: var(--nd-gray-dark);
+    --badge-color: #fff;
+
+    --color-foreground: light-dark(var(--nd-gray-dark), var(--nd-warm-white-light));
+    --color-background: light-dark(var(--nd-warm-white-light), var(--nd-blue-dark));
+    --color-background-stripe: transparent;
+    --color-highlight: var(--link);
+}
+
+/* Elements */
+
+section {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 28px;
+    line-height: 1.45;
+}
+
+h1 {
+    color: var(--heading);
+}
+
+h2 {
+    color: var(--nd-gold);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+ul, ol {
+  > li {
+    margin: 0.25em 0.75em 0;
+
+    > p {
+      margin: 0.5em 0 0;
+    }
+  }
+}
+
+table {
+    margin-left:  auto;
+    margin-right: auto;
+
+    color: light-dark(var(--color-foreground), var(--nd-gold)) !important;
+
+    thead th {
+	background: var(--table-background) !important;
+	color: inherit;
+	font-weight: bold;
+    }
+}
+
+th, td {
+    padding: 0.25rem;
+}
+
+/* Classes */
+
+.slide-centered {
+    text-align: center;
+    align-content: center;
+    height: 500px;
+}
+
+.centered {
+    text-align: center;
+}
+
+.padding-10 {
+    padding: 10px;
+}
+
+.columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    font-size: 25px;
+}
+
+.font-large{
+    font-size: 35px;
+}
+
+.gold {
+    color: var(--nd-gold);
+}
+
+.blue {
+    color: var(--blue-dark);
+}
+
+.blue-light {
+    color: var(--blue-light);
+}
+
+.yellow {
+    color: var(--yellow-dark);
+}
+
+.yellow-light {
+    color: var(--yellow-light);
+}
+
+.gray {
+    color: var(--nd-gray);
+}
+
+.gray-light {
+    color: var(--nd-gray-light);
+}
+
+.green {
+    color: var(--green-dark);
+}
+
+.red {
+    color: var(--red-dark);
+}
+
+.purple {
+    color: var(--purple-dark);
+}
+
+.badge {
+    background-color: var(--badge-background);
+    border-radius: 0.2rem;
+    color: var(--badge-color);
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.bordered {
+    background: var(--table-background);
+    border: 1px solid var(--border);
+    color: light-dark(var(--color-foreground), var(--nd-gold)) !important;
+
+    th, td {
+    	background: inherit;
+    	border: inherit;
+    	color: inherit;
+    }
+}
+
+.framed {
+    background: var(--table-background);
+    border: 1px solid var(--border);
+    color: light-dark(var(--color-foreground), var(--nd-gold));
+}
+
+.primary {
+    color: var(--primary);
+}
+
+.primary-btn {
+    background-color: var(--primary);
+}
+
+.info {
+    color: var(--info);
+}
+
+.info-bg {
+    border-color: var(--info) !important;
+    color: var(--info) !important;
+    background: color-mix(in srgb, var(--alert), var(--info) 25%) !important;
+}
+
+.info-bg .icon {
+    fill: var(--info);
+}
+
+.info-bg a {
+    color: var(--info);
+}
+
+.info-btn {
+    background-color: var(--info);
+}
+
+.success {
+    color: var(--success);
+}
+
+.success-bg {
+    border-color: var(--success) !important;
+    color: var(--success) !important;
+    background: color-mix(in srgb, var(--alert), var(--success) 25%) !important;
+}
+
+.success-bg .icon {
+    fill: var(--success);
+}
+
+.success-bg a {
+    color: var(--success);
+}
+
+.success-btn {
+    background-color: var(--success);
+}
+
+.caution-bg {
+    border-color: var(--caution) !important;
+    color: var(--caution) !important;
+    background: color-mix(in srgb, var(--alert), var(--caution) 25%) !important;
+}
+
+.caution {
+    color: var(--caution);
+}
+
+.caution-bg .icon {
+    fill: var(--caution);
+}
+
+.caution-bg a {
+    color: var(--caution);
+}
+
+.caution-btn {
+    background-color: var(--caution);
+}
+
+.warning {
+    color: var(--warning);
+}
+
+.warning-bg {
+    border-color: var(--warning) !important;
+    color: var(--warning) !important;
+    background: color-mix(in srgb, var(--alert), var(--warning) 25%) !important;
+}
+
+.warning-bg .icon {
+    fill: var(--warning);
+}
+
+.warning-bg a {
+    color: var(--warning);
+}
+
+.warning-btn {
+    background-color: var(--warning);
+}
+
+.danger {
+    color: var(--danger);
+}
+
+.danger-bg {
+    border-color: var(--danger) !important;
+    color: var(--danger) !important;
+    background: color-mix(in srgb, var(--alert), var(--danger) 25%) !important;
+}
+
+.danger-bg .icon {
+    fill: var(--danger);
+}
+
+.danger-bg a {
+    color: var(--danger);
+}
+
+.danger-btn {
+    background-color: var(--danger);
+}
+
+.muted {
+    color: var(--muted);
+}
