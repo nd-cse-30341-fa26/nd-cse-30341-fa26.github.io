@@ -47,7 +47,7 @@ processes <strong class="special">binary data</strong>.
 
 # Computer Hardware: <span class="gold">Architecture</span>
 
-<div class="slide-centered">
+<div class="slide-centered margin-top-0-5">
 
 <img src="static/img/slides01-logical-construction.png">
 
@@ -61,7 +61,7 @@ processes <strong class="special">binary data</strong>.
 
 <div class="slide-centered">
 
-<a title="Fred the Oyster, CC BY-SA 4.0 &lt;https://creativecommons.org/licenses/by-sa/4.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Chipset_schematic.svg"><img width="500" alt="Chipset schematic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Chipset_schematic.svg/500px-Chipset_schematic.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"></a>
+<a title="Fred the Oyster, CC BY-SA 4.0 &lt;https://creativecommons.org/licenses/by-sa/4.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Chipset_schematic.svg"><img width="475" alt="Chipset schematic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Chipset_schematic.svg/500px-Chipset_schematic.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"></a>
 
 </div>
 
@@ -83,7 +83,7 @@ interfaces.
 
 <div class="columns">
 
-<div class="slide-middled">
+<div>
 
 The <strong class="caution">central processing unit (*CPU*)</strong> is the
 <strong class="success">“brains”</strong> of the computer:
@@ -109,13 +109,13 @@ The <strong class="caution">central processing unit (*CPU*)</strong> is the
 
 <div class="columns">
 
-<div class="slide-middled">
+<div class="slide-centered">
 
 <a title="An-d, CC BY-SA 3.0 &lt;https://creativecommons.org/licenses/by-sa/3.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Swissbit_2GB_PC2-5300U-555.jpg"><img width="420" alt="Swissbit DDR2-555 RAM." src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Swissbit_2GB_PC2-5300U-555.jpg/960px-Swissbit_2GB_PC2-5300U-555.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail" class="framed"></a>
 
 </div>
 
-<div class="slide-middled">
+<div>
 
 <strong class="caution">Random Access Memory (*RAM*)</strong> stores <strong
 class="success">information</strong> that is in active use by the <strong
@@ -210,13 +210,13 @@ class="caution">components</strong> in the provided computers:
 
 </div>
 
-<div class="slide-centered">
+<div class="slide-centered margin-top-0-5">
 
-<img src="https://www.techspot.com/articles-info/254/images/18b.jpg" width="260" class="framed">
+<img src="https://www.techspot.com/articles-info/254/images/18b.jpg" width="240" class="framed">
 
-<img src="https://c1.neweggimages.com/productimage/nb640/11-153-127-02.jpg" width="260" class="framed">
+<img src="https://c1.neweggimages.com/productimage/nb640/11-153-127-02.jpg" width="240" class="framed">
 
-<img src="https://i.ebayimg.com/images/g/MEcAAOSwvnRkMj6B/s-l400.jpg" width="260" class="framed">
+<img src="https://i.ebayimg.com/images/g/MEcAAOSwvnRkMj6B/s-l400.jpg" width="240" class="framed">
 
 </div>
 
@@ -234,7 +234,7 @@ class="caution">components</strong> in the provided computers:
 
 <div class="columns-1-3">
 
-<div class="slide-centered">
+<div class="slide-centered margin-top-0-5">
 
 <img src="static/img/slides01-boot-sequence.png">
 
@@ -265,7 +265,7 @@ powered on:
 
 <div class="columns-1-3">
 
-<div class="slide-centered">
+<div class="slide-centered margin-top-0-5">
 
 <img src="static/img/slides01-boot-sequence.png">
 
@@ -303,7 +303,7 @@ class="primary">data structure</strong> that records the organization of the
 
 <div class="columns-1-3">
 
-<div class="slide-centered">
+<div class="slide-centered margin-top-0-5">
 
 <img src="static/img/slides01-boot-sequence.png">
 
@@ -341,7 +341,7 @@ optional <strong class="caution">RAM</strong> disk.
 
 <div class="columns-1-3">
 
-<div class="slide-centered">
+<div class="slide-centered margin-top-0-5">
 
 <img src="static/img/slides01-boot-sequence.png">
 
@@ -373,7 +373,7 @@ $ dmesg
 
 <div class="columns-1-3">
 
-<div class="slide-centered">
+<div class="slide-centered margin-top-0-5">
 
 <img src="static/img/slides01-boot-sequence.png">
 
