@@ -178,6 +178,15 @@ pre code {
     font-weight: normal;
 }
 
+section.lead {
+    h1 {
+    	font-size: 2.4rem !important;
+    }
+    h2 {
+    	font-size: 2.0rem !important;
+    }
+}
+
 /* Classes */
 
 .slide-centered {
@@ -201,6 +210,10 @@ pre code {
 
 .padding-10 {
     padding: 10px;
+}
+
+.margin-top-0-5 {
+    margin-top: 0.5rem;
 }
 
 .columns {
