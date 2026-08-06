@@ -153,6 +153,27 @@ table {
     }
 }
 
+code {
+    color: var(--code);
+    font-weight: bold;
+}
+
+pre {
+    background: var(--terminal-background) !important;
+    border: 1px solid var(--border);
+    color: var(--terminal-foreground) !important;
+    padding: 0.25rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: auto;
+    overflow-wrap: break-word;
+}
+
+pre code {
+    color: var(--terminal-foreground) !important;
+    font-weight: normal;
+}
+
 /* Classes */
 
 .slide-centered {
@@ -182,6 +203,28 @@ table {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
+}
+
+.columns-1-2 {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+}
+
+.columns-1-3 {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 1rem;
+}
+
+.columns-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+}
+
+.float-right {
+    float: right;
 }
 
 .font-large{
@@ -399,4 +442,11 @@ table {
 
 .muted {
     color: var(--muted);
+}
+
+/* Syntax Highlighting */
+
+.hljs-comment {
+    color: var(--nord08);
+    font-style: italic;
 }
