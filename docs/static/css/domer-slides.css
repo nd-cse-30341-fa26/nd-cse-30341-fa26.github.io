@@ -137,15 +137,18 @@ table {
 
     color: light-dark(var(--color-foreground), var(--nd-gold)) !important;
 
+    border-spacing: 2px !important;
+    border-collapse: separate !important;
+
     thead th {
 	background: var(--table-background) !important;
 	color: inherit;
 	font-weight: bold;
     }
-}
 
-th, td {
-    padding: 0.25rem;
+    th, td {
+	padding: 0.25rem !important;
+    }
 }
 
 /* Classes */
