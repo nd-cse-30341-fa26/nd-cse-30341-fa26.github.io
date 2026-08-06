@@ -158,7 +158,12 @@ table {
 .slide-centered {
     text-align: center;
     align-content: center;
-    height: 500px;
+    height: 20rem;
+}
+
+.slide-middled {
+    align-content: center;
+    height: 20rem;
 }
 
 .centered {
