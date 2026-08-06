@@ -15,6 +15,12 @@ theme: domer-slides
 
 ---
 
+<!-- _class: lead -->
+
+# Introduction
+
+---
+
 # Introduction: <span class="gold">Ice Breaker</span>
 
 <div class="font-large">
@@ -34,6 +40,12 @@ theme: domer-slides
 <div class="slide-centered">
     <img src="static/img/slides00-whoami.png" class="padding-10">
 </div>
+
+---
+
+<!-- _class: lead -->
+
+# Motivation
 
 ---
 
@@ -79,6 +91,12 @@ theme: domer-slides
    class="yellow">**operating system**</span>?
 
 </div>
+
+---
+
+<!-- _class: lead -->
+
+# Syllabus
 
 ---
 
