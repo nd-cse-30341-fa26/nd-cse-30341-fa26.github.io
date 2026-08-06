@@ -53,9 +53,9 @@ theme: domer-slides
 
 <div class="slide-centered">
 
-![w:350px](static/img/slides00-news-windows.png)
-![w:350px](static/img/slides00-news-macos.png)
-![w:350px](static/img/slides00-news-linux.png)
+<img src="static/img/slides00-news-windows.png" class="framed" width="347">
+<img src="static/img/slides00-news-macos.png" class="framed" width="350">
+<img src="static/img/slides00-news-linux.png" class="framed" width="350">
 
 </div>
 
