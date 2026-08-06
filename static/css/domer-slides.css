@@ -166,6 +166,10 @@ table {
     height: 20rem;
 }
 
+.middled {
+    align-content: center;
+}
+
 .centered {
     text-align: center;
 }
