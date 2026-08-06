@@ -75,7 +75,7 @@
     --magenta-light: #ead1dc;
     --magenta-dark: #741b47;
 
-    --accent: light-dark(var(--nd-green), var(--nd-green));
+    --accent: light-dark(var(--nd-gold), var(--nd-green));
     --primary: light-dark(var(--nd-blue), var(--nd-blue-light));
     --info: var(--blue-dark);
     --success: var(--green-dark);
@@ -131,6 +131,10 @@ ul, ol {
       margin: 0.5em 0 0;
     }
   }
+}
+
+li::marker {
+    color: var(--accent) !important;
 }
 
 table {

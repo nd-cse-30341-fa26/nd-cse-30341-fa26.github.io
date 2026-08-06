@@ -71,7 +71,7 @@
     --magenta-light: #ead1dc;
     --magenta-dark: #741b47;
 
-    --accent: light-dark(var(--nd-green), var(--nd-green));
+    --accent: light-dark(var(--nd-gold), var(--nd-green));
     --foreground: light-dark(var(--nd-gray-dark), var(--nd-warm-white-light));
     --background: light-dark(var(--nd-warm-white-light), var(--nd-blue-dark));
     --primary: light-dark(var(--nd-blue), var(--nd-blue-light));
@@ -171,7 +171,7 @@ main ol {
 }
 
 main li::marker {
-    color: var(--muted);
+    color: var(--accent);
     font-weight: bold;
 }
 
