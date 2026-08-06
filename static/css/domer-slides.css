@@ -82,6 +82,7 @@
     --caution: var(--yellow-dark);
     --warning: var(--orange-dark);
     --danger: var(--red-dark);
+    --special: var(--purple-dark);
     --code: var(--purple-dark);
     --link: var(--nd-gold);
     --border: light-dark(var(--nd-gold), var(--nd-gold-light));
@@ -364,6 +365,28 @@ table {
 
 .danger-btn {
     background-color: var(--danger);
+}
+
+.special {
+    color: var(--special);
+}
+
+.special-bg {
+    border-color: var(--special) !important;
+    color: var(--special) !important;
+    background: color-mix(in srgb, var(--alert), var(--special) 25%) !important;
+}
+
+.special-bg .icon {
+    fill: var(--special);
+}
+
+.special-bg a {
+    color: var(--special);
+}
+
+.special-btn {
+    background-color: var(--special);
 }
 
 .muted {

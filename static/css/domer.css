@@ -80,6 +80,7 @@
     --caution: var(--yellow-dark);
     --warning: var(--orange-dark);
     --danger: var(--red-dark);
+    --special: var(--purple-dark);
     --code: var(--purple-dark);
     --link: var(--nd-gold);
     --border: light-dark(var(--nd-gold), var(--nd-gold-light));
@@ -337,7 +338,7 @@ label {
 }
 
 hr {
-    border-top: 1px solid var(--border); 
+    border-top: 1px solid var(--border);
 }
 
 footer {
@@ -558,6 +559,28 @@ div.footnote > hr {
 
 .danger-btn {
     background-color: var(--danger);
+}
+
+.special {
+    color: var(--special);
+}
+
+.special-bg {
+    border-color: var(--special);
+    color: var(--special);
+    background: color-mix(in srgb, var(--alert), var(--special) 25%);
+}
+
+.special-bg .icon {
+    fill: var(--special);
+}
+
+.special-bg a {
+    color: var(--special);
+}
+
+.special-btn {
+    background-color: var(--special);
 }
 
 .muted {
