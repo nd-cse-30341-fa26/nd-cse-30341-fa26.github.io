@@ -4,7 +4,7 @@ description: "Course Syllabus for CSE 30341 Operating System Principles (Fall 20
 author: Peter Bui
 keywords: lecture,osp,syllabus
 url: https://pnutz.h4x0r.space/courses/cse.30341.fa26/slides00.html
-theme: domer-slides:
+theme: domer-slides
 ---
 
 <!-- _class: lead -->
