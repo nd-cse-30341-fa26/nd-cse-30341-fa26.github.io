@@ -1,6 +1,6 @@
 ---
-title: "Lecture 01: Syllabus"
-description: "Course Syllabus for CSE 30341 Operating System Principles (Fall 2026)"
+title: "Lecture 01: Computer Hardware, Boot Sequence"
+description: "Computer Hardware, Boot Sequence"
 author: Peter Bui
 keywords: lecture,osp,hardware,boot
 url: https://pnutz.h4x0r.space/courses/cse.30341.fa26/slides01.html
