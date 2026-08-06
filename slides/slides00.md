@@ -131,17 +131,22 @@ class="danger">invited to appropriate the course channels</strong>.
     <tr class="info-bg">
       <td class="centered"><span class="badge primary-btn">Readings</span></td>
       <td>Weekly individual assignments.</td>
-      <td class="centered">10 &times; 1</td>
+      <td class="centered">11 &times; 1</td>
     </tr>
     <tr class="caution-bg">
       <td class="centered"><span class="badge caution-btn">Projects</span></td>
       <td>Quarterly group projects.</td>
-      <td class="centered">4 &times; 5</td>
+      <td class="centered">4 &times; 4</td>
+    </tr>
+    <tr class="warning-bg">
+      <td class="centered"><span class="badge warning-btn">Interviews</span></td>
+      <td>Quarterly individual interviews.</td>
+      <td class="centered">4 &times; 2</td>
     </tr>
     <tr class="danger-bg">
       <td class="centered"><span class="badge danger-btn">Exams</span></td>
       <td>Quarterly in-person exams.</td>
-      <td class="centered">3 &times; 15, 25</td>
+      <td class="centered">3 &times; 15, 20</td>
     </tr>
     <tr class="success-bg">
       <td class="centered" style="font-weight: bold;">Total</td>

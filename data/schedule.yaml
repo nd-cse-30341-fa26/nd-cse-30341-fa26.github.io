@@ -54,8 +54,11 @@
 
       - date:           Thu 09/17
         topics:         ''
+        assignments:
+          - Interview 01
         items:
           - name:       Exam 01
+
 
 - name:     "Unit 02: Concurrency with Threads"
 
@@ -108,6 +111,8 @@
 
       - date:           Thu 10/15
         topics:         ''
+        assignments:
+          - Interview 02
         items:
           - name:       Exam 02
 
@@ -166,6 +171,8 @@
 
       - date:           Thu 11/19
         topics:         ''
+        assignments:
+          - Interview 03
         items:
           - name:       Exam 03
 
@@ -206,6 +213,11 @@
           - Project 04
         items:
           - name:       Slides 23
+
+      - date:           Thu 12/10
+        topics:         <i>Reading Day</i>
+        assignments:
+          - Interview 04
 
 - name:     Exam 04
   days:
