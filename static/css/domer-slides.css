@@ -208,6 +208,10 @@ section.lead {
     text-align: center;
 }
 
+.text-right {
+    text-align: right;
+}
+
 .padding-10 {
     padding: 10px;
 }
@@ -234,6 +238,12 @@ section.lead {
     gap: 1rem;
 }
 
+.columns-1-5-1 {
+    display: grid;
+    grid-template-columns: 1fr 5fr 1fr;
+    gap: 1rem;
+}
+
 .columns-2-1 {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -244,7 +254,11 @@ section.lead {
     float: right;
 }
 
-.font-large{
+.font-small {
+    font-size: 16px;
+}
+
+.font-large {
     font-size: 35px;
 }
 
@@ -315,6 +329,18 @@ section.lead {
     background: var(--table-background);
     border: 1px solid var(--border);
     color: light-dark(var(--color-foreground), var(--nd-gold));
+}
+
+.framed-danger {
+    background: var(--table-background);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+}
+
+.framed-success {
+    background: var(--table-background);
+    border: 1px solid var(--success);
+    color: var(--success);
 }
 
 .primary {
