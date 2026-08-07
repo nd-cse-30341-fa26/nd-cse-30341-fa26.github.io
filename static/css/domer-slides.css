@@ -493,3 +493,19 @@ section.lead {
     color: var(--nord08);
     font-style: italic;
 }
+
+.hljs-title, .hljs-params {
+    color: var(--nord05);
+}
+
+.hljs-string, .hljs-number {
+    color: var(--nord11);
+}
+
+.hljs-type {
+    color: var(--nord14);
+}
+
+.hljs-built_in, .hljs-keyword {
+    color: var(--nord13);
+}
