@@ -18,7 +18,7 @@ install:	build
 	@rsync -av --progress --delete $(DOCROOT)/. $(WWWROOT)/.
 
 public/%.html:	slides/%.md $(THEME_CSS)
-	scripts/marp.sh --theme $(THEME_CSS) -o $@ $<
+	scripts/marp.sh --theme $(THEME_CSS) --html -o $@ $<
 
 public/static/pdf/%.pdf: slides/%.md $(THEME_CSS)
 	scripts/marp.sh --theme $(THEME_CSS) --pdf -o$@ $<
