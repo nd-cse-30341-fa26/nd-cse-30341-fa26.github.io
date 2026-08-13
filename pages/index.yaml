@@ -79,8 +79,8 @@ body:       |
     <i class="icon">{{ "email" | embed_icon }}</i> Mailing List
     : [fa26-cse-30341-01-group@nd.edu](mailto:fa26-cse-30341-01-group@nd.edu)
 
-    <i class="icon">{{ "chat-sleep-outline" | embed_icon }}</i> Zulip
-    : [#osp-fa26-class](https://zulip.ndlug.org/#narrow/channel/9-osp-fa26-class)
+    <i class="icon">{{ "slack" | embed_icon }}</i> Slack
+    : [#cse-30341-fa26](https://nd-cse.slack.com/messages/cse-30341-fa26)
 
     <i class="icon">{{ "github" | embed_icon }}</i> GitHub
     : [nd-cse-30341-fa26](https://github.com/nd-cse-30341-fa26)

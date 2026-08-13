@@ -115,8 +115,8 @@ theme: domer-slides
             <td><a href="https://yld.me/cse-30341-fa26">https://yld.me/cse-30341-fa26</a></td>
         </tr>
         <tr class="success-bg">
-            <td class="centered">Zulip</td>
-            <td><a href="https://zulip.ndlug.org">https://zulip.ndlug.org</a></td>
+            <td class="centered">Slack</td>
+            <td><a href="https://nd-cse.slack.com/messages/cse-30341-fa26">#cse-30341-fa26</a></td>
         </tr>
         <tr class="caution-bg">
             <td class="centered">Email</td>
