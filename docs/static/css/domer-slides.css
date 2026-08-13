@@ -258,6 +258,10 @@ section.lead {
     font-size: 16px;
 }
 
+.font-smaller {
+    font-size: 20px;
+}
+
 .font-large {
     font-size: 35px;
 }
