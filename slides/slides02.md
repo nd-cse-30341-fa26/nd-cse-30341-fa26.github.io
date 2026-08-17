@@ -42,7 +42,7 @@ theme: domer-slides
 
 ## <strong class="danger">Mainframe</strong>
 
-Process many jobs or tasks at once (*timesharing, transaction processing, batch*)
+Process many jobs or tasks at once (*time-sharing, transaction processing, batch*)
 
 <br>
 
@@ -297,8 +297,8 @@ run, output*).
 - <strong class="danger">Memory Protection</strong>: Disallow one task from **manipulating
   data** of another task
 
-- <strong class="caution">Timesharing</strong>: Split processing time among **multiple
-  users**
+- <strong class="caution">Time-Sharing</strong>: Split processing time among
+  **multiple users**
 
 </div>
 
