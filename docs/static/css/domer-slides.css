@@ -265,12 +265,16 @@ section.lead {
     float: right;
 }
 
-.font-small {
+.font-smallest {
     font-size: 16px;
 }
 
-.font-smaller {
+.font-small {
     font-size: 20px;
+}
+
+.font-smaller {
+    font-size: 24px;
 }
 
 .font-large {
