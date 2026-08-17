@@ -45,7 +45,7 @@ class="danger">operating system kernel</strong>.
 
 <div class="columns">
 
-<div class="font-smaller">
+<div class="font-small">
 
 - <strong class="caution">I/O operations</strong>
 
@@ -106,7 +106,7 @@ $ strace -e open ./program
 $ strace -c ./program
 ```
 
-<div class="centered font-smaller margin-top-0-5">
+<div class="centered margin-top-0-5">
 
 <a href="https://medium.com/@adminstoolbox/debugging-using-strace-efda7d65be1d"><img src="https://miro.medium.com/v2/resize:fit:640/format:webp/1*RhH4SczOSZ_dFUQ5id-4Fg.png" width=600 class="framed"></a>
 
@@ -163,7 +163,7 @@ class="warning">exceptions</strong> can cause a **transition** from <strong
 class="success">user mode</strong> to <strong class="danger">kernel
 mode</strong>:
 
-<table class="bordered font-smaller">
+<table class="bordered font-small">
 <thead>
     <th>Class</th>
     <th>Cause</th>

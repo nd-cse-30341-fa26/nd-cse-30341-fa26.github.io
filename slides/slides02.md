@@ -189,7 +189,7 @@ A **single** program running in **kernel** mode.
 
 </div>
 
-<div class="font-small margin-top-0-5">
+<div class="font-smallest margin-top-0-5">
 
 <div class="danger">
 
