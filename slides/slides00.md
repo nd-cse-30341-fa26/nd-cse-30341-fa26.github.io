@@ -125,11 +125,11 @@ theme: domer-slides
     </tbody>
 </table>
 
-**Note**: [Zulip] is our <strong class="success"> primary communications
+**Note**: [Slack] is our <strong class="success"> primary communications
 platform</strong> and you will be automatically be <strong
 class="danger">invited to appropriate the course channels</strong>.
 
-[Zulip]: https://zulip.ndlug.org
+[Slack]: https://nd-cse.slack.com
 
 </div>
 
