@@ -81,7 +81,7 @@
     --warning: var(--orange-dark);
     --danger: var(--red-dark);
     --special: var(--purple-dark);
-    --code: var(--purple-dark);
+    --code: var(--nd-green);
     --link: var(--nd-gold);
     --border: light-dark(var(--nd-gold), var(--nd-gold-light));
     --muted: light-dark(var(--nd-gray), var(--nd-warm-white));
@@ -297,6 +297,7 @@ input, select, option {
     height: 2.0rem;
     border: 1px solid var(--foreground);
     padding: 0 0.25rem;
+    background: white !important;
 }
 
 input:focus-visible,
@@ -462,7 +463,7 @@ div.footnote > hr {
 .info-bg {
     border-color: var(--info);
     color: var(--info);
-    background: color-mix(in srgb, var(--alert), var(--info) 25%);
+    background: color-mix(in srgb, var(--alert), var(--info) 15%);
 }
 
 .info-bg .icon {
@@ -484,7 +485,7 @@ div.footnote > hr {
 .success-bg {
     border-color: var(--success);
     color: var(--success);
-    background: color-mix(in srgb, var(--alert), var(--success) 25%);
+    background: color-mix(in srgb, var(--alert), var(--success) 15%);
 }
 
 .success-bg .icon {
@@ -502,7 +503,7 @@ div.footnote > hr {
 .caution-bg {
     border-color: var(--caution);
     color: var(--caution);
-    background: color-mix(in srgb, var(--alert), var(--caution) 25%);
+    background: color-mix(in srgb, var(--alert), var(--caution) 15%);
 }
 
 .caution {
@@ -524,7 +525,7 @@ div.footnote > hr {
 .warning-bg {
     border-color: var(--warning);
     color: var(--warning);
-    background: color-mix(in srgb, var(--alert), var(--warning) 25%);
+    background: color-mix(in srgb, var(--alert), var(--warning) 15%);
 }
 
 .warning-bg .icon {
@@ -546,7 +547,7 @@ div.footnote > hr {
 .danger-bg {
     border-color: var(--danger);
     color: var(--danger);
-    background: color-mix(in srgb, var(--alert), var(--danger) 25%);
+    background: color-mix(in srgb, var(--alert), var(--danger) 15%);
 }
 
 .danger-bg .icon {
@@ -568,7 +569,7 @@ div.footnote > hr {
 .special-bg {
     border-color: var(--special);
     color: var(--special);
-    background: color-mix(in srgb, var(--alert), var(--special) 25%);
+    background: color-mix(in srgb, var(--alert), var(--special) 15%);
 }
 
 .special-bg .icon {
