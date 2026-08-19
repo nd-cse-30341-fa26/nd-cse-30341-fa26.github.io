@@ -60,13 +60,13 @@
         <mxCell id="YGMtUhG-mClFSO1jFZ4w-23" edge="1" parent="1" source="YGMtUhG-mClFSO1jFZ4w-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="YGMtUhG-mClFSO1jFZ4w-8">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="YGMtUhG-mClFSO1jFZ4w-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Logic Design&lt;/b&gt;&lt;/font&gt;" vertex="1">
+        <mxCell id="YGMtUhG-mClFSO1jFZ4w-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Logic Design&lt;/b&gt;&lt;/font&gt;" vertex="1">
           <mxGeometry height="80" width="120" x="560" y="160" as="geometry" />
         </mxCell>
         <mxCell id="YGMtUhG-mClFSO1jFZ4w-30" edge="1" parent="1" source="YGMtUhG-mClFSO1jFZ4w-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="YGMtUhG-mClFSO1jFZ4w-10">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="YGMtUhG-mClFSO1jFZ4w-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Computer Architecture&lt;/b&gt;&lt;/font&gt;" vertex="1">
+        <mxCell id="YGMtUhG-mClFSO1jFZ4w-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Computer Architecture&lt;/b&gt;&lt;/font&gt;" vertex="1">
           <mxGeometry height="80" width="120" x="560" y="280" as="geometry" />
         </mxCell>
         <mxCell id="YGMtUhG-mClFSO1jFZ4w-24" edge="1" parent="1" source="YGMtUhG-mClFSO1jFZ4w-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="YGMtUhG-mClFSO1jFZ4w-10">
@@ -75,10 +75,10 @@
         <mxCell id="YGMtUhG-mClFSO1jFZ4w-27" edge="1" parent="1" source="YGMtUhG-mClFSO1jFZ4w-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="YGMtUhG-mClFSO1jFZ4w-11">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="YGMtUhG-mClFSO1jFZ4w-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Systems Programming&lt;/b&gt;&lt;/font&gt;" vertex="1">
+        <mxCell id="YGMtUhG-mClFSO1jFZ4w-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Systems Programming&lt;/b&gt;&lt;/font&gt;" vertex="1">
           <mxGeometry height="80" width="120" x="720" y="160" as="geometry" />
         </mxCell>
-        <mxCell id="YGMtUhG-mClFSO1jFZ4w-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Operating&amp;nbsp;&lt;/b&gt;&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;System Principles&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="YGMtUhG-mClFSO1jFZ4w-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Operating&lt;/b&gt;&lt;/font&gt;&lt;div&gt;&lt;b style=&quot;font-family: &amp;quot;JetBrains Mono&amp;quot;; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;System Principles&lt;/b&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="80" width="120" x="720" y="280" as="geometry" />
         </mxCell>
         <mxCell id="YGMtUhG-mClFSO1jFZ4w-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;b&gt;Programming Paradigms&lt;/b&gt;&lt;/font&gt;" vertex="1">
