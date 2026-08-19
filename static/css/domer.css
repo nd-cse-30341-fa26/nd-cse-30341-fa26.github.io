@@ -297,6 +297,7 @@ input, select, option {
     height: 2.0rem;
     border: 1px solid var(--foreground);
     padding: 0 0.25rem;
+    background: white !important;
 }
 
 input:focus-visible,
