@@ -186,11 +186,10 @@ body:   |
 
         <img src="static/img/reading01-bobbit-classroom.png" class="responsive">
 
-        This will create a **private** `assignments-NOTRE_DAME_NETID`
-        repository under your own account and linked to the [nd-cse-30341-fa26]
-        organization.
-
-        You will receive an email invitation to join the repository as a collaborator.
+        This will create a **private** `assignments-NOTRE_DAME_NETID` inside
+        the [nd-cse-30341-fa26] organization and invite your [GitHub] account
+        as a collaborator (*you must accept the email invitation to collaborate
+        on the repository*).
 
         <div class="alert caution-bg" markdown="1">
 
