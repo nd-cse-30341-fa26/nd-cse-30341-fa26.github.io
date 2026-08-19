@@ -607,7 +607,7 @@ body:   |
             $ git commit -m "Reading 01: Quiz"    # Commit quiz
 
             $ git add program.c                   # Add program.c to staging area
-            $ git commit -m "Reading 01: Program" # Commit program
+            $ git commit -m "Reading 01: Code"    # Commit program
 
             $ git push -u origin reading01        # Push branch to GitHub
 
