@@ -176,11 +176,9 @@ body:   |
     2.  <div class="flex-col">
 
         To **fork** the class **assignments** repository, you must message
-        **bobbit** on [Slack] a message in the following format:
+        **bobbit** on [Slack] a `!classroom` command in the following format:
 
-            ```
             !classroom cse-30341-fa26 assignments NOTRE_DAME_NETID GITHUB_USERNAME
-            ```
 
         The follow is an example of what the message should look like on [Slack]:
 
