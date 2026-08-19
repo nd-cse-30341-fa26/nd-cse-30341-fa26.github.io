@@ -1,0 +1,334 @@
+title:  "Reading 02: System Calls, Processes"
+body:   |
+
+    **Everyone**:
+
+    This week, we will review [system calls], which are the interfaces through
+    which user applications can request services from the operating system
+    kernel.  Instead of manipulating data directly on a hard drive or directly
+    controlling a CPU, we use the **abstractions** of a *file* and *process* to
+    perform our desired actions.  The OS *virtualizes* the physical resources
+    of a hard drive and a CPU and allows us to access these *virtual* objects
+    through [system calls] such as [open] and [fork].
+
+    These abstractions make it easier for us to program large applications by
+    hiding the low-level details of interacting with hardware and by allowing
+    our programs to be portable to different machines.  Of course, with any
+    layer of abstraction there is some **trade-off**, and this week we will
+    examine how operating systems virtualize the CPU via [processes] and how
+    the operating system provides [time sharing], different forms of
+    [multitasking], and what happens during a [context switch].
+
+    <div class="alert info-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "book" | embed_icon }}</i> TL;DR
+
+    For this reading assignment, you are to review basic [system calls] related
+    to [processes], submit your responses to the [Reading 02 Quiz], and write a
+    program that uses basic [file] system calls.
+
+    </div>
+
+    ## Reading
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+
+    The readings for this week are:
+
+    1.  <div class="flex-col">
+
+        [Operating Systems: Three Easy Pieces]
+
+        1. [Dialogue](http://pages.cs.wisc.edu/~remzi/OSTEP/dialogue-virtualization.pdf)
+        2. [Processes](http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf)
+        3. [Process API](http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf)
+        4. [Direct Execution](http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf)
+
+    </div>
+
+    <div class="flex-col" markdown="1">
+
+    ### Optional References
+
+    1.  <div class="flex-col">
+
+        [Beej's Guide to Unix IPC](https://beej.us/guide/bgipc/html/)
+
+        1. [A fork() Primer](https://beej.us/guide/bgipc/html/split/fork.html#fork)
+        2. [Signals](https://beej.us/guide/bgipc/html/split/signals.html#signals)
+
+    2.  <div class="flex-col">
+
+        [System Programming Wiki](https://github.com/angrave/SystemProgramming/wiki)
+
+        1. [Processes](https://github.com/angrave/SystemProgramming/wiki#2-processes)
+        2. [Signals](https://github.com/angrave/SystemProgramming/wiki#10-signals)
+
+    </div>
+
+    <div class="flex-col-25 centered" markdown="1">
+      <img src="static/img/ostep.jpg">
+    </div>
+
+    </div>
+
+    ### Optional AI Conversation
+
+    Using [Learn About from Google] (*or your preferred AI agent*), have a
+    conversation using the following prompts:
+
+    > 1. Explain what happens when a process is created on a unix system.
+
+    > 2. Describe the different states a process can be in on a unix system.
+
+    > 3. Summarize what happens during a system call.
+
+    > 4. Summarize what happens during a context switch.
+
+    As you explore, feel free to dive into any suggested related questions.
+
+    [Learn About from Google]: https://learning.google.com/experiments/learn-about
+
+    ## Quiz
+
+    Once you have done the **Readings**, answer the following [Reading 02 Quiz]
+    questions:
+
+    <div id="quiz-questions"></div>
+
+    <div id="quiz-responses"></div>
+
+    <script src="static/js/dredd-quiz.js"></script>
+    <script>
+    loadQuiz('static/json/reading02.json');
+    </script>
+
+    <pre style="display: none;" id="dr-container" class="codehilite"><code id="dredd-response"></code></pre>
+
+    ## Program
+
+    For this week's program, you are to modify the `program.c` to implement a
+    basic version of the [sha1sum] utility:
+
+    > Usage: program [file1 file2 ...]
+    >
+    > For each argument given to `program`, compute the [SHA1] digest of
+    > the contents of each file argument and display it.
+
+    The purpose of this exercise is for you to review using basic I/O [system
+    calls] such as [open], [read], and [close].  If you need a refresher, please
+    read [Files and
+    Directories](http://pages.cs.wisc.edu/~remzi/OSTEP/file-intro.pdf) from the
+    course textbook.
+
+    ### Example
+
+        :::bash
+        $ ./program Makefile  # Compute SHA1 of Makefile
+        e0b1114fd6dc86b34c1e3c7bf3a9f71757c55cae  Makefile
+
+        $ echo $?             # Check exit status
+        0
+
+        $ ./program asdf      # Handle invalid files
+        Unable to compute checksum for asdf
+
+        $ echo $?             # Check exit status
+        1
+
+    ### Requirements
+
+    - Your program must compile cleanly with no warnings.
+
+    - Your program may only use I/O system calls such as [open], [read], and
+      [close] to access the contents of each file.
+
+    - Your program must use the [EVP_MD_CTX_new], [EVP_DigestInit_ex],
+      [EVP_DigestUpdate], and [EVP_DigestFinal_ex] functions provided by
+      [OpenSSL].
+
+    - Your program must not have any resource leaks or memory errors as
+      detected by [valgrind].
+
+    <div class="alert danger-bg" markdown="1">
+    ### <i class="icon icon-medium">{{ "bug" | embed_icon }}</i> Error Checking
+
+    Make sure you always perform **error checking** for [system calls] (ie.
+    [open]) and functions (ie. [malloc]) that could fail.
+    </div>
+
+    Note, we are interested in computing the [SHA1] digest.
+
+    <div class="alert warning-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "alert" | embed_icon }}</i> OpenSSL Deprecation
+
+    Note that in [OpenSSL] 3.0, the `SHA1_Init`, `SHA1_Update`, and
+    `SHA1_Final` functions are deprecated and you should instead use the
+    [EVP_DigestInit_ex], [EVP_DigestUpdate], and [EVP_DigestFinal_ex] functions
+    to compute the raw [SHA1] digest of a buffer of bytes.
+
+    </div>
+
+    [EVP_MD_CTX_new]: https://docs.openssl.org/3.3/man3/EVP_DigestInit/
+    [EVP_DigestInit_ex]: https://docs.openssl.org/3.3/man3/EVP_DigestInit/
+    [EVP_DigestUpdate]: https://docs.openssl.org/3.3/man3/EVP_DigestInit/
+    [EVP_DigestFinal_ex]: https://docs.openssl.org/3.3/man3/EVP_DigestInit/
+
+    You will want your code to be structured in the following manner:
+
+        :::text
+        function sha1sum_file(path: string, cksum: string) -> bool:
+            Open file for reading (open)
+
+            Create and initialize context (EVP_MD_CTX_new)
+
+            Read data from file into data buffer and update context (read, EVP_DigestUpdate)
+
+            Compute raw SHA1 digest of data in buffer (EVP_DigestFinal_ex)
+
+            Convert raw SHA1 digest into hexadecimal cksum
+
+            Close file
+
+            Deallocate context
+
+        function main(arguments):
+            For each argument:
+                Compute hexadecimal SHA1 Digest using sha1sum_file
+                Display hexadecimal SHA1 Digest
+
+
+    To convert the raw [SHA1] digest into a **hexadecimal cksum**, you can use
+    the following code snippet:
+
+        :::c
+        /* Convert raw SHA1 digest into hexadecimal cksum */
+        for (int b = 0; b < SHA_DIGEST_LENGTH; b++) {
+            snprintf(cksum + 2*b, 3, "%02x", digest[b]);
+        }
+
+    <div class="alert warning-bg" markdown="1">
+
+    **Note**: To link properly to the [OpenSSL] functions, you will need to add
+      `-lcrypto` to the `LIBS` variable in your `Makefile`.
+
+    </div>
+
+    <div class="alert danger-bg" markdown="1">
+    **Note**: You will want to return `0` if all arguments were able to be processed
+    successfully.  Otherwise, return the **number of files that failed** as the
+    **exit status**.
+    </div>
+
+    ## Submission
+
+    To submit your work, follow the same process outlined in [Reading 01]:
+
+        :::bash
+        $ git switch master                   # Make sure we are in master branch
+
+        $ git pull --rebase                   # Make sure we are up-to-date with GitHub
+
+        $ git switch -c reading02             # Create reading02 branch and switch to it
+
+        $ cd reading02                        # Go into reading02 folder
+        $ $EDITOR answers.json                # Edit your answers.json file
+
+        $ ../.scripts/check.py                # Check reading02 quiz
+        Checking reading02 quiz ...
+              Q1  5.00 /  5.00
+              Q2  3.00 /  3.00
+              Q3  4.00 /  4.00
+              Q4  3.00 /  3.00
+              Q5  7.00 /  7.00
+              Q6  5.00 /  5.00
+              Q7  3.00 /  3.00
+          --------------------
+           Score 30.00 / 30.00
+           Grade  1.00 /  1.00
+          Status Success
+
+        $ git add answers.json                # Add answers.json to staging area
+        $ git commit -m "Reading 02: Quiz"    # Commit work
+
+        $ $EDITOR program.c                   # Edit your program.c file
+
+        $ make test-program                   # Check reading02 program
+        Testing reading02 program...
+         I/O System Calls                                             ... Success
+         I/O Functions                                                ... Success
+         Memory Functions                                             ... Success
+         Crypto Functions                                             ... Success
+         program                                                      ... Success
+         program Makefile                                             ... Success
+         program Makefile README.md                                   ... Success
+         program Makefile README.md program.c                         ... Success
+         program Makefile README.md program.c asdf                    ... Success
+         program Makefile asdf README.md program.c fsda               ... Success
+         program Makefile README.md /bin/ls /bin/bash                 ... Success
+           Score 11.00 / 11.00
+           Grade  1.00 /  1.00
+          Status Success
+
+        $ git add program.c                   # Add program.c to staging area
+        $ git add Makefile                    # Add Makefile to staging area
+        $ git commit -m "Reading 02: Code"    # Commit work
+
+        $ git push -u origin reading02        # Push branch to GitHub
+
+    <div class="alert warning-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "lifebuoy" | embed_icon }}</i> Acknowledgments
+
+    If you collaborated with any other students, or received help from TAs or AI
+    tools on this assignment, please record this support in the `README.md` in
+    the `reading01` folder and include it with your **Pull Request**.
+
+    </div>
+
+    <div class="alert success-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "account-question" | embed_icon }}</i> Graders
+
+    Once you have committed your work and pushed it to [GitHub], remember to
+    create a **pull request** and assign it to the appropriate **teaching
+    assistant** from the [Reading 02 TA List].
+
+    **Note**: this list changes each week, so be sure to consult the appropriate
+    list for each assignment.
+
+    </div>
+
+    [Operating Systems: Three Easy Pieces]: http://pages.cs.wisc.edu/~remzi/OSTEP/
+    [Reading 01]: reading01.html
+    [Reading 02 Quiz]: static/json/reading02.json
+    [Reading 02 TA List]: reading02_tas.html
+    [JSON]: http://www.json.org/
+    [git-branch]: https://git-scm.com/docs/git-branch
+    [dredd]: https://dredd.h4x0r.space
+    [GitHub]: https://github.com
+    [valgrind]: https://www.valgrind.org/
+
+    [system calls]: https://en.wikipedia.org/wiki/System_call
+    [file]: https://en.wikipedia.org/wiki/Computer_file
+    [directories]: https://en.wikipedia.org/wiki/Directory_(computing)
+    [processes]: https://en.wikipedia.org/wiki/Process_(computing)
+    [signals]: https://en.wikipedia.org/wiki/Signal_(IPC)
+    [open]: http://man7.org/linux/man-pages/man2/open.2.html
+    [fork]: http://man7.org/linux/man-pages/man2/fork.2.html
+    [read]: https://man7.org/linux/man-pages/man2/read.2.html
+    [stat]: https://man7.org/linux/man-pages/man2/stat.2.html
+    [malloc]: https://man7.org/linux/man-pages/man3/malloc.3.html
+    [close]: https://www.man7.org/linux/man-pages/man2/close.2.html
+    [SHA1]: https://en.wikipedia.org/wiki/SHA-1
+    [SHA1()]: https://docs.openssl.org/3.0/man3/SHA256_Init/
+    [processes]: https://en.wikipedia.org/wiki/Process_(computing)
+    [time sharing]: https://en.wikipedia.org/wiki/Time-sharing
+    [multitasking]: https://en.wikipedia.org/wiki/Computer_multitasking
+    [context switch]: https://en.wikipedia.org/wiki/Context_switch
+    [OpenSSL]: https://www.openssl.org/
+    [sha1sum]: https://man7.org/linux/man-pages/man1/sha1sum.1.html
+    [StackOverflow]: https://stackoverflow.com
