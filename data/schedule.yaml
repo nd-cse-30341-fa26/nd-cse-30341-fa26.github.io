@@ -221,7 +221,7 @@
 
 - name:     Exam 04
   days:
-      - date:           XXX 12/XX
+      - date:           Mon 12/14
         topics:         ''
         items:
           - name:       Exam 04
