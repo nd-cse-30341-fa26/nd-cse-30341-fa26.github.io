@@ -178,6 +178,7 @@ body:   |
         To **fork** the class **assignments** repository, you must message
         **bobbit** on [Slack] a `!classroom` command in the following format:
 
+            # Send Bobbit this command in a private message
             !classroom cse-30341-fa26 assignments NOTRE_DAME_NETID GITHUB_USERNAME
 
         The follow is an example of what the message should look like on [Slack]:
