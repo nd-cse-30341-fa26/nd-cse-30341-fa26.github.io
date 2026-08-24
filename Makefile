@@ -20,8 +20,8 @@ install:	build
 public/%.html:	slides/%.md $(THEME_CSS)
 	scripts/marp.sh --theme $(THEME_CSS) --html -o $@ $<
 
-public/static/pdf/%.pdf: slides/%.md $(THEME_CSS)
-	scripts/marp.sh --theme $(THEME_CSS) --pdf -o$@ $<
+static/pdf/%.pdf: slides/%.md $(THEME_CSS)
+	scripts/marp.sh --theme $(THEME_CSS) --pdf -o $@ $<
 
 clean:
 	@echo Cleaning...
