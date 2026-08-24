@@ -39,6 +39,9 @@
   icon:     account-question
   netid:    sneisewa
   github:   samneisewanderND
+  conflicts:
+    - hbutusov
+    - kfine
 
 - name:     Norah Swatland
   role:     Teaching Assistant
