@@ -1,5 +1,5 @@
 ---
-title: "Lecture 01: Computer Hardware, Boot Sequence"
+title: "Slides 01: Computer Hardware, Boot Sequence"
 description: "Computer Hardware, Boot Sequence"
 author: Peter Bui
 keywords: lecture,osp,hardware,boot

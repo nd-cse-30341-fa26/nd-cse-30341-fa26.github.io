@@ -1,5 +1,5 @@
 ---
-title: "Lecture 04: Processes"
+title: "Slides 04: Processes"
 description: "Processes"
 author: Peter Bui
 keywords: lecture,osp,processes

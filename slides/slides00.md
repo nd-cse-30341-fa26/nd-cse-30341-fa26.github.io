@@ -1,5 +1,5 @@
 ---
-title: "Lecture 00: Syllabus"
+title: "Slides 00: Syllabus"
 description: "Course Syllabus for CSE 30341 Operating System Principles (Fall 2026)"
 author: Peter Bui
 keywords: lecture,osp,syllabus

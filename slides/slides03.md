@@ -1,5 +1,5 @@
 ---
-title: "Lecture 03: System Calls"
+title: "Slides 03: System Calls"
 description: "System Calls"
 author: Peter Bui
 keywords: lecture,osp,system calls

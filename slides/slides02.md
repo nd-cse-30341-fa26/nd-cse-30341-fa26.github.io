@@ -1,5 +1,5 @@
 ---
-title: "Lecture 02: OS Taxonomy, History, Themes"
+title: "Slides 02: OS Taxonomy, History, Themes"
 description: "OS Taxonomy, History, and Themes"
 author: Peter Bui
 keywords: lecture,osp,taxonomy,history,themes
