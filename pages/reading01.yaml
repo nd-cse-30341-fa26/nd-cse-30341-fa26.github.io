@@ -86,7 +86,7 @@ body:   |
     "closed notes", "closed computer", but "open mind".
 
     Finally, in the days before each **exam**, there will be an in-person
-    **interview** with a teaching assistant or with the instructure where you
+    **interview** with a teaching assistant or with the instructor where you
     will have the opportunity to demonstrate your knowledge of the **project**
     and to discuss what you learned from the experience.
 
@@ -111,8 +111,8 @@ body:   |
     ## Task 0: Python
 
     Throughout the semester, we will be using [Python 3] for a variety of
-    purposes. Because the student machines an older version of [Python 3] by default,
-    you will need to add the following line to your `~/.bashrc` file:
+    purposes. Because the **student machines** provide an older version of [Python 3]
+    by default, you will need to add the following line to your `~/.bashrc` file:
 
         export PATH=/escnfs/home/pbui/pub/pkgsrc/bin:$PATH
 
