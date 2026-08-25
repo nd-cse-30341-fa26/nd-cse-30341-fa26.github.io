@@ -180,6 +180,11 @@ img {
     border: 1px solid var(--border);
 }
 
+img.transparent {
+    background: none;
+    border: 0px;
+}
+
 svg {
     vertical-align: text-top;
 }
@@ -455,8 +460,16 @@ div.footnote > hr {
     }
 }
 
+.primary {
+    color: var(--primary);
+}
+
 .primary-btn {
     background-color: var(--primary);
+}
+
+.info {
+    color: var(--info);
 }
 
 .info-bg {
@@ -581,6 +594,10 @@ div.footnote > hr {
 
 .special-btn {
     background-color: var(--special);
+}
+
+.gold {
+    color: var(--nd-gold);
 }
 
 .muted {
