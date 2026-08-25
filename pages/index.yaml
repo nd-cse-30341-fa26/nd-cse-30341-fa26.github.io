@@ -71,7 +71,7 @@ body:       |
     : **T/TH** 9:30 AM - 10:45 AM
 
     <i class="icon">{{ "map-marker" | embed_icon }}</i> Location
-    : **126** DeBartolo Hall
+    : **136** DeBartolo Hall
 
     <i class="icon">{{ "video" | embed_icon }}</i> Zoom Meeting
     : [927 9403 8154](https://notredame.zoom.us/j/92794038154)
