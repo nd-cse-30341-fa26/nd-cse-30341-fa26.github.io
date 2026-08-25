@@ -9,6 +9,8 @@
         items:
           - name:       Slides 00
           - name:       Slides 01
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=77dc45ab-438f-41d3-acef-b4b100fd01e3
 
       - date:           Thu 08/27
         topics:         OS Taxonomy, History, Themes
