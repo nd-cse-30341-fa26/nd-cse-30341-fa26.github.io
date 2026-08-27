@@ -1,0 +1,424 @@
+title:  "Notes 02: OS Taxonomy, History, Themes"
+body:   |
+
+  ## Logistics
+
+  - [Linux is 35 YRO](https://www.zdnet.com/article/just-a-hobby-linus-torvalds-introduced-linux-35-years-ago-almost-called-it-freax/)
+
+  -   <div class="flex-col" markdown="1">
+
+      [Project 01](project01.html)
+
+      - Due Dates, grace periods
+      - System Calls and Forking
+      - Create a bunch of tasks and manage them (*scheduling*)
+
+      - **Deliverables**: Video (*Reflect and think*), Individual Quiz
+      (*Foreshadoing exam questions*), Interview (*System Design*)
+
+      - **Brainstorming**: Not required, but should help guide
+
+  ## OS Taxonomy: <span class="gold">By Purpose</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="danger">Mainframe</span>
+
+  Process many jobs or tasks at once (*time-sharing, transaction processing, batch*)
+
+  <div class="centered">
+      <img src="https://images.computerhistory.org/revonline/images/500004505-03-01.jpg?w=400" class="responsive">
+  </div>
+
+  <div class="alert info-bg" markdown="1">
+
+  **COBOL** still alive today.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="success">Server</span>
+
+  Provide services to multiple users (*print, filesharing, web, etc.*)
+
+  <div class="centered">
+      <img src="https://i.dell.com/is/image/DellContent//content/dam/images/products/servers/poweredge/r440/dellemc-per440-8x2-5-lcd-above-ff.psd?fmt=png-alpha&pscan=auto&scl=1&hei=402&wid=1344&qlt=100,1&resMode=sharp2&size=1344,402&chrss=full" class="transparent responsive">
+  </div>
+
+  <div class="alert success-bg" markdown="1">
+
+  **Optimize** for **high throughput**.
+
+  </div>
+
+  </div>
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="special">Personal</span>
+
+  Support a single user (like your *laptop* or *desktop*)
+
+  <div class="centered">
+      <img src="https://i.dell.com/is/image/DellContent//content/dam/ss2/product-images/dell-client-products/notebooks/latitude-notebooks/14-7420-2in1/media-gallery/la7420t_ctb_00030rf120_bk_5000x5000_gettyimages-1197597312_revised.psd?fmt=png-alpha&pscan=auto&scl=1&wid=4652&hei=2777&qlt=100,1&resMode=sharp2&size=4652,2777&chrss=full&imwidth=420" class="transparent responsive">
+  </div>
+
+  <div class="alert success-bg" markdown="1">
+
+  **Optimize** for **low latency**.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="caution">Handheld</span>
+
+  Usually found in *PDAs* or *mobile phones*
+
+  <div class="centered">
+      <img src="https://p4-ofp.static.pub//fes/cms/2024/08/28/82b5rafgf57ap23fcdgtk1i9hxek5u880251.png" class="transparent responsive">
+  </div>
+
+  <div class="alert success-bg" markdown="1">
+
+  **Optimize** for **low power/heat**.
+
+  </div>
+
+  </div>
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="primary">Embedded</span>
+
+  Run on resource constrained devices that are not usually used for general
+  purpose computing (*TVs, cars, microwaves, etc.*)
+
+  <div class="centered">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/QNX-Logo-QNX-CORAL-RGB.svg/960px-QNX-Logo-QNX-CORAL-RGB.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail" class="transparent responsive">
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="warning">Real-time</span>
+
+  Provide absolute guarantees that a certain action will occur by a certain time.
+
+  <div class="centered">
+  <img src="https://www.windriver.com/sites/default/files/styles/hero_1024x480/public/posts/VxWorks-logo.png?itok=v8iPm_Lb" class="transparent responsive">
+  </div>
+
+  <div class="alert info-bg" markdown="1">
+
+  **Optimize** for **reliability / consistency**.
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## OS Taxonomy: <span class="gold">By Structure</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="danger">Monolithic</span>
+
+  A **single** program running in **kernel** mode.
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="success">Microkernel</span>
+
+  **Multiple** programs working together with the help of a *privileged*
+  **intermediary**.
+
+  </div>
+
+  </div>
+
+  <div class="centered">
+
+  <a title="Wooptoo, Public domain, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:OS-structure.svg"><img alt="Différences entre systèmes d&#039;exploitation à noyau monolithique et à micro-noyau" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/OS-structure.svg/960px-OS-structure.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail" class="transparent responsive"></a>
+
+  </div>
+
+  ## OS Taxonomy: <span class="gold">Tanenbaum vs Torvalds</span>
+
+  -   <div class="flex-col">
+
+      Who won? **Both?**
+
+      - *Minix* is used in [Intel Management Engine](https://en.wikipedia.org/wiki/Intel_Management_Engine)
+
+      - *macOS*, *Windows* are *hybrid*.
+
+      - Talk is cheap.  Show me the code -- **Linus**
+
+      - Performance matters.
+
+  ## OS History: <span class="gold">Numerical Analysis</span>
+
+  <div class="centered">
+
+  <img src="https://media.datacenterdynamics.com/media/images/eniac4.width-880.png" class="transparent responsive">
+
+  The <strong class="caution">operating system</strong> did not exist yet...
+
+  </div>
+
+  <div class="alert info-bg" markdown="1">
+
+  **Vacuum Tubes**.
+
+  </div>
+
+  ## OS History: <span class="gold">Batch Computing</span>
+
+  <div class="centered">
+
+  <iframe width="450" height="240" src="https://www.youtube.com/embed/1C5lc2GIisQ" title="Hidden Figures Scene: Dorothy fixes the IBM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+  <br>
+
+  <strong class="caution">Operating systems</strong> (*usually some sort of library*) were
+  charged with <strong class="success">processing batches of tasks</strong> (*compile, load,
+  run, output*).
+
+  </div>
+
+  <div class="alert info-bg" markdown="1">
+
+  **Transistor**.
+
+  </div>
+
+  <div class="alert caution-bg" markdown="1">
+
+  Idea of a minimal **kernel** lives on in **exokernel** or **rumpkernel**
+  projects.
+
+  </div>
+
+  ## OS History: <span class="gold">Multiprogramming</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  - <strong class="success">Multiprogramming</strong>: Enable multiple tasks to
+  run **concurrently**
+
+  - <strong class="danger">Memory Protection</strong>: Disallow one task from
+  **manipulating data** of another task
+
+  - <strong class="caution">Time-Sharing</strong>: Split processing time among
+  **multiple users**
+
+  <div class="alert info-bg" markdown="1">
+
+  **Integrated circuit**.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <img src="https://gunkies.org/w/images/1/14/CISLMultics.jpg" class="transparent responsive" alt="Multics">
+
+  <img src="https://cdn-blog.adafruit.com/uploads/2022/03/Untitled-55.png" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## OS History: <span class="gold">Personal Computers</span>
+
+  <div class="centered">
+
+  <img src="static/img/slides02-os-family-tree.png" class="transparent responsive">
+
+  </div>
+
+  ## OS Themes: <span class="gold">An Operating System is...</span>
+
+  A <strong class="caution">body of software</strong> that enables other programs
+  to interact with each other and the <strong class="info">physical hardware
+  resources</strong> in an efficient manner.  To do this, it utilizes:
+
+  - <strong class="success">Virtualization</strong>
+
+  - <strong class="danger">Concurrency</strong>
+
+  - <strong class="info">Persistence</strong>
+
+  ## OS Themes: <span class="gold">Virtualization</span>
+
+  This is when the <strong class="caution">OS</strong> takes a <strong
+  class="info">physical resource</strong> and transforms it into a more
+  general, powerful, and easy-to-use <strong
+  class="success">abstraction</strong>.
+
+  ```bash
+  # Create spin script
+  $ cat > spin.sh <<EOF
+  #!/bin/sh
+  while true; do
+      echo $1
+      sleep 1
+  done
+  EOF
+
+  # Make script executable
+  $ chmod +x spin.sh
+
+  # Run multiple processes
+  $ ./spin.sh A & \
+    ./spin.sh B & \
+    ./spin.sh C & \
+    ./spin.sh D
+  ```
+
+  <div class="alert info-bg centered" markdown="1">
+
+  What is being **virtualized**?
+
+  **CPU (*HW*)** -> **Process (*Abstraction*)**
+
+  </div>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  Do you observe anything **weird** with the **output**?
+
+  **CPU (*HW*)** -> **Process (*Abstraction*)**
+
+  </div>
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  How do we **stop** the **processes**?
+
+  pkill -9 spin.sh
+
+  </div>
+
+  ## OS Themes: <span class="gold">Concurrency</span>
+
+  This is when you have multiple tasks <strong
+  class="success">executing</strong> and <strong class="caution">utilizing
+  resources</strong> in **overlapping time periods**.
+
+  ```bash
+  # Create inc script
+  $ cat > inc.sh <<EOF
+  #!/bin/sh
+  [ ! -r count ] && echo 0 > count  # Test command, short circuit evaluation
+
+  while true; do
+      c=$(cat count)                # Command substitution
+      echo $(($c + 1)) | tee count  # Arithmetic, pipelining
+      sleep 1
+  done
+  EOF
+
+  # Run multiple processes
+  $ ./inc.sh A & \
+    ./inc.sh B & \
+    ./inc.sh C & \
+    ./inc.sh D
+  ```
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  Do you notice any **issues** when running **concurrently**?
+
+  **Repeats** due to **race condition**
+
+  </div>
+
+  ## OS Themes: <span class="gold">Persistence</span>
+
+  This is the ability to <strong class="caution">access</strong> and <strong
+  class="warning">store</strong> data in a <strong
+  class="success">reliable</strong> and <strong
+  class="success">efficient</strong> manner.
+
+  ```c
+  // For each command line argument, open the file and
+  // perform cat on the file descriptor
+  int main(int argc, char *argv[]) {
+      if (argc == 1) return cat_fd(STDIN_FILENO);
+
+      int result = 0;
+      for (int i = 1; i < argc; i++) {
+          int fd  = open(argv[i], O_RDONLY);
+          result += (fd >= 0) ? cat_fd(fd) : EXIT_FAILURE;
+      }
+
+      return result;
+  }
+
+  // Read a chunk from the file descriptor and
+  // write it to stdout
+  int cat_fd(int fd) {
+      char buffer[BUFSIZ];
+      int nread;
+
+      while ((nread = read(fd, buffer, BUFSIZ)) > 0) {
+          // TODO: Check if write fails
+          write(STDOUT_FILENO, buffer, nread);
+      }
+
+      return close(fd);
+  }
+  ```
+
+  <div class="alert info-bg centered" markdown="1">
+
+  How to check which **system calls** are used?
+
+  **strace**
+
+  </div>
+
+  ## OS Themes: <span class="gold">Hardware / OS Symbiosis</span>
+
+  Computer <strong class="info">hardware</strong> provides both <strong
+  class="danger">limitations</strong> and <strong
+  class="success">opportunities</strong> for the <strong
+  class="caution">operating system</strong>, which is in charge of managing these
+  resources efficiently on behalf of the <strong
+  class="special">applications</strong>.
+
+  <div class="centered">
+  <img src="static/img/house-of-cards.png" class="responsive transparent">
+  </div>
+
+  As <strong class="info">hardware</strong> evolves, so must the <strong
+  class="caution">operating system</strong> in order for it to take advantage of
+  new developments and expose them to <strong
+  class="special">applications</strong>.
+
