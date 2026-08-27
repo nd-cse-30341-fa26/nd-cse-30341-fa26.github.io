@@ -181,7 +181,7 @@ body:   |
             # Send Bobbit this command in a private message
             !classroom cse-30341-fa26 assignments NOTRE_DAME_NETID GITHUB_USERNAME
 
-        The follow is an example of what the message should look like on [Slack]:
+        The following is an example of what the message should look like on [Slack]:
 
         <img src="static/img/reading01-bobbit-classroom.png" class="responsive">
 
