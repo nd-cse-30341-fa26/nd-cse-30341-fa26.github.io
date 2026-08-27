@@ -272,7 +272,7 @@ The <strong class="caution">operating system</strong> did not exist yet...
 
 ---
 
-# OS History: <span class="gold">Batch Systems</span>
+# OS History: <span class="gold">Batch Computing</span>
 
 <div class="centered margin-top-0-5">
 
