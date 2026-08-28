@@ -232,17 +232,14 @@ body:       |
 
     1. **Students**: This should be your name and email address.
 
-    2. **Video**: This should have the link to your **reflection video**
-      (described below).
-
-    3. **Brainstorming**: This contains questions that should help you design
+    2. **Brainstorming**: This contains questions that should help you design
       and plan your approach to the project.  You do not need to fill these
       out, but they are meant to be helpful.
 
-    4. **Errata**: This should contain a description of any known errors or
+    3. **Errata**: This should contain a description of any known errors or
     deficiencies in your implementation.
 
-    5. **Acknowledgments**: This should list anyone you collaborated with or
+    4. **Acknowledgments**: This should list anyone you collaborated with or
       received help from (including TAs, students, and AI tools).
 
     You must complete this document report as part of your project.
@@ -536,39 +533,6 @@ body:       |
     If necessary, you should not hesitate in create your own additional test
     programs or scripts to facilitate verification and debugging.
 
-    ## Reflection
-
-    To reflect on the project and the concepts involved, you will need to
-    create a group video demonstration of your software artifact and complete
-    an individual quiz (*each member will submit their own answers to their own
-    private assignments repository*).
-
-    ### Video Demonstration
-
-    As part of your grade, your group will need to create a video that
-    demonstrates and discusses the following:
-
-    1. Your project passing the automated tests.
-
-    2. Your project working with manual input.
-
-    3. Any errata, quirks, or unresolved issues in your project.
-
-    4. What you learned by doing this project.
-
-    <div class="alert info-bg" markdown="1">
-    **Note**: The video should include narration to describe what is being
-    presented and should cover the requirements enumerated above. It should
-    be no longer than **5** minutes.
-    </div>
-
-    <div class="alert warning-bg" markdown="1">
-    ### <i class="icon icon-medium">{{ "video" | embed_icon }}</i> Video Link
-
-    Please upload the video to either [YouTube] or [Google Drive] and provide a
-    link to it in your `README.md`.
-    </div>
-
     ### Individual Quiz
 
     Once you have completed the project, answer the following [Project 01 Quiz]
@@ -666,53 +630,35 @@ body:       |
         </td>
         <td class="centered">
           <div class="flex-col">
-          <p><b>2.00</b></p>
-            <p><b><i>0.25</i></b></p>
+          <p><b>3.00</b></p>
+            <p><b><i>0.40</i></b></p>
               <p><i>0.10</i></p>
-              <p><i>0.05</i></p>
-              <p><i>0.05</i></p>
-              <p><i>0.05</i></p>
-            <p><b><i>0.50</i></b></p>
+              <p><i>0.10</i></p>
+              <p><i>0.10</i></p>
+              <p><i>0.10</i></p>
+            <p><b><i>0.60</i></b></p>
+              <p><i>0.30</i></p>
               <p><i>0.20</i></p>
-              <p><i>0.25</i></p>
-              <p><i>0.05</i></p>
-            <p><b><i>1.25</i></b></p>
-              <p><i>0.25</i></p>
-              <p><i>0.25</i></p>
-              <p><i>0.25</i></p>
-              <p><i>0.25</i></p>
-              <p><i>0.25</i></p>
+              <p><i>0.10</i></p>
+            <p><b><i>2.00</i></b></p>
+              <p><i>0.30</i></p>
+              <p><i>0.30</i></p>
+              <p><i>0.40</i></p>
+              <p><i>0.40</i></p>
+              <p><i>0.60</i></p>
             </div>
         </td>
       </tr>
-      <tr class="caution-bg">
+      <tr class="info-bg">
         <td class="flex-col">
         <strong>Reflection</strong>
         <ol>
-          <li>
-          <div class="flex-col">
-          <b>Group Video Demonstration</b>
-          <ul>
-            <li>Exhibits reasonable audio and video quality</li>
-            <li>Demonstrates passing automated tests</li>
-            <li>Demonstrates working with manual input</li>
-            <li>Discusses errata, quirks, or unresolved issues</li>
-            <li>Discusses what the group learned from the project</li>
-          </ul>
-          </div>
-          </li>
           <li><b>Individual Quiz</b></li>
         </ol>
         </td>
         <td class="centered">
           <div class="flex-col">
-            <p><b>2.00</b></p>
-              <p><b><i>1.00</i></b>
-                <p><i>0.20</i></p>
-                <p><i>0.20</i></p>
-                <p><i>0.20</i></p>
-                <p><i>0.20</i></p>
-                <p><i>0.20</i></p>
+            <p><b>1.00</b></p>
               <p><b><i>1.00</i></b></p>
             </div>
         </ol>
