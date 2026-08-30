@@ -228,7 +228,7 @@ A <strong class="success">process</strong> can be in one of the following
 
 <div class="columns-1-2">
 
-<div class="font-smaller">
+<div class="font-small">
 
 1. <strong class="success">Parent process</strong> [forks] to create a new
    <strong class="warning">child process</strong>.
@@ -435,13 +435,11 @@ particular **event**, use [sigaction].
 
 ```c
 // Register handler for SIGINT
-struct sigaction sa = {
-    .sa_handler = sigint_handler
-};
+struct sigaction sa = {.sa_handler = handler};
 sigaction(SIGINT, &sa, NULL);
 
 // Handle SIGINT event
-void sigint_handler(int signum) {
+void handler(int signum) {
     puts("Can't stop!  Won't stop!");
 }
 ```
@@ -471,13 +469,11 @@ terminated.
 
 ```c
 // Register handler for SIGCHLD
-struct sigaction sa = {
-    .sa_handler = sigchld_handler
-};
+struct sigaction sa = {.sa_handler = handler};
 sigaction(SIGCHLD, &sa, NULL);
 
 // Handle SIGCHLD event
-void sigchld_handler(int signum) {
+void handler(int signum) {
     puts("Waiting for terminated child");
     wait(NULL);
 }
