@@ -149,7 +149,7 @@ class="danger">invited to appropriate the course channels</strong>.
     <tr class="info-bg">
       <td class="centered"><span class="badge primary-btn">Readings</span></td>
       <td>Weekly individual assignments.</td>
-      <td class="centered">11 &times; 1</td>
+      <td class="centered">10 &times; 1</td>
     </tr>
     <tr class="caution-bg">
       <td class="centered"><span class="badge caution-btn">Projects</span></td>
