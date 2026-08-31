@@ -172,7 +172,7 @@ code {
     color: var(--code);
     background: transparent !important;
     font-weight: bold;
-    font-size: 1.0rem;
+    font-size: 1.0em;
     padding: 0px;
     margin: 0px;
 }
