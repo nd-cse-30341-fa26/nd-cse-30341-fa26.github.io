@@ -1,0 +1,416 @@
+title:  "Notes 03: System Calls"
+body:   |
+
+  ## Review
+
+  - <div class="flex-col" markdown="1">
+
+      What is an <strong class="caution">operating system</strong>?
+
+      - **Taxonomy**: (*purpose*)
+
+      - **Structure**: (*monolithic vs microkernel*)
+
+  - <div class="flex-col" markdown="1">
+
+      Three big themes of <strong class="caution">operating systems</strong>.
+
+      - <strong class="success">Virtualization</strong>: Abstract hardware (*eg.
+      processes -> CPU*)
+
+      - <strong class="danger">Concurrency</strong>: Multiple things happen at
+      once... **race conditions**
+
+      - <strong class="info">Persistence</strong>: Ensure data remains available
+
+  - <strong class="warning">System Calls</strong>: How <strong
+  class="special">applications</strong> interact with the <strong
+  class="caution">operating system</strong>.
+
+  ## Review: <span class="gold">House of Cards</span>
+
+  <div class="centered">
+
+  <img src="static/img/slides00-house-of-cards.png" class="transparent responsive">
+
+  </div>
+
+  ## System Call: <span class="gold">Overview</span>
+
+  A <strong class="info">system call</strong> occurs when a
+  <strong class="special">user application</strong> requests a
+  <strong class="warning">service or resource</strong> from the
+  <strong class="caution">operating system kernel</strong>.
+
+  <table class="bordered centered">
+  <tbody>
+  <tr class="success-bg">
+    <td height="60px"><b>I/O</b></td><td>open, read, write, close, lseek</td>
+  </tr>
+  <tr class="caution-bg">
+    <td height="60px"><b>File</b></td><td>stat, chmod, chown, unlink</td>
+  </tr>
+  <tr class="info-bg">
+    <td height="60px"><b>Directory</b></td><td>opendir, readdir, closedir</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  To track the <strong class="warning">system calls</strong> made by an
+  application, we can use: <strong class="info">strace</strong>.
+
+  </div>
+
+  <div class="alert info-bg centered" markdown="1">
+
+  Many of the utilities we use are thin wrappers for system calls: [chmod], [stat].
+
+  </div>
+
+  ```bash
+  $ strace chmod -x hello         # Thin wrapper
+  $ strace ls                     # More complex wrapper
+  ```
+
+  <div class="alert special-bg" markdown="1">
+
+  To see API definitions of <strong class="warning">system calls</strong>, look
+  at:
+
+  - `/usr/include/bits/syscall.h`
+  - `/usr/include/asm/unistd_{32,64}.h`
+
+  </div>
+
+  ```bash
+  $ grep -R waitpid /usr/include  # Search for waitpid number
+  ```
+
+  [chmod]: https://man7.org/linux/man-pages/man2/chmod.2.html
+  [stat]: https://man7.org/linux/man-pages/man2/stat.2.html
+
+  ## System Call: <span class="gold">Demonstration</span>
+
+  ```c
+  /* hello.c */
+  #include <stdlib.h>
+  #include <unistd.h>
+
+  int main() {                // man 2 write
+      write(STDOUT_FILENO, "hello, world\n", 13);
+      exit(0);
+  }
+  ```
+
+  ```asm
+  .section    .data
+  string:
+      .ascii  "hello, world\n"
+  string_end:
+      .equ len, string_end - string
+
+  .section    .text
+  .globl      main
+  main:
+      # write(1, "hello, world\n", 13)
+      movl    $4, %eax        # System call number 4
+      movl    $1, %ebx        # stdout has file descriptor 1
+      movl    $string, %ecx   # hello, world string
+      movl    $len, %edx      # string length
+      int     $0x80           # Trap
+
+      # exit(0)
+      movl    $1, %eax        # System call number 1
+      movl    $0, %ebx        # Argument is 0
+      int     $0x80           # Trap
+  ```
+
+  <div class="alert warning-bg" markdown="1">
+
+  To request **system call**:
+
+  1. Record **system call number** in appropriate register.
+
+  2. Record **argument(s)** in appropriate register(s).
+
+  3. Trigger the **interrupt / trap**.
+
+  ```bash
+  $ strace ./hello-asm  # Doesn't work b/c it's 32-bit!!!
+  ```
+
+  </div>
+
+  ```
+  .section    .data
+  string:
+      .ascii  "hello, world\n"
+  string_end:
+      .equ len, string_end - string
+
+  .section    .text
+  .globl      main
+  main:
+      # write(1, "hello, world\n", 13)
+      mov     $1, %rax        # System call number 1 (write)
+      mov     $1, %rdi        # file descriptor 1 (stdout)
+      mov     $string, %rsi   # string content
+      mov     $len, %rdx      # string length
+      syscall                 # Trap / Interrupt
+
+      # exit(0)
+      mov     $60, %rax       # System call 60 (exit)
+      mov     $0, %rdi        # exit status
+      syscall                 # Trap / Interrupt
+  ```
+
+  <div class="alert caution-bg" markdown="1">
+
+  1. 64-bit version uses **syscall** mechanism instead of **int**.
+
+  2. 64-bit version uses different **registers**
+
+  3. 64-bit version has different **syscall numbers**!!!
+
+  </div>
+
+  ## System Call: <span class="gold">Address Space</span>
+
+  <div class="centered">
+
+  <img src="static/img/notebook03-address-space.png" class="transparent responsive">
+
+  </div>
+
+  <div class="alert caution-bg" markdown="1">
+
+  **Program** is an image of memory layout!
+
+  </div>
+
+  ## System Call: <span class="gold">User vs Kernel Mode</span>
+
+  An <strong class="caution">interrupt</strong>, <strong
+  class="caution">trap</strong>, or <strong class="caution">exception</strong>
+  is an <strong class="caution">event</strong> that forces the <strong
+  class="info">processor</strong> to transition from <strong class="success">
+  user</strong> mode to <strong class="danger"> kernel</strong> mode.
+
+  <div class="centered">
+
+  <img src="static/img/notebook03-user-vs-kernel-mode.png" class="transparent responsive">
+
+  </div>
+
+  ## System Call: <span class="gold">Processor Events</span>
+
+  A variety of <strong class="warning">events</strong> or <strong
+  class="warning">exceptions</strong> can cause a **transition** from <strong
+  class="success">user mode</strong> to <strong class="danger">kernel
+  mode</strong>:
+
+  <table class="bordered font-small">
+  <thead>
+      <th>Class</th>
+      <th>Cause</th>
+      <th>Async/Sync</th>
+      <th>Return Behavior</th>
+  </thead>
+  <tbody>
+      <tr class="info-bg">
+          <td>Interrupt</td>
+          <td>Signal from I/O device</td>
+          <td>Async</td>
+          <td>Always return to next instruction</td>
+      </tr>
+      <tr class="warning-bg">
+          <td><strong>Trap</strong></td>
+          <td><strong>Intentional exception</strong></td>
+          <td><strong>Sync</strong></td>
+          <td><strong>Always return to next instruction</strong></td>
+      </tr>
+      <tr class="special-bg">
+          <td>Fault</td>
+          <td>Potentially recoverable error</td>
+          <td>Sync</td>
+          <td>Might return to next instruction</td>
+      </tr>
+      <tr class="danger-bg">
+          <td>Abort</td>
+          <td>Nonrecoverable error</td>
+          <td>Sync</td>
+          <td>Never returns</td>
+      </tr>
+  </tbody>
+  </table>
+
+  <div class="centered" markdown="1">
+
+  When these <strong class="info">events</strong>, the <strong
+  class="info">processor</strong> consults the <strong class="caution">interrupt
+  vector table</strong> or <strong class="caution">trap table</strong> to
+  determine what to do next (*what <strong class="caution">handler</strong> code
+  to execute*).
+
+  </div>
+
+  ## System Call: <span class="gold">Skit</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  1. <strong class="caution"> Kernel</strong> registers handlers in <strong
+  class="warning"> trap table</strong>.
+
+  2. <strong class="success"> User process</strong>:
+
+      - Records <strong class="warning">system call number</strong>
+
+      - Records <strong class="warning">arguments</strong>
+
+      - Triggers <strong class="info">trap</strong>
+
+  3. <strong class="info">Processor</strong> uses <strong class="warning">trap
+  table</strong> to select handler.
+
+  4. <strong class="caution">Kernel</strong> performs handler.
+
+  </div>
+
+  <div class="flex-col-33">
+
+  <table class="bordered centered">
+  <thead>
+      <th class="info-bg">#</th>
+      <th class="success-bg">Syscall</th>
+  </thead>
+  <tbody>
+  <tr>
+      <td class="info-bg"><b>1</b></td>
+      <td class="success-bg">read(n)<br><i class="font-small">Read passage</i></td>
+  </tr>
+  <tr>
+      <td class="info-bg"><b>2</b></td>
+      <td class="success-bg">write(s, n)<br><i class="font-small">Write passage</i></td>
+  </tr>
+  <tr>
+      <td class="info-bg"><b>3</b></td>
+      <td class="success-bg">kill(pid, sig)<br><i class="font-small">Send signal to process</i></td>
+  </tr>
+  <tr>
+      <td class="info-bg"><b>4</b></td>
+      <td class="success-bg">exit(status)<br><i class="font-small">Terminate process</i></td>
+  </tr>
+  </thead>
+  </tr>
+  </tbody>
+  </table>
+
+  </div>
+  </div>
+
+  ## System Call: <span class="gold">Traps</span>
+
+  To perform a <strong class="info">system call</strong>, a <strong
+  class="special">user application</strong> performs a <strong
+  class="warning">trap</strong> to **interrupt** the <strong
+  class="info">processor</strong> and force it to look up the appropriate <strong
+  class="caution">handler function</strong> in the <strong class="caution">trap
+  table</strong>.
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col centered" markdown="1">
+
+  <img src="static/img/slides03-system-call-trap.png" class="transparent responsive">
+
+  </div>
+
+  <div class="flex-col-25 centered" markdown="1">
+
+  The <strong class="caution">trap table</strong> is loaded during <strong
+  class="danger">boot</strong> by the <strong class="caution">kernel</strong>,
+  which registers which <strong class="caution">handler functions</strong> to
+  execute based on the <strong class="info">system call</strong> number.
+
+  </div>
+
+  </div>
+
+  ## Reading 02: <span class="gold">sha1sum</span>
+
+  ```c
+  int main(int argc, char *argv[]) {
+      int failures = 0;
+
+      /* For each argument, compute sha1sum and display result */
+      for (int i = 1; i < argc; i++) {
+          char cksum[SHA_DIGEST_LENGTH*2 + 1];
+          if (!sha1sum_file(argv[i], cksum)) {
+              fprintf(stderr, "Unable to compute checksum for %s\n", argv[i]);
+              failures++;
+              continue;
+          }
+
+          printf("%s  %s\n", cksum, argv[i]);
+      }
+
+      return failures;
+  }
+  ```
+
+  ```c
+  bool sha1sum_file(const char *path, char *cksum) {
+      bool result     = false;
+      EVP_MD_CTX *ctx = NULL;
+
+      /* Open file reading */
+      int rfd = open(path, O_RDONLY);
+      if (rfd < 0) {      // Must check if system call fails!
+          goto failure;   // Use goto to centralize cleanup
+      }
+
+      /* Create and initialize context */
+      ctx = EVP_MD_CTX_new();
+      if (!ctx || !EVP_DigestInit_ex(ctx, EVP_sha1(), NULL)) {
+          goto failure;
+      }
+
+      /* Read data into buffer and update context */
+      char buffer[BUFSIZ];  // Allocate buffer to store partial
+      ssize_t nread = 0;    // contents of file
+
+      while ((nread = read(rfd, buffer, BUFSIZ)) > 0) {
+          if (!EVP_DigestUpdate(ctx, buffer, nread)) {
+              goto failure; // Read partial contents of file
+          }                 // into buffer and update digest
+      }
+
+      if (nread < 0) {
+          goto failure;
+      }
+
+      /* Compute SHA1 */
+      uint8_t digest[SHA_DIGEST_LENGTH];
+      if (!EVP_DigestFinal_ex(ctx, digest, NULL)) {
+          goto failure;     // Compute SHA1 on buffer
+      }
+
+      /* Convert digest to hexadecimal digest */
+      for (int b = 0; b < SHA_DIGEST_LENGTH; b++) {
+          snprintf(cksum + 2*b, 3, "%02x", digest[b]);
+                            // Convert raw bytes into ASCII
+      }                     // hexadecimal representation
+
+      result = true;
+
+  failure:
+      /* Clean up */
+      if (rfd >= 0) close(rfd);
+      if (ctx) EVP_MD_CTX_free(ctx);
+      return result;        // Need -lcrypto when linking
+  }
+  ```
