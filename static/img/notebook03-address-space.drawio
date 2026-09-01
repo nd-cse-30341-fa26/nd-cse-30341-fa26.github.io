@@ -1,0 +1,25 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="GVV44Brdd7pEe5qwhha-">
+    <mxGraphModel dx="851" dy="704" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="glkk9E8xoVtpB__Oywy3-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Code&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;(&lt;i&gt;Instructions&lt;/i&gt;)&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="480" x="360" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="glkk9E8xoVtpB__Oywy3-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Data&lt;br&gt;(&lt;i&gt;Global, Static, String Literals)&lt;/i&gt;&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="480" x="360" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="glkk9E8xoVtpB__Oywy3-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Heap&lt;br&gt;(&lt;i&gt;User Managed Data)&lt;/i&gt;&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="480" x="360" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="glkk9E8xoVtpB__Oywy3-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#FFFFFF;fontColor=#333333;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="80" width="480" x="360" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="glkk9E8xoVtpB__Oywy3-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Stack&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;JetBrains Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;(&lt;i&gt;Local Variables, Function Parameters)&lt;/i&gt;&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="480" x="360" y="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
