@@ -658,7 +658,7 @@ div.footnote > hr {
     font-style: italic;
 }
 
-.k, .nb {
+.k, .nb, .nl {
     color: var(--nord13);
 }
 

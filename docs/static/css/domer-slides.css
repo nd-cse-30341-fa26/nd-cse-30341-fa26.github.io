@@ -290,6 +290,12 @@ blockquote {
     gap: 1rem;
 }
 
+.columns-3-1 {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 1rem;
+}
+
 .columns-3-2 {
     display: grid;
     grid-template-columns: 3fr 2fr;
