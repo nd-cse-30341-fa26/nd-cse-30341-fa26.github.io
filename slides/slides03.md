@@ -17,6 +17,8 @@ theme: domer-slides
 
 # Questions
 
+<div class="font-large">
+
 1. What is a <strong class="warning">system call</strong>?
 
 2. What is the difference between <strong class="success">user</strong> and
@@ -25,6 +27,8 @@ theme: domer-slides
 3. What is a <strong class="info">trap</strong> and how is a <strong
    class="caution">trap table</strong> used to handle <strong
    class="warning">system calls</strong>?
+
+</div>
 
 ---
 
