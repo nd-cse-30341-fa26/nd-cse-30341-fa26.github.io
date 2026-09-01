@@ -27,6 +27,8 @@
           - Reading 02
         items:
           - name:       Slides 03
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=c9b7c4f7-1df7-4be9-a97e-b4b800fb109d
 
       - date:           Thu 09/03
         topics:         Processes
