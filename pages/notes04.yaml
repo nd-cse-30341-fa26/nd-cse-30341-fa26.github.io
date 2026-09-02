@@ -1,0 +1,396 @@
+title:  "Notes 04: Processes"
+body:   |
+
+  ## Review
+
+  -   <div class="flex-col" markdown="1">
+
+      What is a **System Call**?
+
+      > **User application** requests a service, operation, or resource from
+      the **operating system kernel**.
+
+  -   <div class="flex-col" markdown="1">
+
+      How is **memory protection** enforced?
+
+      > **Processor** provides **rings of protection** (aka **modes**):
+      > - **User Mode**: applications have **restricted** hardware access.
+      > - **Kernel Mode**: operating system has **unrestricted** hardware access.
+
+  -   <div class="flex-col" markdown="1">
+
+      What happens during a **System Call**?
+
+      1. **User application** records **system call number**.
+
+      2. **User application** triggers **trap**.
+
+      3. **Processor** receives **event**, transitions from **user mode** to
+      **kernel mode**, and then consults the **trap table**.
+
+      4. **Operating system kernel** performs the **trap handler**.
+
+  - **Operating system kernel** is a collection of **event handlers**.
+
+  ## Process: <span class="gold">Machine State</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  A <strong class="success">process</strong> is a **loaded** instance of a
+  program; it is a unit of <strong class="warning">allocation</strong>
+  (*resources*, *privileges*, etc.).
+
+  - <strong class="success">Memory Address Space</strong>: code, data, heap,
+    stack.
+
+  - <strong class="caution">Kernel State</strong>: permissions, file descriptors,
+    etc.
+
+  - <strong class="info">Execution Context</strong>: program counter, stack
+    pointer, data registers.
+
+  </div>
+
+  <div class="flex-col-33" markdown="1">
+
+  <img src="static/img/slides04-process-machine-state.png" class="transparent">
+
+  </div>
+
+  </div>
+
+  ## Process: <span class="gold">Linux</span>
+
+  1.  <div class="flex-col" markdown="1">
+
+      Examine  [struct task_struct] (*process control block*)
+
+      - `stack`: kernel *stack pointer*
+      - `exit_code`
+      - `pid`: need to keep track of this in [Project 01]
+      - `parent`
+      - `children`: *tree* data structure
+      - `start_time`: need to keep track of this in [Project 01]
+      - `signal`: need to register these in [Project 01]
+      - `thread`: *execution context*
+
+  2.  <div class="flex-col" markdown="1">
+
+      View process list
+
+          :::bash
+          $ ps ux       # User processes
+          $ ps aux      # All processes
+          $ pstree      # All processes (hierarchy)
+
+  3.  <div class="flex-col" markdown="1">
+
+      Explore process information
+
+          :::bash
+          $ echo $$               # Process PID
+          $ cd /proc/$$           # Process information (pseudo file system)
+          $ cat /proc/PID/environ # Process environment variables
+          $ cat /proc/PID/stat    # Process statistics
+          $ ls /proc/PID/fd       # Process file streams
+
+          $ man proc
+
+          # Write to process stderr
+          $ echo hello > /proc/PID/fd/2
+
+  [struct task_struct]: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/sched.h?h=linux-6.18.y#n820
+  [Project 01]: project01.html
+
+  ## Process: <span class="gold">DOS + Doom</span>
+
+  <div class="centered font-large">
+
+  What are the <strong class="success">advantages</strong> and <strong
+  class="danger">disadvantages</strong> of the <strong class="info">DOS
+  programming model</strong>?
+
+  </div>
+
+  <div class="centered">
+
+  <img src="https://upload.wikimedia.org/wikipedia/en/d/de/Doom_ingame_1.png" class="transparent">
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col success" markdown="1">
+
+  - Single-tasking
+  - Dedicate all resources to application!
+
+  </div>
+
+  <div class="flex-col danger" markdown="1">
+
+  - Can't have background tasks
+  - If program crashes, whole system crashes
+  - Can't utilize all resources effectively (*idle*)
+
+  </div>
+
+  </div>
+
+  ## Process: <span class="gold">Time-Sharing</span>
+
+  The <strong class="caution">operating system</strong> <strong
+  class="success">virtualizes</strong> the <strong
+  class="info">processor</strong> via the <strong
+  class="success">process</strong> abstraction:
+
+  <div class="centered">
+
+  <img src="static/img/slides04-process-time-sharing.png" class="transparent">
+
+  </div>
+
+  That is, each task is associated with a <strong
+  class="success">process</strong> that represents the state of the <strong
+  class="info">processor</strong>.  To allow multiple <strong
+  class="success">processes</strong> to make progress <strong
+  class="special">concurrently</strong>, the <strong class="caution">operating
+  system</strong> provides each <strong class="success">process</strong> a
+  certain <strong class="special">time slice</strong> or share of <strong
+  class="info">processor</strong> time.
+
+  ## Process: <span class="gold">Multitasking</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <strong class="danger">Cooperative</strong>
+
+  The <strong class="caution">operating system</strong> **trusts** the <strong
+  class="success">processes</strong> to behave reasonably and voluntarily
+  **yield** the <strong class="info">processor</strong> so others can execute.
+
+  <div class="centered">
+
+  <img src="https://www.homecomputermuseum.nl/wp-content/uploads/2018/08/Apple-Front-1200x1054.jpg" width="300" class="bordered">
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <strong class="success">Pre-emptive</strong>
+
+  The <strong class="caution">operating system</strong> sets a <strong
+  class="info">hardware timer interrupt</strong> to periodically **suspend** the
+  currently running <strong class="success">process</strong> and possibly
+  **switch** to another <strong class="success">process</strong>.
+
+  <div class="centered">
+
+  <img src="https://photos5.appleinsider.com/gallery/61542-127138-imac-xl.jpg" width="400" class="bordered">
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## Process: <span class="gold">Skit</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col success" markdown="1">
+
+  Closed on Sunday, you're my Chick-fil-A
+
+  Closed on Sunday, you my Chick-fil-A
+
+  Hold the selfies, put the 'Gram away
+
+  Get your family, y'all hold hands and pray
+
+  When you got daughters, always keep 'em safe
+
+  Watch out for vipers, don't let them indoctrinate
+
+  </div>
+
+  <div class="flex-col danger" markdown="1">
+
+  Closed on Sunday, you my Chick-fil-A
+
+  You're my number one, with the lemonade
+
+  Raise our sons, train them in the faith
+
+  Through temptations, make sure they're wide awake
+
+  Follow Jesus, listen and obey
+
+  No more livin' for the culture, we nobody's slave
+
+  </div>
+
+  </div>
+
+  ## Process: <span class="gold">Context Switch</span>
+
+  When a <strong class="info">hardware timer interrupt</strong> goes off, the
+  <strong class="caution">operating system</strong> has the option of performing
+  a <strong class="special">context switch</strong> (ie. *switch from one <strong
+  class="success">process</strong> to another*).
+
+  <div class="centered">
+
+  <img src="static/img/slides04-process-context-switch.png" class="transparent">
+
+  </div>
+
+  <div class="alert danger-bg" markdown="1">
+
+  **Context switches** are **expensive**!!!
+
+  </div>
+
+  ## Process: <span class="gold">States</span>
+
+  A <strong class="success">process</strong> can be in one of the following
+  <strong class="special">states</strong> during its lifespan:
+
+  <div class="centered">
+
+  <img src="static/img/slides04-process-states.png" class="transparent responsive">
+
+  </div>
+
+  - <strong class="success">Running</strong>: The <strong
+    class="success">process</strong> has been **allocated** time on the <strong
+    class="info">processor</strong> and is executing.
+
+  - <strong class="caution">Ready</strong>: The <strong
+    class="success">process</strong> has no blocking <strong
+    class="warning">system calls</strong> and is available to be scheduled.
+
+  - <strong class="danger">Waiting</strong>: The <strong
+    class="success">process</strong> has a blocking <strong
+    class="warning">system calls</strong> and is not able to make progress until
+    it is finished.
+
+  ## Process: <span class="gold">Life Cycle</span>
+
+  1. <strong class="success">Parent process</strong> [forks] to create a new
+    <strong class="warning">child process</strong>.
+
+  2. <strong class="warning">Child process</strong> performs actions, possible
+    [execs] to run another program.
+
+  3. <strong class="success">Parent process</strong> [waits] for <strong
+    class="warning">child process</strong>.
+
+  4. <strong class="warning">Child process</strong> [exits].
+
+  5. <strong class="success">Parent process</strong> receives <strong
+    class="special">status code</strong> of <strong class="warning">child
+    process</strong>.
+
+  <div class="centered">
+
+  <img src="static/img/slides04-process-life-cycle.png" class="transparent responsive">
+
+  </div>
+
+  [forks]: https://man7.org/linux/man-pages/man2/fork.2.html
+  [execs]: https://man7.org/linux/man-pages/man3/exec.3.html
+  [waits]: https://man7.org/linux/man-pages/man2/wait.2.html
+  [exits]: https://man7.org/linux/man-pages/man3/exit.3.html
+
+  ## Process: [hello-n.c] (<i class="muted">Version 1: Fork Bomb</i>)
+
+  ```c
+  int main(int argc, char *argv[]) {
+      int n = atoi(argv[1]);
+
+      for (int i = 0; i < n; i++) {
+          pid_t pid = fork();
+
+          if (pid == 0) { // Child
+              printf("[%d] Hello from child %d\n", getpid(), i);
+              exit(EXIT_SUCCESS); // FIXES: Fork Bomb
+          }
+      }
+
+      return EXIT_SUCCESS;
+  }
+  ```
+
+  <div class="alert danger-bg" markdown="1">
+
+  - Runs more than `N` processes.
+
+  - Ordering is different between runs.
+
+  </div>
+
+  [hello-n.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture04/hello-n.c
+
+  ## Process: [hello-n.c] (<i class="muted">Version 2: Sequential</i>)
+
+  ```c
+  int main(int argc, char *argv[]) {
+      int n = atoi(argv[1]);
+
+      for (int i = 0; i < n; i++) {
+          pid_t pid = fork();
+
+          if (pid == 0) { // Child
+              printf("[%d] Hello from child %d\n", getpid(), i);
+              exit(EXIT_SUCCESS);
+          } else {
+              wait(NULL);   // FIXES: Zombies / Orphans
+          }
+      }
+
+      return EXIT_SUCCESS;
+  }
+  ```
+
+  <div class="alert warning-bg" markdown="1">
+
+  - Ordering is now sequential (*no concurrency*).
+
+  </div>
+
+  ## Process: [hello-n.c] (<i class="muted">Version 3: Parallel</i>)
+
+  ```c
+  int main(int argc, char *argv[]) {
+      int n = atoi(argv[1]);
+
+      for (int i = 0; i < n; i++) {
+          pid_t pid = fork();
+
+          if (pid == 0) { // Child
+              printf("[%d] Hello from child %d\n", getpid(), i);
+              exit(EXIT_SUCCESS);
+          }
+      }
+
+      for (int i = 0; i < n; i++) {
+          wait(NULL); // FIXES: Zombies / Orphans while keeping concurrency
+      }
+
+      return EXIT_SUCCESS;
+  }
+  ```
+
+  <div class="alert caution-bg" markdown="1">
+
+  - Now **concurrent** -- can be **parallel** if we have enough **CPU** cores.
+
+  </div>
