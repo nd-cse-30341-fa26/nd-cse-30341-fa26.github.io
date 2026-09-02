@@ -1,0 +1,19 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="GVV44Brdd7pEe5qwhha-">
+    <mxGraphModel dx="1414" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZIiuIS1PMqtJYfgDcGOc-1" edge="1" parent="1" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;fillColor=#000000;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="190" y="400" as="sourcePoint" />
+            <mxPoint x="910" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZIiuIS1PMqtJYfgDcGOc-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Processor Time&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="170" x="465" y="425" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
