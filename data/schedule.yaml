@@ -34,6 +34,8 @@
         topics:         Processes
         items:
           - name:       Slides 04
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=997962e1-85cd-43dd-8aa1-b4ba00fcef9c
 
 - name:     Scheduling
   days:
