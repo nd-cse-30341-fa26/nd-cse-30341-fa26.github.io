@@ -25,40 +25,32 @@ body:       |
 
     [Computer Science and Engineering]: http://cse.nd.edu
     [University of Notre Dame]: http://www.nd.edu
-
-    <div class="flex-row" markdown="1">
-
-      <div class="centered">
-        <img src="static/img/house-of-cards.png" class="responsive" style="max-width: 420px; padding: 10px;">
-      </div>
-
-      <div class="flex-col" markdown="1">
-
-      Upon successful completion of this course, students will be able to:
-
-      - **Describe** the basic components of a modern operating system.
-
-      - **Understand** the symbiotic relationship between computer architecture
-        and operating system design.
-
-      - **Discuss** how operating systems provide abstractions for
-        virtualization, concurrency, and persistence.
-
-      - **Construct** applications that utilize processes, threads, interprocess
-        communication, and synchronization primitives to solve problems requiring
-        concurrent or parallel computation.
-
-      - **Explain** how resources such as CPU time and memory are allocated and
-        managed by the operating system.
-
-      - **Evaluate** the trade-offs embedded in different operating system
-        techniques, algorithms, and data structures.
-
-      - **Analyze** the performance of applications in a variety of system contexts.
-
-      </div>
-
+      
+    <div class="centered">
+        <img src="static/img/house-of-cards.svg" class="transparent responsive" style="max-width: 720px; padding: 10px;">
     </div>
+
+    Upon successful completion of this course, students will be able to:
+
+    - **Describe** the basic components of a modern operating system.
+
+    - **Understand** the symbiotic relationship between computer architecture
+      and operating system design.
+
+    - **Discuss** how operating systems provide abstractions for
+      virtualization, concurrency, and persistence.
+
+    - **Construct** applications that utilize processes, threads, interprocess
+      communication, and synchronization primitives to solve problems requiring
+      concurrent or parallel computation.
+
+    - **Explain** how resources such as CPU time and memory are allocated and
+      managed by the operating system.
+
+    - **Evaluate** the trade-offs embedded in different operating system
+      techniques, algorithms, and data structures.
+
+    - **Analyze** the performance of applications in a variety of system contexts.
 
     ## Logistics
 
@@ -105,7 +97,7 @@ body:       |
     ### Office Hours
 
     <div class="centered">
-      <img src="static/img/office-hours.png" class="responsive">
+      <img src="static/img/office-hours.svg" class="responsive">
     </div>
 
     ## Schedule
