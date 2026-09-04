@@ -90,7 +90,7 @@
     --table-background: light-dark(var(--nd-warm-white), var(--nd-warm-white));
     --terminal-background: var(--nord01);
     --terminal-foreground: var(--nord05);
-    --image-background: light-dark(var(--nd-warm-white), var(--nd-warm-white));
+    --image-background: light-dark(var(--nd-warm-white), var(--nd-gray-dark));
     --badge-background: var(--nd-gray-dark);
     --badge-color: #fff;
     --page-width: 80rem;
