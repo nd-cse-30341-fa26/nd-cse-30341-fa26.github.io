@@ -221,14 +221,15 @@ class="gold">First In, First Out (FIFO)</strong>:
 # FIFO: <span class="gold">Algorithm</span>
 
 ```python
-# This assumes that the Schedule has two queues:
-#   .running    This is a list of running processes
-#   .waiting    This is a list of processes ready to run
-def ScheduleFIFO(s: Scheduler):
+class Scheduler:
+      running: list[Process]  # Processes running on the CPU
+      waiting: list[Process]  # Processes ready to run
+
+def scheduler_fifo(s: Scheduler):
     # As long as we have less running processes than we have
     # CPUs and there waiting processes, then transfer a process
     # from the waiting queue to the running queue
-    while s.running.size() < NCPUS and s.waiting.size():
+    while s.running.size() < s.cores and s.waiting.size():
         process = s.waiting.pop()
         StartProcess(process)   # TODO: Error handling
         s.running.push(process)
@@ -470,15 +471,15 @@ class="success">processes</strong>.
 
 ```python
 # TODO: Handle errors in managing processes
-ScheduleRoundRobin(s: Scheduler):
+def scheduler_rdrn(s: Scheduler):
     # Move a process from running queue to waiting queue
-    if s.running.size() == NCPUS:
+    if s.running.size() == s.cores:
         process = s.running.pop()
         PauseProcess(process)       # Preempt! by pausing process
         s.waiting.push(process)
 
     # Move processes from waiting queue to running queue
-    while s.running.size() < NCPUS and s.waiting.size():
+    while s.running.size() < s.cores and s.waiting.size():
         process = s.waiting.pop()
         if process.pid == 0:
             StartProcess(process)   # Start new process
