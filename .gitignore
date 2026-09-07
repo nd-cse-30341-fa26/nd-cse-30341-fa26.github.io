@@ -1,5 +1,6 @@
 *.bkp
 *.dtmp
 *.swp
+.xdp-.*
 data/gradebook.csv
 public/*
