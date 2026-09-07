@@ -1,7 +1,7 @@
 # Configuration
 
 DOCROOT=	public
-WWWROOT=	weasel:$(HOME)/www/courses/cse.30341.fa26
+WWWROOT=	weasel:$(HOME)/www/courses/$(shell awk '/prefix/ {print $$2}' site.yaml)
 YASB=		scripts/yasb.py
 
 SLIDES_MD=	$(wildcard slides/*.md)
@@ -13,6 +13,8 @@ THEME_CSS=	static/css/domer-slides.css
 
 build:	$(SLIDES_HTML)
 	@$(YASB)
+
+pdfs:	$(SLIDES_PDF)
 
 install:	build
 	@rsync -av --progress --delete $(DOCROOT)/. $(WWWROOT)/.
