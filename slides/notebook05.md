@@ -248,22 +248,6 @@ One way to combat the <strong class="danger">Convoy Effect</strong>, is to rank 
 
 ---
 
-# FIFO: <span class="gold">Example 4</span>
-
-Job <strong class="success">A</strong> arrives at time `0` and runs for `30`
-seconds, while <strong class="info">B</strong> and <strong
-class="caution">C</strong> also arrive at time `5` but run for `5` seconds:
-
-<div class="font-smaller"><br></div>
-
-<div class="centered">
-
-<img src="static/img/slides05-fifo-convoy.png">
-
-</div>
-
----
-
 # FIFO: <span class="gold">Summary</span>
 
 <div class="font-large">
