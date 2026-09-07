@@ -1,0 +1,521 @@
+title:  "Notes 05: Scheduling (FIFO, Round Robin)"
+body:   |
+
+  ## Review
+
+  > The purpose of [Project 01] is to create **shell** that executes and
+  manages **processes**.
+
+  -   <div class="flex-col" markdown="1">
+
+      **Two Queues**:
+
+      - **Running**: **processes** are given CPU time.
+      - **Waiting**: **processes** are not given CPU time.
+
+  <div class="alert info-bg" markdown="1">
+
+  **Demonstrate** scheduler in action with [video](https://pnutz.h4x0r.space/courses/cse.30341.fa26/project01.html#reference-implementation)
+
+  </div>
+
+  [Project 01]: project01.html
+
+  ## Scheduling: <span class="gold">Questions</span>
+
+  1. What is the purpose of a <strong class="caution">scheduler</strong>?
+
+  2. When does a <strong class="caution">scheduler</strong> execute?
+
+  3. What are some common <strong class="warning">scheduling policies</strong>?
+
+  4. How do we <strong class="danger">evaluate</strong> a <strong
+  class="warning">scheduling policy</strong>?
+
+  ## Scheduling: <span class="gold">Purpose</span>
+
+  > What is the purpose of a <strong class="success">scheduler</strong>?
+
+  - The <strong class="success">scheduler</strong> determines which <strong
+  class="primary">process</strong> runs next.
+
+  - The decision making process is called a <strong class="warning">scheduling
+  policy</strong> (<i class="muted">discipline</i>).
+
+  <div class="alert info-bg" markdown="1">
+
+  For [Project 01]: Need to consider **multi-core**!
+
+  </div>
+
+  <div class="alert success-bg" markdown="1">
+
+  **OS kernel** wants to maximize **resource utilization**.
+
+  </div>
+
+  ## Process: <span class="gold">Life Cycle</span> (<i class="muted">Review</i>)
+
+  <div class="centered">
+
+  <img src="static/img/slides04-process-life-cycle.png" class="transparent responsive">
+
+  </div>
+
+  <div class="alert info-bg" markdown="1">
+
+  **System Calls**:
+
+  - `fork`: **allocate** child process.
+  - `exec`: **reset** address space and execution context.
+  - `exit`: **terminate** and tell parent exit status.
+  - `wait`: **retrieve** child exit status and **deallocate** child process.
+
+  **Project 01**:
+
+  - Use [execvp] to handle programs with command line arguments.
+  - Use [waitpid] to avoid **blocking**.
+
+  **Reading 03**:
+
+  - Explain `pid = wait(&status)` and `WEXITSTATUS(status)`.
+
+  </div>
+
+  [execvp]: https://man7.org/linux/man-pages/man3/exec.3.html
+  [waitpid]: https://man7.org/linux/man-pages/man2/wait.2.html
+
+  ## Process: <span class="gold">States</span> (<i class="muted">Review</i>)
+
+  <div class="centered">
+
+  <img src="static/img/slides04-process-states.png" class="transparent responsive">
+
+  </div>
+
+  <div class="alert caution-bg" markdown="1">
+
+  - **Review**: **Cooperative** vs **Pre-emptive** multitasking.
+
+  - **Project 01**: Implement **timer interrupt** with **interval timer** and
+  **signal hanlder**.
+
+  </div>
+
+  ## Process: <span class="gold">Context Switch</span> (<i class="muted">Review</i>)
+
+  <div class="centered">
+
+  <img src="static/img/slides04-process-context-switch.png" class="transparent responsive">
+
+  </div>
+
+  ## Scheduling: <span class="gold">Overview</span>
+
+  > When does a <success>scheduler</success> execute?
+
+  Whenever we need to decide which <strong class="success">process</strong> to
+  run next, we invoke the <strong class="caution">scheduler</strong>:
+
+  1. A <strong class="success">process</strong> <strong
+  class="danger">terminates</strong>
+
+  2. A <strong class="success">process</strong> <strong
+  class="warning">blocks</strong>
+
+  3. A <strong class="info">timer interrupt</strong> (<i
+  class="muted">preemptive multitasking</i>)
+
+  <div class="alert danger-bg" markdown="1">
+
+  Happens very **frequently!**
+
+  </div>
+
+  ## Scheduling: <span class="gold">Workload</span>
+
+  To make <strong class="warning">scheduling policies</strong>, we need to
+  consider our <strong class="danger">workload</strong>, or collection of
+  <strong class="success">processes</strong> running on our system.
+
+  Let's start with the following <strong class="caution">assumptions</strong>:
+
+  1. Each job runs for the <strong class="caution">same amount of time</strong>.
+
+  2. All jobs <strong class="caution">arrive at the same time</strong>.
+
+  3. Once started, <strong class="caution">each job runs to completion</strong>.
+
+  4. All jobs <strong class="caution">only use the CPU (no I/O)</strong>.
+
+  5. The <strong class="caution">run-time</strong> of each job is <strong class="caution">known</strong>.
+
+  <div class="alert warning-bg" markdown="1">
+
+  As we explore different <strong class="warning">scheduling policies</strong>,
+  we will need to address these <strong class="caution">assumptions</strong> and
+  eventually relax or drop them.
+
+  </div>
+
+  ## Scheduling: <span class="gold">Metrics</span>
+
+  To compare different <strong class="warning">scheduling policies</strong>, we
+  need to consider different <strong class="caution">metrics</strong>:
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col alert danger-bg centered" markdown="1">
+
+  #### <span class="danger">Turnaround Time</span> (<i class="muted">Throughput, Volume</i>)
+
+  <strong>
+
+  T<sub>turnaround</sub> = T<sub>completion</sub> - T<sub>arrival</sub>
+
+  </strong>
+
+  How soon does the job <strong class="danger">complete</strong>?
+
+  </div>
+
+  <div class="flex-col alert success-bg centered" markdown="1">
+
+  #### <span class="success">Response Time</span> (<i class="muted">Latency, Delay</i>)
+
+  <strong>
+
+  T<sub>response</sub> = T<sub>firstrun</sub> - T<sub>arrival</sub>
+
+  </strong>
+
+  How soon does the job <strong class="success">start</strong>?
+
+  </div>
+
+  </div>
+
+  ## Scheduling: <span class="gold">Video</span>
+
+  <div class="centered">
+
+  <iframe width="560" height="315"
+  src="https://www.youtube.com/embed/Psvf4qN8yao?si=7lGWqEYu6JOVbYJ9"
+  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay;
+  clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+  </div>
+
+  ## FIFO: <span class="gold">Overview</span>
+
+  A basic <strong class="warning">scheduling policy</strong> is <strong
+  class="gold">First In, First Out (FIFO)</strong>:
+
+  <div class="centered">
+
+  <img src="static/img/slides05-fifo-overview.png" class="transparent responsive">
+
+  </div>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  <i>Execute the jobs in the order in which they arrive.</i>
+
+  </div>
+
+  ## FIFO: <span class="gold">Algorithm</span>
+
+  ```python
+  # This assumes that the Schedule has two queues:
+  #   .running    This is a list of running processes
+  #   .waiting    This is a list of processes ready to run
+  def ScheduleFIFO(s: Scheduler):
+      # As long as we have less running processes than we have
+      # CPUs and there waiting processes, then transfer a process
+      # from the waiting queue to the running queue
+      while s.running.size() < NCPUS and s.waiting.size():
+          process = s.waiting.pop()
+          StartProcess(process)   # TODO: Error handling
+          s.running.push(process)
+  ```
+
+  <div class="alert info-bg" markdown="1">
+
+  **Project 01**
+
+  - Make sure you do **error checking**!
+
+  - `scheduler_add` puts process in `waiting` queue.
+
+  - Call `scheduler_next` if `s->event` is `EVENT_TIMER`.
+
+  </div>
+
+  ## FIFO: <span class="gold">Example 1</span>
+
+  Jobs <strong class="success">A</strong>, <strong class="info">B</strong>, and
+  <strong class="caution">C</strong> arrive at time `0` and run for `5` seconds
+  each:
+
+  <div class="centered">
+
+  <img src="static/img/slides05-fifo-example.png" class="transparent responsive">
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col alert danger-bg centered" markdown="1">
+
+  #### <span class="danger">Average Turnaround Time</span>
+
+  (5 + 10 + 15) / 3 = 10 s/job
+
+  </div>
+
+  <div class="flex-col alert success-bg centered" markdown="1">
+
+  #### <span class="success">Average Response Time</span>
+
+  (0 + 5 + 10) / 3 = 5 s/job
+
+  </div>
+
+  </div>
+
+  ## FIFO: <span class="gold">Example 2</span>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  If we relax <strong class="caution">Assumption 1</strong>, we see that <strong
+  class="gold">FIFO</strong> is susceptible to the<br><strong class="danger">Convoy
+  Effect</strong>, where a large job bottlenecks many smaller jobs.
+
+  </div>
+
+  Job <strong class="success">A</strong> arrives at time `0` and runs for `30`
+  seconds, while <strong class="info">B</strong> and <strong
+  class="caution">C</strong> also arrive at time `0` but run for `5` seconds:
+
+  <div class="centered">
+
+  <img src="static/img/slides05-fifo-convoy.png" class="transparent responsive">
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col alert danger-bg centered" markdown="1">
+
+  #### <span class="danger">Average Turnaround Time</span>
+
+  (30 + 35 + 40) / 3 = 35 s/job
+
+  </div>
+
+  <div class="flex-col alert success-bg centered" markdown="1">
+
+  #### <span class="success">Average Response Time</span>
+
+  (0 + 30 + 35) / 3 ~ 22 s/job
+
+  </div>
+
+  </div>
+
+  ## FIFO: <span class="gold">Example 3</span>
+
+  One way to combat the <strong class="danger">Convoy Effect</strong>, is to
+  rank our <strong class="gold">FIFO</strong> such that we always select the
+  <strong class="warning">shortest job first (SJF)</strong> (use <i
+  class="muted">priority queue</i>).
+
+  <div class="centered">
+
+  <img src="static/img/slides05-fifo-sjf.png" class="transparent responsive">
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col alert danger-bg centered" markdown="1">
+
+  #### <span class="danger">Average Turnaround Time</span>
+
+  (5 + 10 + 40) / 3 ~ 18 s/job
+
+  </div>
+
+  <div class="flex-col alert success-bg centered" markdown="1">
+
+  #### <span class="success">Average Response Time</span>
+
+  (0 + 5 + 10) / 3 = 5 s/job
+
+  </div>
+
+  </div>
+
+  ## FIFO: <span class="gold">Example 4</span>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  If we relax <strong class="caution">Assumption 2</strong>, we see that <strong
+  class="gold">FIFO with SJF</strong> is<br>still susceptible to the <strong
+  class="danger">Convoy Effect</strong>.
+
+  </div>
+
+  Job <strong class="success">A</strong> arrives at time `0` and runs for `30`
+  seconds, while <strong class="info">B</strong> and <strong
+  class="caution">C</strong> also arrive at time `5` but run for `5` seconds:
+
+  <div class="centered">
+
+  <img src="static/img/slides05-fifo-convoy.png" class="transparent responsive">
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col alert danger-bg centered" markdown="1">
+
+  #### <span class="danger">Average Turnaround Time</span>
+
+  (30 + (35-5) + (40-5)) / 3 ~ 31 s/job
+
+  </div>
+
+  <div class="flex-col alert success-bg centered" markdown="1">
+
+  #### <span class="success">Average Response Time</span>
+
+  (0 + (30-5) + (35-5)) / 3 ~ 18 s/job
+
+  </div>
+
+  </div>
+
+  ## FIFO: <span class="gold">Summary</span>
+
+  - <strong class="gold">FIFO</strong> is relatively <strong
+  class="caution">straightforward</strong>.
+
+  - <strong class="gold">FIFO</strong> generally has good <strong
+    class="danger">turnaround time</strong>.
+
+  - <strong class="gold">FIFO</strong> generally has poor <strong
+    class="success">response time</strong>.
+
+  - <strong class="gold">FIFO</strong> can suffer from problems with the <strong
+    class="danger">Convoy Effect</strong>.
+
+  ## Round Robin: <span class="gold">Overview</span>
+
+  Instead of <strong class="caution">running jobs to completion</strong>, we use
+  a periodic <strong class="info">timer interrupt</strong> to rotate through
+  <strong class="success">processes</strong>:
+
+  <div class="centered">
+
+  <img src="static/img/slides05-rdrn-overview.png" class="transparent responsive">
+
+  </div>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  <i>Each <strong class="success">process</strong> is executed for a certain
+  <strong class="caution">time slice</strong><br>before another <strong
+  class="success">process</strong> is selected.</i>
+
+  </div>
+
+  <div class="alert success-bg centered" markdown="1">
+
+  This is a <strong class="warning">fair policy</strong> since it evenly divides
+  the <strong class="info">processor</strong> among active <strong
+  class="success">processes</strong>.
+
+  </div>
+
+  ## Round Robin: <span class="gold">Algorithm</span>
+
+  ```python
+  # TODO: Handle errors in managing processes
+  ScheduleRoundRobin(s: Scheduler):
+      # Move a process from running queue to waiting queue
+      if s.running.size() == NCPUS:
+          process = s.running.pop()
+          PauseProcess(process)       # Preempt! by pausing process
+          s.waiting.push(process)
+
+      # Move processes from waiting queue to running queue
+      while s.running.size() < NCPUS and s.waiting.size():
+          process = s.waiting.pop()
+          if process.pid == 0:
+              StartProcess(process)   # Start new process
+          else:
+              ResumeProcess(process)  # Resume old process
+
+          s.running.push(process)
+  ```
+
+  <div class="alert info-bg" markdown="1">
+
+  **Project 01**
+
+  - `PauseProcess`: send `SIGSTOP`
+
+  - `ResumeProcess`: send `SIGCONT`
+
+  </div>
+
+  ## Round Robin: <span class="gold">Example</span>
+
+  Jobs <strong class="success">A</strong>, <strong class="info">B</strong>, and
+  <strong class="caution">C</strong> arrive at time `0` and run for `5` seconds
+  each:
+
+  <div class="centered">
+
+  <img src="static/img/slides05-rdrn-overview.png" class="transparent responsive">
+
+  </div>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col alert danger-bg centered" markdown="1">
+
+  #### <span class="danger">Average Turnaround Time</span>
+
+  (13 + 14 + 15) / 3 = 14 s/job
+
+  </div>
+
+  <div class="flex-col alert success-bg centered" markdown="1">
+
+  #### <span class="success">Average Response Time</span>
+
+  (0 + 1 + 2) / 3 = 1 s/job
+
+  </div>
+
+  </div>
+
+  ## Round Robin: <span class="gold">Summary</span>
+
+  - <strong class="gold">Round Robin</strong> is relatively <strong
+    class="caution">straightforward</strong>.
+
+  - <strong class="gold">Round Robin</strong> generally has poor <strong
+    class="danger">turnaround time</strong>.
+
+  - <strong class="gold">Round Robin</strong> generally has good <strong
+    class="success">response time</strong>.
+
+  - <strong class="gold">Round Robin</strong> requires <strong
+    class="info">preemption</strong>.
+
+  - <strong class="gold">Round Robin</strong> has some <strong
+    class="warning">overhead</strong>.
