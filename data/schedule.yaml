@@ -45,6 +45,8 @@
           - Reading 03
         items:
           - name:       Slides 05
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=8629562a-8db1-46a7-b231-b4bf0100ca8c
 
       - date:           Thu 09/10
         topics:         MLFQ, Lottery
