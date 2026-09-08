@@ -8,7 +8,7 @@
             "context": "A system call always leads to a context switch from one process to another.",
             "modes": "A system call always leads to a transition from user mode to kernel mode.",
             "trap": "One way to implement system calls is to have a user application perform a trap that is caught by the CPU.",
-            "table": "The code to handle each system call is stored in the CPU's trap table.",
+            "table": "The location of the code to handle each system call is stored in the CPU's trap table.",
             "signal": "Each process sets up its trap table by using the <code>signal</code> system call."
         }
     },

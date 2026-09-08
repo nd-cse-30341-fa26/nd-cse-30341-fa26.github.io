@@ -23,6 +23,9 @@
 </nav></header>
 <main>
 <h2 id="review">Review<a class="headerlink" href="#review" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Exam 01</strong> next week... preceded by <strong>Interview 01</strong>.</li>
+</ul>
 <blockquote>
 <p>The purpose of <a href="project01.html">Project 01</a> is to create <strong>shell</strong> that executes and
 manages <strong>processes</strong>.</p>
@@ -35,6 +38,12 @@ manages <strong>processes</strong>.</p>
 <li><strong>Running</strong>: <strong>processes</strong> are given CPU time.</li>
 <li><strong>Waiting</strong>: <strong>processes</strong> are not given CPU time.</li>
 </ul>
+</li>
+<li>
+<p><strong>Individual Quiz</strong>: prepare for <strong>Exam 01</strong>.</p>
+</li>
+<li>
+<p><strong>Interview 01</strong>: based on <a href="project01.html">Project 01</a>.</p>
 </li>
 </ul>
 <div class="alert info-bg">
@@ -109,13 +118,18 @@ policy</strong> (<i class="muted">discipline</i>).</p>
 </div>
 
 <div class="alert caution-bg">
+<p><strong>Project 01</strong>:</p>
 <ul>
 <li>
-<p><strong>Review</strong>: <strong>Cooperative</strong> vs <strong>Pre-emptive</strong> multitasking.</p>
+<p>Implement <strong>timer interrupt</strong> with <strong>interval timer</strong> and <strong>signal
+handler</strong>.</p>
 </li>
 <li>
-<p><strong>Project 01</strong>: Implement <strong>timer interrupt</strong> with <strong>interval timer</strong> and
-<strong>signal hanlder</strong>.</p>
+<p>Use <strong>signals</strong> to implement <strong>event-based</strong> loop.</p>
+</li>
+<li>
+<p>Check <code>s-&gt;event</code> and call either <code>scheduler_wait</code> (ie. <code>EVENT_CHILD</code>) or
+<code>scheduler_next</code> (ie. <code>EVENT_TIMER</code>).</p>
 </li>
 </ul>
 </div>
@@ -126,6 +140,22 @@ policy</strong> (<i class="muted">discipline</i>).</p>
 
 </div>
 
+<div class="alert caution-bg">
+<p><strong>Project 01</strong>:</p>
+<ul>
+<li>
+<p>Implement <strong>timer interrupt</strong> with <strong>interval timer</strong> and <strong>signal
+handler</strong>.</p>
+</li>
+<li>
+<p>Use <strong>signals</strong> to implement <strong>event-based</strong> loop.</p>
+</li>
+<li>
+<p>Check <code>s-&gt;event</code> and call either <code>scheduler_wait</code> (ie. <code>EVENT_CHILD</code>) or
+<code>scheduler_next</code> (ie. <code>EVENT_TIMER</code>).</p>
+</li>
+</ul>
+</div>
 <h2 id="scheduling-overview">Scheduling: <span class="gold">Overview</span><a class="headerlink" href="#scheduling-overview" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>When does a <success>scheduler</success> execute?</p>
@@ -219,14 +249,15 @@ class="gold">First In, First Out (FIFO)</strong>:</p>
 <p><i>Execute the jobs in the order in which they arrive.</i></p>
 </div>
 <h2 id="fifo-algorithm">FIFO: <span class="gold">Algorithm</span><a class="headerlink" href="#fifo-algorithm" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><code><span class="c1"># This assumes that the Schedule has two queues:</span>
-<span class="c1">#   .running    This is a list of running processes</span>
-<span class="c1">#   .waiting    This is a list of processes ready to run</span>
-<span class="k">def</span> <span class="nf">ScheduleFIFO</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Scheduler</span><span class="p">):</span>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Scheduler</span><span class="p">:</span>
+    <span class="n">running</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Process</span><span class="p">]</span>  <span class="c1"># Processes running on the CPU</span>
+    <span class="n">waiting</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Process</span><span class="p">]</span>  <span class="c1"># Processes ready to run</span>
+
+<span class="k">def</span> <span class="nf">scheduler_fifo</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Scheduler</span><span class="p">):</span>
     <span class="c1"># As long as we have less running processes than we have</span>
     <span class="c1"># CPUs and there waiting processes, then transfer a process</span>
     <span class="c1"># from the waiting queue to the running queue</span>
-    <span class="k">while</span> <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">NCPUS</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">waiting</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
+    <span class="k">while</span> <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">s</span><span class="o">.</span><span class="n">cores</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">waiting</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">waiting</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="n">StartProcess</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>   <span class="c1"># TODO: Error handling</span>
         <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
@@ -312,31 +343,6 @@ class="muted">priority queue</i>).</p>
 <p>(0 + 5 + 10) / 3 = 5 s/job</p>
 </div>
 </div>
-<h2 id="fifo-example-4">FIFO: <span class="gold">Example 4</span><a class="headerlink" href="#fifo-example-4" title="Permanent link">&para;</a></h2>
-<div class="alert warning-bg centered">
-<p>If we relax <strong class="caution">Assumption 2</strong>, we see that <strong
-class="gold">FIFO with SJF</strong> is<br>still susceptible to the <strong
-class="danger">Convoy Effect</strong>.</p>
-</div>
-<p>Job <strong class="success">A</strong> arrives at time <code>0</code> and runs for <code>30</code>
-seconds, while <strong class="info">B</strong> and <strong
-class="caution">C</strong> also arrive at time <code>5</code> but run for <code>5</code> seconds:</p>
-<div class="centered">
-
-<img src="static/img/slides05-fifo-convoy.png" class="transparent responsive">
-
-</div>
-
-<div class="flex-row">
-<div class="flex-col alert danger-bg centered">
-<h4 id="average-turnaround-time_3"><span class="danger">Average Turnaround Time</span><a class="headerlink" href="#average-turnaround-time_3" title="Permanent link">&para;</a></h4>
-<p>(30 + (35-5) + (40-5)) / 3 ~ 31 s/job</p>
-</div>
-<div class="flex-col alert success-bg centered">
-<h4 id="average-response-time_3"><span class="success">Average Response Time</span><a class="headerlink" href="#average-response-time_3" title="Permanent link">&para;</a></h4>
-<p>(0 + (30-5) + (35-5)) / 3 ~ 18 s/job</p>
-</div>
-</div>
 <h2 id="fifo-summary">FIFO: <span class="gold">Summary</span><a class="headerlink" href="#fifo-summary" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
@@ -378,15 +384,15 @@ class="success">processes</strong>.</p>
 </div>
 <h2 id="round-robin-algorithm">Round Robin: <span class="gold">Algorithm</span><a class="headerlink" href="#round-robin-algorithm" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># TODO: Handle errors in managing processes</span>
-<span class="n">ScheduleRoundRobin</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Scheduler</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">schedule_rdrn</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Scheduler</span><span class="p">):</span>
     <span class="c1"># Move a process from running queue to waiting queue</span>
-    <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">NCPUS</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">cores</span><span class="p">:</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="n">PauseProcess</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>       <span class="c1"># Preempt! by pausing process</span>
         <span class="n">s</span><span class="o">.</span><span class="n">waiting</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
 
     <span class="c1"># Move processes from waiting queue to running queue</span>
-    <span class="k">while</span> <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">NCPUS</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">waiting</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
+    <span class="k">while</span> <span class="n">s</span><span class="o">.</span><span class="n">running</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">s</span><span class="o">.</span><span class="n">cores</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">waiting</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">waiting</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">StartProcess</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>   <span class="c1"># Start new process</span>
@@ -419,11 +425,11 @@ each:</p>
 
 <div class="flex-row">
 <div class="flex-col alert danger-bg centered">
-<h4 id="average-turnaround-time_4"><span class="danger">Average Turnaround Time</span><a class="headerlink" href="#average-turnaround-time_4" title="Permanent link">&para;</a></h4>
+<h4 id="average-turnaround-time_3"><span class="danger">Average Turnaround Time</span><a class="headerlink" href="#average-turnaround-time_3" title="Permanent link">&para;</a></h4>
 <p>(13 + 14 + 15) / 3 = 14 s/job</p>
 </div>
 <div class="flex-col alert success-bg centered">
-<h4 id="average-response-time_4"><span class="success">Average Response Time</span><a class="headerlink" href="#average-response-time_4" title="Permanent link">&para;</a></h4>
+<h4 id="average-response-time_3"><span class="success">Average Response Time</span><a class="headerlink" href="#average-response-time_3" title="Permanent link">&para;</a></h4>
 <p>(0 + 1 + 2) / 3 = 1 s/job</p>
 </div>
 </div>
