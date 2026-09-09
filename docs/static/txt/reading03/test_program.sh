@@ -87,7 +87,7 @@ test_program() {
 	error "Failure (Valgrind)"
     else
     	strace -e clone ./program $ARGUMENTS > /dev/null 2> $WORKSPACE/test.strace
-    	if [ $(grep -c clone $WORKSPACE/test.strace) -ne $(echo $ARGUMENTS | wc -w) ]; then
+    	if [ $(grep -v ERESTARTNOTINTR $WORKSPACE/test.strace | grep -c clone) -ne $(echo $ARGUMENTS | wc -w) ]; then
 	    error "Failure (Strace)"
 	else
 	    echo "Success"
