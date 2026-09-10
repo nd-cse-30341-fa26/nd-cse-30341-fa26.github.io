@@ -253,12 +253,12 @@ ScheduleMLFQ(s: Scheduler):
 # MLFQ: <span class="gold">Algorithm</span> (<i class="muted">Continued</i>)
 
 ```python
-    # Move jobes from waiting queue to top priority level
+    # Move jobs from waiting queue to top priority level
     while s.waiting.size():
         p = s.waiting.pop()
         MovejobToSchedulerLevel(s, p, 0)
 
-    # Start or resume jobes by moving from levels to running
+    # Start or resume jobs by moving from levels to running
     for level in s.levels:
         while level.size() and s.running.size() < NCPUS:
             p = level.pop()
