@@ -660,7 +660,7 @@ Consider a single-CPU, a timeslice of `10 ms`, and the following
 
 <table class="bordered">
 <tbody>
-<tr class="success-bg" height="70px">
+<tr class="caution-bg" height="70px">
     <td><b>Q0</b> (<i class="muted">10</i>)</td>
     <td width="125px"></td>
     <td width="125px"></td>
@@ -670,7 +670,7 @@ Consider a single-CPU, a timeslice of `10 ms`, and the following
     <td width="125px"></td>
     <td width="125px"></td>
 </tr>
-<tr class="caution-bg" height="70px">
+<tr class="warning-bg" height="70px">
     <td><b>Q1</b> (<i class="muted">20</i>)</td>
     <td width="125px"></td>
     <td width="125px"></td>
@@ -680,8 +680,8 @@ Consider a single-CPU, a timeslice of `10 ms`, and the following
     <td width="125px"></td>
     <td width="125px"></td>
 </tr>
-<tr class="warning-bg" height="70px">
-    <td><b>Q2</b> (<i class="muted">40</i>)</td>
+<tr class="success-bg" height="70px">
+    <td><b>Running</b></td>
     <td width="125px"></td>
     <td width="125px"></td>
     <td width="125px"></td>
