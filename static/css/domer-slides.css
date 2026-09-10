@@ -272,6 +272,12 @@ blockquote {
     gap: 1rem;
 }
 
+.columns-1-2-1 {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 1rem;
+}
+
 .columns-1-5-1 {
     display: grid;
     grid-template-columns: 1fr 5fr 1fr;

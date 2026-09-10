@@ -1,0 +1,40 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="GVV44Brdd7pEe5qwhha-">
+    <mxGraphModel dx="1414" dy="1693" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q7&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q6&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q5&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q4&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q3&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q2&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q1&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;b&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;Q0&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="160" y="-40" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b style=&quot;&quot;&gt;Highest&lt;/b&gt;&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b style=&quot;&quot;&gt;Priority&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="50" y="-15" as="geometry" />
+        </mxCell>
+        <mxCell id="SW9hos5SNR5TVVm4ycwk-23" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b style=&quot;&quot;&gt;Lowest&lt;/b&gt;&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;JetBrains Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b style=&quot;&quot;&gt;Priority&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="50" y="685" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
