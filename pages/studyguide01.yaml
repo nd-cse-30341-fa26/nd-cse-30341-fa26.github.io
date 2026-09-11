@@ -1,0 +1,240 @@
+title:  "Exam 01: Study Guide"
+body:   |
+
+  ## Definitions
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  - Virtualization
+  - Monolithic
+  - Microkernel
+  - Multiprogramming
+  - Timesharing
+  - BIOS
+  - MBR / GPT
+  - Bootloader
+  - Kernel
+  - Init / Systemd
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  - System Call
+  - User mode
+  - Kernel mode
+  - Trap table
+  - Process
+  - Machine State
+  - Cooperative multitasking
+  - Preemptive multitasking
+  - Signal
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  - Scheduling policy
+  - Turnaround time
+  - Response time
+  - FIFO
+  - Round Robin
+  - Convoy effect
+  - Starvation
+  - Priority Boost
+  - Voodoo Number
+
+  </div>
+
+  </div>
+
+  ### Examples
+
+  For each **description**, **identify** the appropriate corresponding **term**.
+
+  <table class="bordered" markdown="1">
+  <thead>
+    <th class="info-bg">Description</th>
+    <th class="caution-bg">Term</th>
+  </thead>
+  <tbody>
+  <tr>
+    <td class="info-bg">
+    The <b>ability</b> to run several applications <b>concurrently</b> on a single machine.
+    </td>
+    <td class="caution-bg" width="50%"></td>
+  </tr>
+  <tr>
+    <td class="info-bg">
+
+    In this form of <b>multitasking</b>, there is a <b>periodic timer
+    interrupt</b> that invokes the scheduler to select another process to
+    execute.
+
+    </td>
+    <td class="caution-bg" width="50%"></td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## System Calls
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### Key Conceptual Questions:
+
+  1. What is a **system call**?
+
+  2. What is a **trap/interrupt**?
+
+  3. What happens during a **system call**?
+
+  4. What are common **system calls**?
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### Examples
+
+  For each of the following, **identify** whether the statement is **True** or
+  **False**.
+
+  1. **System calls** are typically **non-blocking**.
+
+  2. Performing a **system call** begins with a transition from **kernel mode**
+  to **user mode**.
+
+  3. **Signals** cannot interrupt a **system call**.
+
+  </div>
+
+  </div>
+
+  ## Processes
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### Key Conceptual Questions:
+
+  1. What are the **components** of a **process**?
+
+  2. What happens when we **switch** from one **process** to another?
+
+  3. What **system calls** can we use with **processes**?
+
+  4. What causes a **process** to transition from one **state** to another?
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### Examples
+
+  For each of the following, **identify** whether the statement is **True** or **False**.
+
+  1. A **process** transitions from **Blocked** to **Running** when it is
+  selected by the scheduler.
+
+  2. A **process** transitions from **Ready** to **Running** whenever its
+  **system call** is completed.
+
+  3. During a **context switch**, the **operating system** must allocate an
+  **address space** for the **process**.
+
+  </div>
+
+  </div>
+
+  ## Scheduling
+
+  ### Key Conceptual Questions:
+
+  Considering **FIFO** vs **Round Robin** vs **MLFQ**:
+
+  1. What are the **strengths** and **weaknesses** of each **scheduling policy**?
+
+  2. How would each policy **schedule** a sequence of **processes**?
+
+  3. How do you compute **turnaround time** and **response time**?
+
+  ### Examples
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  Consider a single-CPU machine, a timeslice of **10 ms**, and the following
+  processes:
+
+  ```python
+  Process	Arrival Time	Run Time
+  A		 0 ms			30 ms
+  B		10 ms			20 ms
+  C		10 ms			40 ms
+  D		20 ms			10 ms
+  ```
+
+  </div>
+
+  <div class="flex-col alert warning-bg" markdown="1">
+
+  **Note**: For all policies, if multiple processes arrive at the same time,
+  then schedule in **alphabetical** order (ie. `A` before `B`).
+
+  **Note**: For **Round Robin** add new processes to the **waiting** queue
+  first and then rotate.
+
+  **Note**: For **MLFQ**, **Q0** has a timeslice of `10ms`, **Q1** has a
+  timeslice of `20ms`, and **Q2** has a timeslice of `40ms`.
+
+  </div>
+
+  </div>
+
+  After using **FIFO**, **Round Robin**, and **MLFQ** to execute the processes
+  above, complete the following table of metrics (ie. **turnaround** and
+  **response times**) for the listed **processes**:
+
+  <table class="bordered" markdown="1">
+  <thead>
+    <th class="info-bg">Scheduling Policy</th>
+    <th class="danger-bg">Process A - Turnaround</th>
+    <th class="success-bg">Process C - Response</th>
+  </thead>
+  <tbody>
+  <tr><td class="info-bg centered"><b>FIFO</b></td><td class="danger-bg"></td><td class="success-bg"></td></tr>
+  <tr><td class="info-bg centered"><b>Round Robin</b></td><td class="danger-bg"></td><td class="success-bg"></td></tr>
+  <tr><td class="info-bg centered"><b>MLFQ</b></td><td class="danger-bg"></td><td class="success-bg"></td></tr>
+  </tbody>
+  </table>
+
+  ## Project 01
+
+  ### Key Conceptual Questions:
+
+  Considering the scheduler in **Project 01**:
+
+  1. How are **system calls** used in `pqsh`?
+
+  2. How are **data structures** used in `pqsh`?
+
+  3. How are **scheduling policies** implemented in `pqsh`?
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### Examples
+
+  1. **Describe** what happens when the user enters in `"add bin/worksim 10"`,
+  waits ten seconds, and then enters in `"status"`.
+
+  </div>
+
+  </div>
