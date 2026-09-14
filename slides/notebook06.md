@@ -305,8 +305,8 @@ Jobs that are mostly <strong class="info">I/O</strong> will maintain a
 <strong class="special"> ________________________</strong> since
 
 they do not use up their
-<strong class="warning"> __________________</strong> as quickly as
-<strong class="info"> ________________</strong>.
+<strong class="warning"> _________________</strong> as quickly as
+<strong class="info"> _______________</strong>.
 
 This is good for
 <strong class="caution"> __________________</strong> that require good
