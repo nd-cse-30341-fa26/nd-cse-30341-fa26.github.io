@@ -534,6 +534,10 @@ div.footnote > hr {
     background-color: var(--caution);
 }
 
+.warning {
+    color: var(--warning);
+}
+
 .warning-bg {
     border-color: var(--warning);
     color: var(--warning);
