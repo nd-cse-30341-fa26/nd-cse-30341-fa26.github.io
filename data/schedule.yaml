@@ -68,6 +68,7 @@
           - Interview 01
         items:
           - name:       Exam 01
+            link:       studyguide01.html
 
 
 - name:     "Unit 02: Concurrency with Threads"
