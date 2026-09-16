@@ -52,6 +52,8 @@
         topics:         MLFQ, Lottery
         items:
           - name:       Slides 06
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=94d4d157-7994-4149-ae17-b4c100fb6273
 
 - name:     Exam 01
   days:
@@ -61,6 +63,8 @@
           - Project 01
         items:
           - name:       Slides 07
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=58f71b90-b7f8-4907-9403-b4c600fb6914
 
       - date:           Thu 09/17
         topics:         ''
