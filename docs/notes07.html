@@ -242,6 +242,18 @@ class="info">Race Condition</strong></p>
 class="success">Mutual Execution</strong></p>
 </li>
 </ol>
+<div class="alert warning-bg">
+<p><strong>Concurrency</strong> is hard... example of non-obvious <strong>race condition</strong> from
+<strong>Project 01</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">scheduler_handle_signal</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">signum</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">scheduler_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PQSHScheduler</span><span class="p">);</span><span class="w"> </span><span class="c1">// Can interrupt walking the list!</span>
+<span class="w">    </span><span class="n">scheduler_next</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PQSHScheduler</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Even <a href="https://access.redhat.com/security/cve/cve-2024-6409">OpenSSH</a> fell
+victim to this!!!</p>
+</div>
 <h2 id="events-overview">Events: <span class="gold">Overview</span><a class="headerlink" href="#events-overview" title="Permanent link">&para;</a></h2>
 <p>If we only need to <strong class="caution">overlap I/O and
 computation</strong>, we can use <strong class="primary">events</strong> to
