@@ -245,6 +245,23 @@ body:   |
   3. <strong class="success">Need for Atomicity</strong> -> <strong
   class="success">Mutual Execution</strong>
 
+  <div class="alert warning-bg" markdown="1">
+
+  **Concurrency** is hard... example of non-obvious **race condition** from
+  **Project 01**:
+
+  ```c
+  void scheduler_handle_signal(int signum) {
+      scheduler_wait(&PQSHScheduler); // Can interrupt walking the list!
+      scheduler_next(&PQSHScheduler);
+  }
+  ```
+
+  Even [OpenSSH](https://access.redhat.com/security/cve/cve-2024-6409) fell
+  victim to this!!!
+
+  </div>
+
   ## Events: <span class="gold">Overview</span>
 
   If we only need to <strong class="caution">overlap I/O and
