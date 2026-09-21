@@ -582,7 +582,7 @@ blockquote {
     color: var(--nord05);
 }
 
-.hljs-string, .hljs-number {
+.hljs-string, .hljs-number, .hljs-literal {
     color: var(--nord11);
 }
 
