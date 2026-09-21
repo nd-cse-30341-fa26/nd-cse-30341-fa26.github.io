@@ -1,8 +1,8 @@
 ---
-title: "Slides 08: Thread-based Concurrency"
-description: "Thread-based Concurrency"
+title: "Slides 08: Events vs Threads"
+description: "Events vs Threads"
 author: Peter Bui
-keywords: lecture,osp,threads,concurrency
+keywords: lecture,osp,concurrency,events,threads
 url: https://pnutz.h4x0r.space/courses/cse.30341.fa26/slides08.html
 theme: domer-slides
 ---
@@ -11,23 +11,26 @@ theme: domer-slides
 
 # CSE 30341
 
-## Thread-based Concurrency
+## Events vs Threads
 
 ---
 
 # Questions
 
-<div class="font-large">
+1. How do we <strong class="caution">overlap I/O and compute</strong> within a
+   single <strong class="success">process</strong>?
 
-1. What are the <strong class="success">pros</strong> and <strong
-   class="danger">cons</strong> of:
+    <div class="font-smaller">
 
-    - <strong class="caution">Event-based concurrency</strong> with <strong
-      class="warning">select/poll</strong>
+    - What <strong class="warning">system calls</strong> can we use?
 
-    - <strong class="primary">Threads</strong>
+    - How do we use these <strong class="warning">system calls</strong>?
 
-2. What functions do we use to
+    </div>
+
+2. What functions do we use to:
+
+    <div class="font-smaller">
 
     - <strong class="warning">Create</strong> a <strong
       class="primary">thread</strong>
@@ -41,20 +44,135 @@ theme: domer-slides
     - <strong class="warning">Notify</strong> another <strong
       class="primary">thread</strong>
 
-</div>
+    </div>
+
+3. What are the <strong class="success">pros</strong> and <strong
+   class="danger">cons</strong> of:
+
+    <div class="font-smaller">
+
+    - <strong class="caution">Event-based concurrency</strong> with <strong
+      class="warning">select/poll</strong>
+
+    - <strong class="primary">Thread-based concurrency</strong> with [POSIX Threads]
+
+    </div>
 
 ---
 
 <!-- _class: lead -->
 
-# POSIX Threads
+# Event-based Concurrency
 
 ---
 
-# PThreads: <span class="gold">Overview</span>
+# Events: <span class="gold">Overview</span>
 
-On Unix (or *Unix-like*) systems, we can use the [POSIX] [Thread API], which
-defines functions for:
+If we only need to <strong class="warning">overlap I/O and
+computation</strong>, we can use <strong class="caution">events</strong> to
+provide <strong class="success">concurrency</strong> without <strong
+class="danger">parallelism</strong>:
+
+<div class="columns">
+
+<div>
+
+- Register interest in <strong class="primary">events</strong> (*callbacks*).
+
+- <strong class="info">Event loop</strong> waits for <strong
+  class="primary">event</strong> and then invokes <strong
+  class="success">handlers</strong>.
+
+- <strong class="success">Handlers</strong> generally **short-lived** and not
+  **pre-empted**.
+
+</div>
+
+<div class="centered">
+<br>
+<img src="static/img/slides07-event-loop.svg" height="300px">
+</div>
+
+</div>
+
+---
+
+# Events: <span class="gold">Implementation</span>
+
+<table class="bordered">
+<thead>
+    <th class="info-bg"></th>
+    <th class="info-bg">Blocking</th>
+    <th class="info-bg">Non-Blocking</th>
+</thead>
+<tbody>
+<tr class="caution-bg">
+    <td>Synchronous</td>
+    <td>Read/Write</td>
+    <td>Read/Write (<i>O_NONBLOCK</i>)</td>
+</tr>
+<tr class="success-bg">
+    <td>Asynchronous</td>
+    <td>Select/Poll</td>
+    <td>AIO</td>
+</tr>
+</tbody>
+</table>
+
+<div class="centered">
+
+To achieve <strong class="special">asynchronous style I/O</strong> while still
+utilizing our traditional <strong class="danger">read/write</strong> system
+calls, we can use <strong class="success">select</strong> or <strong
+class="success">poll</strong> to check if I/O is ready or not before performing
+the <strong class="warning">blocking system call</strong>.
+
+</div>
+
+---
+
+# Events: <span class="gold">Event Loop</span> (<i class="muted">Poll</i>)
+
+```c
+while (true) {
+    // Setup poll structure
+    struct pollfd pfd = {STDIN_FILENO, POLLIN|POLLPRI, 0};
+
+    // Wait for either event or timeout
+    int result = poll(&pfd, 1, TIMEOUT);
+
+    // Check handle events
+    if (result < 0) {           // Error
+
+    } else if (result == 0) {   // No Events occurred
+
+    } else {                    // Events occurred
+                                // Handle events
+    }
+}
+```
+
+---
+
+# Events: [counter.c](https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture07/counter.c)
+
+> Implement a `counter` program that periodically **increments a counter** and
+> and provides a **shell prompt** that allows the user to view the state of the
+> `counter`, reset the `counter` and exit the program.
+
+---
+
+<!-- _class: lead -->
+
+# Thread-based Concurrency
+
+---
+
+# Threads: <span class="gold">Overview</span>
+
+On Unix (or *Unix-like*) systems, we can implement <strong class="primary">thread-based
+concurrency</strong> by using the [POSIX] [Thread API], which defines
+functions for:
 
 <div class="columns">
 
@@ -89,7 +207,7 @@ defines functions for:
 
 ---
 
-# PThreads: <span class="gold">Implementations</span>
+# Threads: <span class="gold">Implementations</span>
 
 <div class="slide-centered">
 
@@ -99,7 +217,7 @@ defines functions for:
 
 ---
 
-# PThreads: <span class="gold">Compiling</span>
+# Threads: <span class="gold">Compiling</span>
 
 To <strong class="warning">compile</strong> a program that uses [POSIX
 Threads], we need to include the <strong class="primary">pthreads</strong>
@@ -119,7 +237,7 @@ $ gcc -pthread -o program program.c
 
 ---
 
-# PThreads: <span class="gold">Analogs</span>
+# Threads: <span class="gold">Analogs</span>
 
 <br>
 
@@ -155,7 +273,7 @@ $ gcc -pthread -o program program.c
 
 ---
 
-# PThreads: <span class="gold">Creating</span>
+# Threads: <span class="gold">Creating</span>
 
 When our <strong class="success">process</strong> starts, we have one <strong
 class="info">main thread</strong>.  To <strong class="warning">create</strong>
@@ -212,7 +330,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# PThreads: <span class="gold">Waiting</span>
+# Threads: <span class="gold">Waiting</span>
 
 To <strong class="warning">wait</strong> for a <strong
 class="info">thread</strong> to complete, we can use the <strong
@@ -266,7 +384,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# PThreads: <span class="gold">Locking</span>
+# Threads: <span class="gold">Locking</span>
 
 To guard a <strong class="danger">critical section</strong>, we utilize <strong
 class="warning">locks</strong> or <strong class="warning">mutual
@@ -292,7 +410,7 @@ pthread_mutex_unlock(&Lock);        // Release lock
 
 ---
 
-# PThreads: <span class="gold">Notifying</span>
+# Threads: <span class="gold">Notifying</span>
 
 To <strong class="warning">notify</strong> or <strong
 class="warning">signal</strong> another <strong class="info">thread</strong>,
@@ -342,33 +460,8 @@ pthread_mutex_unlock(&Lock);  // Release lock
 
 ---
 
-# Example: [counter.c]
+# Threads: [counter.c](https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture08/counter.c)
 
-We want to create an application, `counter`, that does the following:
-
-- Periodically **increments a `counter`**.
-
-- Provides a **shell prompt** that allows the user to enter in a **`command`**:
-
-<table class="bordered">
-<thead>
-    <th class="info-bg">Command</th>
-    <th class="success-bg">Description</th>
-</thead>
-<tbody>
-<tr>
-    <td class="info-bg centered"><b>count</b></td>
-    <td class="success-bg">Returns the current value of <code>counter</code></td>
-</tr>
-<tr>
-    <td class="info-bg centered"><b>reset</b></td>
-    <td class="success-bg">Resets counter to <code>0</code></td>
-</tr>
-<tr>
-    <td class="info-bg centered"><b>exit</b></td>
-    <td class="success-bg">Quit program</td>
-</tr>
-</tbody>
-</table>
-
-[counter.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture08/counter.c
+> Implement a `counter` program that periodically **increments a counter** and
+> and provides a **shell prompt** that allows the user to view the state of the
+> `counter`, reset the `counter` and exit the program.
