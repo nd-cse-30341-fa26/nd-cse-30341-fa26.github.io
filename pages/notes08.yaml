@@ -1,0 +1,442 @@
+title:  "Notes 08: Events vs Threads"
+body:   |
+
+  ## Logistics
+
+  - **Exam 01**: Check grades on **Canvas**, **one week** to make any corrections.
+
+  - [Project 02]: pub/sub library, `libcurl` for **HTTP** requests, **chat application**
+
+  [Project 02]: project02.html
+
+  ## Review
+
+  - What is the difference between <strong class="success">concurrency</strong>
+  and <strong class="danger">parallelism</strong>?
+
+  - What are the challenges in <strong class="success">concurrency</strong>?
+
+  ## Motivation
+
+  We want to create an application, `counter`, that does the following:
+
+  - Periodically **increments a `counter`**.
+
+  - Provides a **shell prompt** that allows the user to enter in a **`command`**:
+
+  <table class="bordered">
+  <thead>
+    <th class="info-bg">Command</th>
+    <th class="success-bg">Description</th>
+  </thead>
+  <tbody>
+  <tr>
+    <td class="info-bg centered"><b>count</b></td>
+    <td class="success-bg">Returns the current value of <code>counter</code></td>
+  </tr>
+  <tr>
+    <td class="info-bg centered"><b>reset</b></td>
+    <td class="success-bg">Resets counter to <code>0</code></td>
+  </tr>
+  <tr>
+    <td class="info-bg centered"><b>exit</b></td>
+    <td class="success-bg">Quit program</td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Events: <span class="gold">Overview</span>
+
+  If we only need to <strong class="caution">overlap I/O and
+  computation</strong>, we can use <strong class="primary">events</strong> to
+  provide <strong class="success">concurrency</strong> without <strong
+  class="danger">parallelism</strong>:
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  - Register interest in <strong class="primary">events</strong> (*callbacks*).
+
+  - <strong class="info">Event loop</strong> waits for <strong
+    class="primary">event</strong> and then invokes <strong
+    class="success">handlers</strong>.
+
+  - <strong class="success">Handlers</strong> generally **short-lived** and not
+    **pre-empted**.
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <div class="centered">
+
+  <img src="static/img/slides07-event-loop.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## Events: [counter.c](https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture07/counter.c)
+
+  ```c
+  int main(int argc, char *argv[]) {
+      bool prompt  = true;
+      int  counter = 0;
+      char buffer[BUFSIZ];
+
+      while (true) {
+          /* Display prompt */
+          if (prompt) {
+              fputs(PROMPT, stdout); fflush(stdout); prompt = false;
+          }
+
+          /* TODO: Poll STDIN */
+          struct pollfd pfd = {STDIN_FILENO, POLLIN|POLLPRI, 0};
+          int    result     = poll(&pfd, 1, TIMEOUT);
+
+          /* Process event */
+          if (result < 0) {           /* TODO: Error */
+              fprintf(stderr, "Unable to poll: %s\n", strerror(errno));
+          } else if (result == 0) {   /* TODO: Update counter */
+              counter++;
+          } else {                    /* TODO: Handle command */
+              if (!fgets(buffer, BUFSIZ, stdin)) {
+                  break;
+              }
+
+              buffer[strlen(buffer) - 1] = 0;
+
+              if (strcmp(buffer, "count") == 0) {
+                  fprintf(stdout, "Counter is %d\n", counter);
+              } else if (strcmp(buffer, "reset") == 0) {
+                  counter = 0;
+                  fputs("Counter is reset!\n", stdout);
+              } else if (strcmp(buffer, "exit") == 0) {
+                  fputs("Bye!\n", stdout);
+                  break;
+              } else {
+                  fprintf(stderr, "Unknown command: %s\n", buffer);
+              }
+
+              prompt = true;
+          }
+      }
+
+      return 0;
+  }
+  ```
+
+  <div class="alert warning-bg" markdown="1">
+
+  ```bash
+  $ yes count > input
+
+  $ ./counter < input
+  ```
+
+  - **DDOS**!!!
+
+  - **Handlers** should be **short-lived**.
+
+  - **Concurrency**, but no **parallelism**.
+
+  </div>
+
+  ## Events vs Threads
+
+  <table class="bordered">
+  <thead>
+      <th class="caution-bg"></th>
+      <th class="success-bg">Pros</th>
+      <th class="danger-bg">Cons</th>
+  </thead>
+  <tbody>
+  <tr>
+      <td class="caution-bg centered"><b>Events</b></td>
+      <td class="success-bg centered">Efficient concurrency</td>
+      <td class="danger-bg centered">DOS, No Parallelism</td>
+  </tr>
+  <tr>
+      <td class="caution-bg centered"><b>Threads</b></td>
+      <td class="success-bg centered">Parallelism</td>
+      <td class="danger-bg centered">Complicated, Tricky</td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Threads: Overview
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  On Unix (or *Unix-like*) systems, we can implement <strong class="primary">thread-based
+  concurrency</strong> by using the [POSIX] [Thread API], which defines
+  functions for:
+
+  - <strong class="warning">Creating</strong> new <strong
+    class="primary">threads</strong>
+
+  - <strong class="warning">Waiting</strong> on <strong
+    class="primary">threads</strong>
+
+  - <strong class="warning">Locking</strong> shared resources
+
+  - <strong class="warning">Notifying</strong> other <strong
+    class="primary">thread</strong>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <img src="static/img/slides08-pthreads-overview.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  [POSIX]: http://pubs.opengroup.org/onlinepubs/9699919799/
+  [Thread API]: http://man7.org/linux/man-pages/man7/pthreads.7.html
+
+  ## Threads: <span class="gold">Analogs</span>
+
+  <table class="bordered">
+  <thead>
+      <th class="caution-bg">Action</th>
+      <th class="success-bg">Process</th>
+      <th class="info-bg">Thread</th>
+  </thead>
+  <tbody>
+  <tr>
+      <td class="caution-bg centered"><b>Create new task</b></td>
+      <td class="success-bg">fork + exec</td>
+      <td class="info-bg">pthread_create</td>
+  </tr>
+  <tr>
+      <td class="caution-bg centered"><b>Wait for task</b></td>
+      <td class="success-bg">wait / waitpid</td>
+      <td class="info-bg">pthread_join</td>
+  </tr>
+  <tr>
+      <td class="caution-bg centered"><b>Lock critical section</b></td>
+      <td class="success-bg">sigprocmask<br>SIG_BLOCK/SIG_UNBLOCK</td>
+      <td class="info-bg">pthread_mutex_lock<br>pthread_mutex_unlock</td>
+  </tr>
+  <tr>
+      <td class="caution-bg centered"><b>Notify another task</b></td>
+      <td class="success-bg">sigaction / signal<br>kill</td>
+      <td class="info-bg">pthread_cond_wait<br>pthread_cond_signal</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert danger-bg" markdown="1">
+
+  **Project 01**: There is a race condition possible with **signals**.
+
+  </div>
+
+  ## Threads: <span class="gold">Many-to-One</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  <div class="alert success-bg" markdown="1">
+
+  - Portable, flexible, straightforward to implement
+
+  </div>
+
+  <div class="alert danger-bg" markdown="1">
+
+  - No parallelism
+  - A thread that blocks, blocks everyone in that process
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <img src="static/img/slides08-pthreads-many-to-one.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Threads: <span class="gold">One-to-One</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  <div class="alert success-bg" markdown="1">
+
+  - **Parallelism**: Can take advantage of extra hardware resources.
+  - One thread blocking does not prevent other threads in process from running.
+
+  </div>
+
+  <div class="alert danger-bg" markdown="1">
+
+  - Limits our scalability: resources ... memory usage of **stack**.
+
+  - Limits our scalability: algorithmic ... linear search in `queue_remove`.
+
+  - **Discuss**: Why is `fork` bomb really bad? (**Denial of service**)
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <img src="static/img/slides08-pthreads-one-to-one.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Threads: <span class="gold">Many-to-Many</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  <div class="alert success-bg" markdown="1">
+
+  - Scalability
+  - Custom scheduling / flexibility
+
+  </div>
+
+  <div class="alert danger-bg" markdown="1">
+
+  - **Complex**: really hard to get right
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <img src="static/img/slides08-pthreads-many-to-many.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Threads: [counter.c](https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture08/counter.c)
+
+  ```c
+  /* Globals */
+  int         Counter  = 0;
+  pthread_mutex_t Lock = PTHREAD_MUTEX_INITIALIZER;
+
+  /* Functions */
+
+  void *update_counter(void *arg) {   // Background thread
+      while (true) {                  // Version 0: Just count (no loop)
+          usleep(TIMEOUT * 1000);
+          pthread_mutex_lock(&Lock);  // Version 1: No lock
+          Counter += 1;
+          pthread_mutex_unlock(&Lock);
+      }
+
+      return NULL;
+  }
+
+  /* Main execution */
+
+  int main(int argc, char *argv[]) {
+      // Background Thread - Update Loop
+      pthread_t thread;
+      pthread_create(&thread, NULL, update_counter, 0);
+
+      // Foreground Thread - I/O Loop
+      while (true) {
+          char buffer[BUFSIZ];
+
+          // Display prompt
+          fputs(PROMPT, stdout); fflush(stdout);
+
+          // Read input
+          if (!fgets(buffer, BUFSIZ, stdin)) {
+              break;
+          }
+          buffer[strlen(buffer) - 1] = 0;
+
+          // Process input
+          if (strcmp(buffer, "count") == 0) {
+              pthread_mutex_lock(&Lock);    // Version 1: No locks
+              fprintf(stdout, "Counter is %d\n", Counter);
+              pthread_mutex_unlock(&Lock);
+          } else if (strcmp(buffer, "reset") == 0) {
+              pthread_mutex_lock(&Lock);    // Version 1: No locks
+              Counter = 0;
+              pthread_mutex_unlock(&Lock);
+              fputs("Counter is reset!\n", stdout);
+          } else if (strcmp(buffer, "exit") == 0) {
+              fputs("Bye!\n", stdout);
+              break;
+          } else {
+              fprintf(stderr, "Unknown command: %s\n", buffer);
+          }
+      }
+
+      return 0;
+  }
+  ```
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Notes**:
+
+  - `#include <pthread.h>`
+  - `man pthread_create`
+  - Add `-pthread` to `Makefile`
+  - Try with **big** input (ie. `yes count > input`)
+
+  **Questions**:
+
+  - Why didn't I need to create a foreground thread? *main*
+  - What happens if main thread dies? *everything dies*
+  - Is it correct? What is dangerous? *race condition*
+
+  </div>
+
+  ## Threads: <span class="gold">Disassembly</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="danger">Background Thread</span>
+
+  Counter++
+
+  ```
+  LOAD  $Counter, R1
+  ADD   R1, 1
+  STORE $Counter, R1
+  ```
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="success">Foreground Thread</span>
+
+  Counter = 0
+
+  ```
+  STORE $Counter, 0
+  ```
+
+  </div>
+
+  </div>
