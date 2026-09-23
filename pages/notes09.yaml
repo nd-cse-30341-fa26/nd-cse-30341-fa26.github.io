@@ -1,0 +1,462 @@
+title:  "Notes 09: Locks"
+body:   |
+
+  ## Review
+
+  - Why do I want **threads** (<i>instead of **processes**</i>)? **light-weight**
+
+      - What do we **not share**? **Execution context**, **stack**
+
+      - What do we **share**? **Address space (code, data, heap)**, **Kernel state**
+
+      - Gives us **internal concurrency** (<i>**concurrency** with less
+      overhead of processes</i>)
+
+  ## Threads: [counter.c] (<i class="muted">skit</i>)
+
+  > **Question**: Is the version without locks **safe/correct**?
+
+  [counter.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture08/counter.c
+
+  ### Skit
+
+  **Two people** come up:
+
+  - **Person A (I/O)**: Listens for user's command
+  - **Person B (CPU)**: Updates counter
+  - **Scenario**: What if there is only one **CPU**... and **Person B** gets
+  interrupted before updating... **race condition**!
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  We need **atomicity**! Region of code with **shared resource** is **critical
+  section**... before accessing **shared resource**, we need to grab
+  **mutex/lock**!
+
+  </div>
+
+  - Redo skit with people **grabbing lock** before accessing **shared
+  resource**.
+
+  - If someone has the **lock**, other **threads** will voluntarily **wait**
+  until the **lock** is free.
+
+  - **Threads** can choose to **ignore lock**!
+
+  <div class="alert success-bg centered" markdown="1">
+
+  We should **abstract** the **lock** away (*Tuesday*).
+
+  </div>
+
+  ## Threads: <span class="gold">Disassembly</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="danger">Background Thread</span>
+
+  Counter++
+
+  ```
+  LOAD  $Counter, R1
+  ADD   R1, 1
+  STORE $Counter, R1
+  ```
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="success">Foreground Thread</span>
+
+  Counter = 0
+
+  ```
+  STORE $Counter, 0
+  ```
+
+  </div>
+
+  </div>
+
+  ## Locks: <span class="gold">POSIX Threads</span>
+
+  Use a <strong class="warning">lock</strong> or <strong class="warning">mutual
+  exclusion</strong> to guard a <strong class="danger">critical section</strong>,
+  which is a <strong class="caution">region of code</strong> that <strong
+  class="danger">acces a shared resource</strong>:
+
+  ```c
+  pthread_mutex_t Lock;               // Declare lock
+  pthread_mutex_init(&Lock, NULL);    // Initialize lock
+
+  pthread_mutex_lock(&Lock);          // Acquire lock
+  access_shared_resource();           // Perform critical section
+  pthread_mutex_unlock(&Lock);        // Release lock
+  ```
+
+  ## Threads: [counter.c](https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture08/counter.c)
+
+  ```c
+  /* Globals */
+  int         Counter  = 0;
+  pthread_mutex_t Lock = PTHREAD_MUTEX_INITIALIZER;
+
+  /* Functions */
+
+  void *update_counter(void *arg) {   // Background thread
+      while (true) {                  // Version 0: Just count (no loop)
+          usleep(TIMEOUT * 1000);
+          pthread_mutex_lock(&Lock);  // Version 1: No lock
+          Counter += 1;
+          pthread_mutex_unlock(&Lock);
+      }
+
+      return NULL;
+  }
+
+  /* Main execution */
+
+  int main(int argc, char *argv[]) {
+      // Background Thread - Update Loop
+      pthread_t thread;
+      pthread_create(&thread, NULL, update_counter, 0);
+
+      // Foreground Thread - I/O Loop
+      while (true) {
+          char buffer[BUFSIZ];
+
+          // Display prompt
+          fputs(PROMPT, stdout); fflush(stdout);
+
+          // Read input
+          if (!fgets(buffer, BUFSIZ, stdin)) {
+              break;
+          }
+          buffer[strlen(buffer) - 1] = 0;
+
+          // Process input
+          if (strcmp(buffer, "count") == 0) {
+              pthread_mutex_lock(&Lock);    // Version 1: No locks
+              fprintf(stdout, "Counter is %d\n", Counter);
+              pthread_mutex_unlock(&Lock);
+          } else if (strcmp(buffer, "reset") == 0) {
+              pthread_mutex_lock(&Lock);    // Version 1: No locks
+              Counter = 0;
+              pthread_mutex_unlock(&Lock);
+              fputs("Counter is reset!\n", stdout);
+          } else if (strcmp(buffer, "exit") == 0) {
+              fputs("Bye!\n", stdout);
+              break;
+          } else {
+              fprintf(stderr, "Unknown command: %s\n", buffer);
+          }
+      }
+
+      return 0;
+  }
+  ```
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Notes**:
+
+  - `#include <pthread.h>`
+  - `man pthread_create`
+  - Add `-pthread` to `Makefile`
+  - Try with **big** input (ie. `yes count > input`)
+
+  **Questions**:
+
+  - Why didn't I need to create a foreground thread? *main*
+  - What happens if main thread dies? *everything dies*
+  - Is it correct? What is dangerous? *race condition*
+
+  </div>
+
+  ## Locks: [prime]
+
+  > Implement a program that computes the number of **prime numbers** between `1`
+  > and `400,000`.
+
+  1. <strong class="info">Single-thread</strong>
+
+  2. <strong class="caution">Locks</strong>
+
+  3. <strong class="success">Lock-less</strong>
+
+  [prime]: https://github.com/nd-cse-30341-fa26/examples/tree/master/lecture09
+
+  ### Locks: [prime] (<i class="muted">single-threaded</i>)
+
+  ```c
+  size_t is_prime(size_t n) {
+      for (size_t i = 2; i < n; i++) {
+          if (n % i == 0)
+              return 0;
+      }
+      return 1;
+  }
+
+  int main(int argc, char *argv[]) {
+      size_t count = 0;
+      for (size_t i = 2; i < PRIME_MAX; i++) {
+          count += is_prime(i);
+      }
+      printf("There are %lu primes less than %lu\n", count, PRIME_MAX);
+      return 0;
+  }
+  ```
+
+  <div class="alert caution-bg" markdown="1">
+
+  **Questions**:
+
+  - Is this problem **data** or **task parallel**? <i>**Data parallel**.</i>
+
+  - How could I make this **faster**? <i>Use **threads** to process ranges.</i>
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v1</i>)
+
+  ```c
+  /* Structure */
+  typedef struct {
+      size_t start;
+      size_t stop;
+  } PrimeArgs;
+
+  // Version 0: No locks
+  void * count_primes(void *arg) {
+      PrimeArgs *pa = (PrimeArgs *)arg;
+      printf("start=%lu, stop=%lu\n", pa->start, pa->stop);
+
+      for (size_t n = pa->start; n < pa->stop; n++) {
+          if (is_prime(n)) {
+              Count++;
+          }
+      }
+      return NULL;
+  }
+
+  int main(int argc, char *argv[]) {
+      pthread_t thread;
+      PrimeArgs args;
+
+      // Division of work
+      for (size_t t = 0; t < NUM_THREADS; t++) {
+          args.start = max(2, t*PRIME_MAX/NUM_THREADS);
+          args.stop  = (t+1)*PRIME_MAX/NUM_THREADS;
+          pthread_create(&threads, NULL, count_primes, &args);
+      }
+
+      printf("There are %lu primes less than %ld\n", Count, PRIME_MAX);
+      return 0;
+  }
+  ```
+
+  <div class="alert danger-bg" markdown="1">
+
+  **Observation**:
+
+  - **Problem 1**: If **main thread** exits... everything exits.
+
+  - **Solution**: **Wait** for **worker threads**.
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v2</i>)
+
+  ```c
+  int main(int argc, char *argv[]) {
+      pthread_t threads[NUM_THREADS]  // Need array of threads
+      PrimeArgs args;
+
+      // Division of work
+      for (size_t t = 0; t < NUM_THREADS; t++) {
+          args.start = max(2, t*PRIME_MAX/NUM_THREADS);
+          args.stop  = (t+1)*PRIME_MAX/NUM_THREADS;
+          pthread_create(&threads[t], NULL, count_primes, &args);
+      }
+
+      // Wait for threads
+      for (size_t t = 0; t < NUM_THREADS; t++) {
+          pthread_join(threads[t], NULL);
+      }
+
+      printf("There are %lu primes less than %ld\n", Count, PRIME_MAX);
+      return 0;
+  }
+  ```
+
+  <div class="alert danger-bg" markdown="1">
+
+  **Observation**:
+
+  - **Problem 2**: **Slow** and produces **wrong output**.
+
+  - **Solution**: Debug to figure out problem... **Need separate args per thread**.
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v3</i>)
+
+  ```c
+  int main(int argc, char *argv[]) {
+      pthread_t threads[NUM_THREADS]  // Need array of threads
+      PrimeArgs args[NUM_THREADS];    // Need array of arguments
+
+      // Division of work
+      for (size_t t = 0; t < NUM_THREADS; t++) {
+          args[t].start = max(2, t*PRIME_MAX/NUM_THREADS);
+          args[t].stop  = (t+1)*PRIME_MAX/NUM_THREADS;
+          pthread_create(&threads[t], NULL, count_primes, &args[t]);
+      }
+
+      // Wait for threads
+      for (size_t t = 0; t < NUM_THREADS; t++) {
+          pthread_join(threads[t], NULL);
+      }
+
+      printf("There are %lu primes less than %ld\n", Count, PRIME_MAX);
+      return 0;
+  }
+  ```
+
+  <div class="alert danger-bg" markdown="1">
+
+  **Observation**:
+
+  - **Problem 3**: **Fast** and produces **wrong output**.
+
+  - **Solution**: **Need to protect shared resource**.
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v4</i>)
+
+  ```c
+  // Global Variables
+  pthread_mutex_t Lock  = PTHREAD_MUTEX_INITIALIZER;
+
+  // Version 1: Lock all checks
+  void * count_primes(void *arg) {
+      PrimeArgs *pa = (PrimeArgs *)arg;
+
+      pthread_mutex_lock(&Lock);
+      for (size_t n = pa->start; n < pa->stop; n++) {
+          if (is_prime(n)) {
+              Count++;
+          }
+      }
+      pthread_mutex_unlock(&Lock);
+
+      return NULL;
+  }
+  ```
+
+  <div class="alert danger-bg" markdown="1">
+
+  **Observation**:
+
+  - **Problem 4**: **Slow** and looks like only one **CPU** is being used.
+
+  - **Solution**: Only **lock** what you need to.
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v5</i>)
+
+  ```c
+  // Version 2: Lock just update
+  void * count_primes(void *arg) {
+      PrimeArgs *pa = (PrimeArgs *)arg;
+
+      for (size_t n = pa->start; n < pa->stop; n++) {
+          if (is_prime(n)) {
+              pthread_mutex_lock(&Lock);
+              Count++;
+              pthread_mutex_unlock(&Lock);
+          }
+      }
+
+      return NULL;
+  }
+  ```
+
+  <div class="alert caution-bg" markdown="1">
+
+  **Observation**:
+
+  - Could just track **local count**!
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v6</i>)
+
+  ```c
+  void * count_primes(void *arg) {
+      PrimeArgs *pa = (PrimeArgs *)arg;
+
+      // Version 3: Use local counter
+      size_t local_count = 0;
+      for (size_t n = pa->start; n < pa->stop; n++) {
+          if (is_prime(n)) {
+              local_count++;
+          }
+      }
+
+      pthread_mutex_lock(&Lock);
+      Count += local_count;
+      pthread_mutex_unlock(&Lock);
+
+      return NULL;
+  }
+  ```
+
+  <div class="alert caution-bg" markdown="1">
+
+  **Observation**:
+
+  - Actually, don't need to lock at all!!!
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v7</i>)
+
+  ```c
+  void * count_primes(void *arg) {
+      PrimeArgs *pa = (PrimeArgs *)arg;
+
+      // Version 3: Use local counter
+      size_t local_count = 0;
+      for (size_t n = pa->start; n < pa->stop; n++) {
+          if (is_prime(n)) {
+              local_count++;
+          }
+      }
+
+      return (void *)local_count;
+  }
+
+  ...
+      // Main - Wait for threads
+
+      size_t thread_count = 0;
+      for (size_t t = 0; t < NUM_THREADS; t++) {
+          pthread_join(threads[i], (void **)&thread_count);
+          Count += thread_count;
+      }
+  ```
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Observation**:
+
+  **Amdahl's Law**: Sequential portion is **bottleneck** and limits scaling
+  (**demo**: `32` cores).
+
+  </div>
