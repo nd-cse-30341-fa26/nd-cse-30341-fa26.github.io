@@ -92,6 +92,8 @@
         topics:         Locks
         items:
           - name:       Slides 09
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=2cf73978-6d5a-47d8-a5a6-b4cf00fe1d84
 
 - name:     Condition Variables
   days:
