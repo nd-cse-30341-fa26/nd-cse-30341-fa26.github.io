@@ -1,20 +1,66 @@
 title:  "Notes 09: Locks"
 body:   |
 
-  ## Review
+  ## Review: <span class="gold">Processes vs Events vs Threads</span>
 
-  - Why do I want **threads** (<i>instead of **processes**</i>)? **light-weight**
+  > What is **concurrency**?  What are different ways to implement it?
 
-      - What do we **not share**? **Execution context**, **stack**
+  <table class="bordered" markdown="1">
+  <thead>
+      <th class="success-bg">Processes</th>
+      <th class="caution-bg">Events</th>
+      <th class="info-bg">Threads</th>
+  </thead>
+  <tbody markdown="1">
+  <tr markdown="1">
+  <td class="success-bg" width="400px" markdown="1">
 
-      - What do we **share**? **Address space (code, data, heap)**, **Kernel state**
+  (+) **Abstraction**: **CPU**
+  <br>(+) **Parallelism**
+  <br>
+  <br>(~) No **sharing** (*memory*)
+  <br>(~) Need to use **IPC**
 
-      - Gives us **internal concurrency** (<i>**concurrency** with less
-      overhead of processes</i>)
+  <br>
+  <br>**Context Switch**:
+  <br>[x] **Address Space**
+  <br>[x] **Kernel State**
+  <br>[v] **Execution Context**
+
+  </td>
+
+  <td class="caution-bg" width="400px" markdown="1">
+
+  (~) Signals
+  <br>(+) **Select / Poll**
+  <br>
+  <br>(-) No **parallelism**
+  <br>
+
+  </td>
+
+  <td class="info-bg" width="400px" markdown="1">
+
+  (+) **Abstraction**: **Execution Context** (*LWP*)
+  <br>(+) **Parallelism**
+  <br>
+  <br>(~) **Sharing** (*memory*)
+  <br>(~) Need to **synchronize**
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Note**: `libcurl` uses **events** underneath!!!
+
+  </div>
 
   ## Threads: [counter.c] (<i class="muted">skit</i>)
 
-  > **Question**: Is the version without locks **safe/correct**?
+  > **Comment** the code and explain why this is **unsafe** via a **skit**.
 
   [counter.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture08/counter.c
 
@@ -43,12 +89,6 @@ body:   |
 
   - **Threads** can choose to **ignore lock**!
 
-  <div class="alert success-bg centered" markdown="1">
-
-  We should **abstract** the **lock** away (*Tuesday*).
-
-  </div>
-
   ## Threads: <span class="gold">Disassembly</span>
 
   <div class="flex-row" markdown="1">
@@ -60,9 +100,9 @@ body:   |
   Counter++
 
   ```
-  LOAD  $Counter, R1
-  ADD   R1, 1
-  STORE $Counter, R1
+  LOAD    $Counter, R1    // 1
+  ADD     R1, 1           // 2
+  STORE   $Counter, R1    // 4
   ```
 
   </div>
@@ -74,10 +114,16 @@ body:   |
   Counter = 0
 
   ```
-  STORE $Counter, 0
+  STOREI  $Counter, 0     // 3
   ```
 
   </div>
+
+  </div>
+
+  <div class="alert info-bg" markdown="1">
+
+  [counter.c] is an example of **task parallelism**.
 
   </div>
 
@@ -101,14 +147,15 @@ body:   |
 
   ```c
   /* Globals */
-  int         Counter  = 0;
+  int Counter = 0;
   pthread_mutex_t Lock = PTHREAD_MUTEX_INITIALIZER;
 
   /* Functions */
 
   void *update_counter(void *arg) {   // Background thread
       while (true) {                  // Version 0: Just count (no loop)
-          usleep(TIMEOUT * 1000);
+          sleep(1);
+
           pthread_mutex_lock(&Lock);  // Version 1: No lock
           Counter += 1;
           pthread_mutex_unlock(&Lock);
@@ -161,18 +208,16 @@ body:   |
 
   <div class="alert warning-bg" markdown="1">
 
-  **Notes**:
-
-  - `#include <pthread.h>`
-  - `man pthread_create`
-  - Add `-pthread` to `Makefile`
-  - Try with **big** input (ie. `yes count > input`)
-
   **Questions**:
 
   - Why didn't I need to create a foreground thread? *main*
-  - What happens if main thread dies? *everything dies*
-  - Is it correct? What is dangerous? *race condition*
+  - Who enforces the **lock**? *noone*, hence *mutual exclusion*
+
+  </div>
+
+  <div class="alert success-bg centered" markdown="1">
+
+  We should use **data structure** to **abstract** the **lock** away (*Tuesday*).
 
   </div>
 
@@ -193,6 +238,7 @@ body:   |
 
   ```c
   size_t is_prime(size_t n) {
+      // Review: size_t
       for (size_t i = 2; i < n; i++) {
           if (n % i == 0)
               return 0;
@@ -231,18 +277,23 @@ body:   |
 
   // Version 0: No locks
   void * count_primes(void *arg) {
+      // Review: void *, casting
       PrimeArgs *pa = (PrimeArgs *)arg;
-      printf("start=%lu, stop=%lu\n", pa->start, pa->stop);
+
+      // Review: print debugging
+      printf("[%ld] start=%lu, stop=%lu\n", pthread_self(), pa->start, pa->stop);
 
       for (size_t n = pa->start; n < pa->stop; n++) {
           if (is_prime(n)) {
               Count++;
           }
       }
+
       return NULL;
   }
 
   int main(int argc, char *argv[]) {
+      // Demonstrate: lscpu
       pthread_t thread;
       PrimeArgs args;
 
@@ -456,7 +507,42 @@ body:   |
 
   **Observation**:
 
-  **Amdahl's Law**: Sequential portion is **bottleneck** and limits scaling
-  (**demo**: `32` cores).
+  - **Problem**: Division of work is unbalanced so we have **stragglers** (*long tail*).
+
+  - **Solution**: **Striding**!
+
+  </div>
+
+  ### Locks: [prime] (<i class="muted">multi-threaded - v8</i>)
+
+  ```c
+  void * count_primes(void *arg) {
+      PrimeArgs *pa = (PrimeArgs *)arg;
+
+      // Version 4: Stride
+      size_t local_count = 0;
+      for (size_t n = pa->start; n < PRIME_MAX; n += NUM_THREADS) {
+          if (is_prime(n)) {
+              local_count++;
+          }
+      }
+
+      return (void *)local_count;
+  }
+
+  ...
+      // Division of work
+      for (size_t t = 0; t < NUM_THREADS; t++) {
+          args[t].start = t + 2;
+          pthread_create(&threads[t], NULL, count_primes, &args[t]);
+      }
+  ```
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Observation**:
+
+  - **Amdahl's Law**: Sequential portion is **bottleneck** and limits scaling
+    (**demo**: `32` cores).
 
   </div>
