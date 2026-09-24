@@ -15,6 +15,25 @@ theme: domer-slides
 
 ---
 
+# Review: <span class="gold">Processes, Events, Threads</span>
+
+<table class="bordered">
+<thead>
+    <th class="success-bg">Processes</th>
+    <th class="caution-bg">Events</th>
+    <th class="info-bg">Threads</th>
+</thead>
+<tbody>
+<tr>
+    <td class="success-bg" width="400px"><br><br><br><br><br><br><br><br><br><br><br><br></td>
+    <td class="caution-bg" width="400px"><br><br><br><br><br><br><br><br><br><br><br><br></td>
+    <td class="info-bg" width="400px"><br><br><br><br><br><br><br><br><br><br><br><br></td>
+</tr>
+</tbody>
+</table>
+
+---
+
 # Threads: <span class="gold">Disassembly</span>
 
 <div class="columns margin-top-0-5">
