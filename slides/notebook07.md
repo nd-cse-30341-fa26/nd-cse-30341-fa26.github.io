@@ -84,9 +84,9 @@ Whenever we structure a
 
 problem such that we have
 
-<strong class="caution"> ______________________________</strong>, 
+<strong class="caution"> ______________________________</strong>,
 
-we have 
+we have
 
 <strong class="success"> ______________________________</strong>.
 
@@ -94,15 +94,15 @@ we have
 
 <div class="centered">
 
-Whenever we have the 
+Whenever we have the
 
 <strong class="info"> ______________________________</strong>
 
 to simultaneously execute
 
-<strong class="caution"> ______________________________</strong>, 
+<strong class="caution"> ______________________________</strong>,
 
-we have 
+we have
 
 <strong class="danger"> ______________________________</strong>.
 
@@ -146,7 +146,7 @@ single <strong class="success">process</strong>:
     <br>
 
 2. <strong> ___________________________</strong>
-    
+
     <br>
 
 3. <strong> ___________________________</strong>
@@ -163,12 +163,12 @@ single <strong class="success">process</strong>:
 
 <div>
 
-We can implement <strong class="success">internal concurrency</strong> by 
+We can implement <strong class="success">internal concurrency</strong> by
 
 dividing a
 <strong class="success"> _____________________________</strong>
 
-into 
+into
 <strong class="caution"> __________________________________</strong>.
 
 <br>
@@ -180,7 +180,7 @@ into
     <br>
 
 2. <strong> ________________________________</strong> [ ]
-    
+
     <br>
 
 3. <strong> ________________________________</strong> [ ]
@@ -256,7 +256,7 @@ class="danger">sharing</strong>?
     <br>
 
 2. <strong> ___________________________</strong>
-    
+
     <br>
     <br>
 
@@ -272,7 +272,7 @@ class="danger">sharing</strong>?
     <br>
 
 2. <strong> ___________________________</strong>
-    
+
     <br>
     <br>
 
@@ -294,7 +294,7 @@ class="danger">sharing</strong>?
 # Events: <span class="gold">Overview</span>
 
 If we only need to
-<strong class="caution"> ____________________________________________</strong>, 
+<strong class="caution"> ____________________________________________</strong>,
 we can use <strong class="primary">events</strong> to
 provide <strong class="success">concurrency</strong> without <strong
 class="danger">parallelism</strong>:
@@ -306,11 +306,11 @@ class="danger">parallelism</strong>:
 <br>
 
 - <strong> _____________________________________</strong>
-    
+
     <br>
 
 - <strong> _____________________________________</strong>
-    
+
     <br>
 
 - <strong> _____________________________________</strong>
