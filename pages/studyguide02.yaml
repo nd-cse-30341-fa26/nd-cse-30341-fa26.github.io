@@ -15,7 +15,7 @@ body:   |
   - Task Parallelism
   - Data Parallelism
   - One-to-one
-  - One-to-many
+  - Many-to-one
   - Many-to-many
   - Starvation
 
