@@ -1,0 +1,540 @@
+title:  "Notes 12: Concurrency Bugs"
+body:   |
+
+  ## Logistics
+
+  - [Project 02]: Due today.
+
+  - [Interview 02]: Under way.
+
+  - [Study Guide 02]: Exam on **Thursday**.
+
+  [Project 02]: project02.html
+  [Interview 02]: interview02.html
+
+  ## Study Guide: <span class="gold">Definitions</span>
+
+  > Any **unfamiliar** terms?
+
+  ### Examples
+
+  For each **description**, **identify** the appropriate corresponding **term**.
+
+  <table class="bordered" markdown="1">
+  <thead>
+    <th class="info-bg">Description</th>
+    <th class="caution-bg">Term</th>
+  </thead>
+  <tbody>
+  <tr>
+    <td class="info-bg">
+
+    In this <b>thread model</b> used by programming languages such as
+    <b>Go</b>, multiple user threads map to several kernel threads (e.g.
+    <i>lightweight processes</i>).
+
+    </td>
+    <td class="caution-bg centered" width="50%"><b>Many-to-Many</b></td>
+  </tr>
+  <tr>
+    <td class="info-bg">
+
+    This <b>system call</b> allows us to <b>check if I/O is ready or not</b>
+    before performing the blocking call.
+
+    </td>
+    <td class="caution-bg centered" width="50%"><b>select/poll</b></td>
+  </tr>
+  </tbody>
+  </table>
+
+  > **Hint**: Review [Reading 04], [Reading 05], and [Reading 06].
+
+  [Reading 04]: reading04.html
+  [Reading 05]: reading05.html
+  [Reading 06]: reading06.html
+
+  ## Study Guide: <span class="gold">Concurrency and Parallelism</span>
+
+  ### Key Conceptual Questions:
+
+  1. What is **concurrency**? **parallelism**?
+
+  2. How do **processes**, **threads**, and **event-based I/O** support
+  **concurrency**? **parallelism**?
+
+  ### Examples
+
+  How did you implement **sha1sum** using **processes** and **threads**?
+
+  -   <div class="flex-col" markdown="1">
+
+      What type of **parallelism** does `sha1sum` exhibit?
+
+      > **data parallelism**
+
+  -   <div class="flex-col" markdown="1">
+
+      What are the **advantages** and **disadvantages** of each approach?
+
+      <table class="bordered">
+      <tbody>
+      <tr class="info-bg">
+        <td><b>Processes</b></td>
+        <td>Better memory protection.</td>
+      </tr>
+      <tr class="success-bg">
+        <td><b>Threads</b></td>
+        <td>Less memory usage.</td>
+      </tr>
+      </tbody>
+      </table>
+
+      > **Firefox**: [Project Electrolysis](https://wiki.mozilla.org/Electrolysis)
+
+  -   <div class="flex-col" markdown="1">
+
+      Should you use **event-based I/O** for **sha1sum**? Why or why not?
+
+      > No! `sha1sum` is compute bound and **events** cannot take **advantage
+      of multiple cores**.
+
+      <div class="alert warning-bg" markdown="1">
+
+      **Examples**: `mq_server.py`, `libcurl`
+
+      </div>
+
+  </div>
+
+  </div>
+
+  ## Study Guide: <span class="gold">Salsa Night</span>
+
+  ### Locks and Condition Variables
+
+  ```python
+  # Global Variables
+  size_t MIN_FRIENDS = 2  # Minimum number of friends before we have courage
+  size_t Friends     = 0  # Current number of friends brave enough
+
+  Mutex Lock
+  Cond  Dancing
+
+  # Threads
+
+  def thread_you_dance():
+      mutex_lock(Lock)
+      while Friends < MIN_FRIENDS:
+          cond_wait(Dancing, Lock)
+      mutex_unlock(Lock)
+
+      dance()
+
+  def thread_friend_dance():
+      mutex_lock(Lock)
+      Friends++
+      cond_signal(Dancing)
+      mutex_unlock(Lock)
+
+      dance()
+  ```
+
+  ### Semaphores
+
+  ```python
+   # Global Variables
+  size_t MIN_FRIENDS = 2  # Minimum number of friends before we have courage
+  size_t Friends     = 0  # Current number of friends brave enough
+
+  Semaphore Lock     = 1  # Review
+  Semaphore Dancing  = 0
+
+  # Threads
+
+  def thread_you_dance(): # Ask Kirby about his solution
+      sem_wait(Dancing)
+
+      dance()
+
+  def thread_friend_dance():
+      sem_wait(Lock)
+      Friends++
+      if Friends == MIN_FRIENDS:
+          sem_post(Dancing)
+      sem_post(Lock)
+
+      dance()
+  ```
+
+  > **Salsa night** is an example of **barrier** pattern.
+
+  ## Bug: <span class="gold">Atomicity Violation</span>
+
+  An <strong class="danger">atomicity violation</strong> occurs when we have a
+  code region that assumes its execution is <strong
+  class="special">atomic</strong>, but it is not actually enforced.
+
+  <table class="bordered">
+  <thead>
+      <th class="success-bg">Thread 1</th>
+      <th class="success-bg">Thread 2</th>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  LOCK()
+  if buf_index + len < BUFSIZ:
+      memcpy(buf[buf_index], log, len)
+  UNLOCK()
+  ```
+
+  </td>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  LOCK()
+  buf_index += len
+  UNLOCK()
+  ```
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Observations**:
+
+  - Use **monitor** pattern to abstract **synchronization**.
+  - Needed to do this in `mq_shutdown`
+
+  </div>
+
+  <table class="bordered">
+  <thead>
+      <th class="success-bg">Thread 1</th>
+      <th class="success-bg">Thread 2</th>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  lock()
+  y = calculate()
+  unlock()  # Fix: Remove
+
+  lock()    # Fix: Remove
+  if (y == 0): y = 1  # Avoid division by zero
+  unlock()
+  ```
+
+  </td>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  lock()
+  a = x / y
+  unlock()
+  ```
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Bug: <span class="gold">Order Violation</span>
+
+  An <strong class="danger">order violation</strong> occurs when we desire a
+  certain <strong class="special">sequence</strong> of operations, but it is
+  not actually enforced.
+
+  <table class="bordered">
+  <thead>
+      <th class="success-bg">Thread 1</th>
+      <th class="success-bg">Thread 2</th>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  mq.incoming = queue_create()
+  ```
+
+  </td>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  if mq.incoming:
+      data = queue_pop(mq.incoming)
+  ```
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <table class="bordered">
+  <thead>
+      <th class="success-bg">Thread 1</th>
+      <th class="success-bg">Thread 2</th>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  while True:
+      queue_push(mq, request)
+  ```
+
+  </td>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  queue_delete(mq.incoming)
+  ```
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Observations**:
+
+  - **Barrier** could be helpful here.
+  - `mq_server.py` has a **race condition**!
+
+  </div>
+
+  ## Bug: <span class="gold">Deadlock</span>
+
+  A <strong class="danger">deadlock</strong> occurs when each <strong
+  class="primary">thread</strong> is waiting for another to give up a resource
+  and none can run.  Usually this is because there is a <strong
+  class="warning">cycle</strong> in the graph of dependencies.
+
+  <table class="bordered">
+  <thead>
+      <th class="success-bg">Thread 1</th>
+      <th class="success-bg">Thread 2</th>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  Lock(Mask)
+  Lock(Sanitizer)
+  ```
+
+  </td>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  Lock(Sanitizer)
+  Lock(Mask)
+  ```
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Bug: <span class="gold">Livelock</span>
+
+  <strong class="danger">Livelock</strong> occurs when multiple <strong
+  class="primary">threads</strong> are actively attempting to acquire resources,
+  but <strong class="warning">cannot make progress</strong>.
+
+  <table class="bordered">
+  <thead>
+      <th class="success-bg">Thread 1</th>
+      <th class="success-bg">Thread 2</th>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  while True:
+      Lock(Mask)
+      # Check if other resource
+      # is already locked
+      if Locked(Sanitizer):
+          Unlock(Mask)
+          continue
+      Lock(Sanitizer)
+      ...
+      Unlock(Sanitizer)
+      Unlock(Mask)
+  ```
+
+  </td>
+  <td class="caution-bg" width="600px">
+
+  ```python
+  while True:
+      Lock(Sanitizer)
+      # Check if other resource
+      # is already locked
+      if Locked(Mask):
+          Unlock(Sanitizer)
+          continue
+      Lock(Mask)
+      ...
+      Unlock(Mask)
+      Unlock(Sanitizer)
+  ```
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Bug: <span class="gold">Dining Philosophers</span>
+
+  There are **five philosophers** eating dinner...
+
+  - There are only **five forks**.
+
+  - To eat, each person needs a **left** and **right fork**.
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  Need to ensure no <strong class="danger">deadlock</strong> and no one <strong
+  class="danger">starves</strong>.
+
+  </div>
+
+  ```python
+  def philosopher(p):
+      while True:
+          think(p)
+          get_forks(p)    # Deadlock!!!
+          eat(p)
+          put_forks(p)
+
+  def get_forks(p):
+      sem_wait(forks[left(p)])
+      sem_wait(forks[right(p)])
+
+  def put_forks(p):
+      sem_post(forks[left(p)])
+      sem_post(forks[right(p)])
+  ```
+
+  ## Bug: <span class="gold">Deadlock Conditions</span>
+
+  <table class="bordered" markdown="1">
+  <tbody markdown="1">
+  <tr markdown="1">
+  <td class="special-bg" width="50%" markdown="1">
+
+  <p><b>Mutual Execution</b></p>
+
+  <br>
+
+  <p>Threads claim exclusive control of resources.</p>
+
+  <br>
+
+  <p><i>Don't share, add more chopsticks</i></p>
+
+  </td>
+  <td class="caution-bg" width="50%">
+
+  <p><b>No Pre-emption</b></p>
+
+  <br>
+
+  <p>Resources cannot be forcibly removed from threads holding them.</p>
+
+  <br>
+
+  <p><i>Run-time/scheduler that pre-empts threads (take away resources).</i></p>
+
+  </td>
+  </tr>
+  <tr>
+  <td class="warning-bg">
+
+  <p><b>Hold-and-Wait</b></p>
+
+  <br>
+
+  <p>Threads hold resources while waiting for additional resources.</p>
+
+  <br>
+
+  <p><i>Try, put down, retry... could lead to <b>livelock</b>.</i></p>
+  </td>
+  <td class="danger-bg">
+
+  <p><b>Circular Wait</b></p>
+
+  <br>
+
+  <p>There exists a circular chain of threads such that each thread holds one or
+  more resources needed by another.</p>
+
+  <br>
+
+  <p><i>Provide an ordering: odds/evens, token ring (bottle of wine), one
+  person grabs right then left.</i></p>
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Project 02: <span class="gold">DPAC</span> (<i class="muted">Semaphores</i>)
+
+  ```python
+  # Global Variables
+  Semaphore StudentA = 0
+  Semaphore StudentB = 0
+
+  # Thread Functions
+
+  def thread_student_A():
+      Post(StudentB)
+      Wait(StudentA)
+
+      EnterDPAC()
+
+  def thread_student_B():
+      Post(StudentA)
+      Wait(StudentB)
+
+      EnterDPAC()
+  ```
+
+  > **DPAC** is an example of **barrier** pattern.
+
+  ## Project 02: <span class="gold">DPAC</span> (<i class="muted">Locks, Condition Variables</i>)
+
+  ```python
+  # Global Variables
+  size_t NUM_STUDENTS = 10 # Number of students going to the movies
+  size_t Arrived      = 0  # Number of students who have arrived
+
+  Mutex  Lock
+  Cond   Waiting
+
+  # Thread Functions
+  def thread_student():
+      mutex_lock(Lock)
+      Arrived++
+      while Arrived < NUM_STUDENTS:
+          cond_wait(Waiting, Lock)
+      cond_signal(Waiting)
+      mutex_unlock(Lock)
+  ```
