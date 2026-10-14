@@ -137,6 +137,8 @@
           - Project 02
         items:
           - name:       Slides 12
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=86eb73c7-d08a-4647-bc43-b4e201001b95
 
       - date:           Thu 10/15
         topics:         ''
