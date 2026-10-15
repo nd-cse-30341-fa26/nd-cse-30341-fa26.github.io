@@ -25,7 +25,7 @@ body:       |
 
     [Computer Science and Engineering]: http://cse.nd.edu
     [University of Notre Dame]: http://www.nd.edu
-      
+
     <div class="centered">
         <img src="static/img/house-of-cards.svg" class="transparent responsive" style="max-width: 720px; padding: 10px;">
     </div>
@@ -242,48 +242,48 @@ body:       |
     ### Grading
 
     <table class="bordered">
-      <thead>
-        <th>Grade</th>
-        <th>Points</th>
-        <th>Grade</th>
-        <th>Points</th>
-        <th>Grade</th>
-        <th>Points</th>
-      </thead>
-      <tbody>
-        <tr class="centered success-bg">
-          <td></td>
-          <td></td>
-          <td style="font-weight: bold;">A</td>
-          <td>300 - 280</td>
-          <td style="font-weight: bold;">A-</td>
-          <td>280 - 270</td>
-        </tr>
-        <tr class="centered info-bg">
-          <td style="font-weight: bold;">B+</td>
-          <td>270 - 260</td>
-          <td style="font-weight: bold;">B</td>
-          <td>260 - 250</td>
-          <td style="font-weight: bold;">B-</td>
-          <td>250 - 240</td>
-        </tr>
-        <tr class="centered caution-bg">
-          <td style="font-weight: bold;">C+</td>
-          <td>240 - 230</td>
-          <td style="font-weight: bold;">C</td>
-          <td>230 - 220</td>
-          <td style="font-weight: bold;">C-</td>
-          <td>220 - 210</td>
-        </tr>
-        <tr class="centered danger-bg">
-          <td style="font-weight: bold;">D&nbsp;</td>
-          <td>210 - 200</td>
-          <td style="font-weight: bold;">F</td>
-          <td>200 - 0&nbsp;&nbsp;</td>
-          <td></td>
-          <td></td>
-        </tr>
-      </tbody>
+    <thead>
+      <th>Grade</th>
+      <th>Percent</th>
+      <th>Grade</th>
+      <th>Percent</th>
+      <th>Grade</th>
+      <th>Percent</th>
+    </thead>
+    <tbody>
+      <tr class="centered success-bg">
+        <td></td>
+        <td></td>
+        <td style="font-weight: bold;">A</td>
+        <td>99.99-93.33</td>
+        <td style="font-weight: bold;">A-</td>
+        <td>93.33-90.00</td>
+      </tr>
+      <tr class="centered info-bg">
+        <td style="font-weight: bold;">B+</td>
+        <td>90.00-86.67</td>
+        <td style="font-weight: bold;">B</td>
+        <td>86.67-83.33</td>
+        <td style="font-weight: bold;">B-</td>
+        <td>83.33-80.00</td>
+      </tr>
+      <tr class="centered caution-bg">
+        <td style="font-weight: bold;">C+</td>
+        <td>80.00-76.67</td>
+        <td style="font-weight: bold;">C</td>
+        <td>76.67-73.33</td>
+        <td style="font-weight: bold;">C-</td>
+        <td>73.33-70.00</td>
+      </tr>
+      <tr class="centered danger-bg">
+        <td style="font-weight: bold;">D&nbsp;</td>
+        <td>70.00-66.66</td>
+        <td style="font-weight: bold;">F</td>
+        <td>66.66-00.00</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
     </table>
 
     </div>
