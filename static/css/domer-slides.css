@@ -4,7 +4,8 @@
 /* Imports */
 
 @import "gaia";
-@import "https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap";
+
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap');
 
 /* Variables */
 
@@ -105,7 +106,7 @@
 /* Elements */
 
 section {
-    font-family: "JetBrains Mono", monospace;
+    font-family: "Ubuntu Sans Mono", "JetBrains Mono", monospace;
     font-size: 28px;
     line-height: 1.45;
     padding: 1rem 2rem;
@@ -171,6 +172,7 @@ table {
 code {
     color: var(--code);
     background: transparent !important;
+    font-family: "Ubuntu Sans Mono", "JetBrains Mono", monospace;
     font-weight: bold;
     font-size: 1.0em;
     padding: 0px;
@@ -181,6 +183,7 @@ pre {
     background: var(--terminal-background) !important;
     border: 1px solid var(--border);
     color: var(--terminal-foreground) !important;
+    font-family: "Ubuntu Sans Mono", "JetBrains Mono", monospace;
     padding: 0.25rem;
     white-space: pre-wrap;
     word-break: break-all;
@@ -190,6 +193,7 @@ pre {
 
 pre code {
     color: var(--terminal-foreground) !important;
+    font-family: "Ubuntu Sans Mono", "JetBrains Mono", monospace;
     font-size: 1.0rem;
     font-weight: normal;
 }
