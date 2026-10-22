@@ -1,0 +1,194 @@
+title:      "Reading 07: Virtual Memory"
+body:       |
+
+    **Everyone**:
+
+    Next week, we will return to the idea of [virtualization] and consider how
+    the operating system *abstracts* physical memory for each process.
+
+    <div class="alert info-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "book" | embed_icon }}</i> TL;DR
+
+    For this reading assignment, you are to read about [address spaces],
+    [free-space management], [address translation], and [segmentation], and
+    submit your responses to the [Reading 07 Quiz].
+
+    </div>
+
+    [address spaces]: https://en.wikipedia.org/wiki/Address_space
+    [free-space management]: https://en.wikipedia.org/wiki/Memory_management
+    [address translation]: https://en.wikipedia.org/wiki/CPU_cache#Address_translation
+    [segmentation]: https://en.wikipedia.org/wiki/Memory_segmentation
+
+    ## Reading
+
+    <div class="flex-row" markdown="1">
+
+    <div class="flex-col" markdown="1">
+
+    The readings for next week are:
+
+    1.  <div class="flex-col">
+
+        [Operating Systems: Three Easy Pieces]
+
+        - [A Dialog on Memory Virtualization](http://pages.cs.wisc.edu/~remzi/OSTEP/dialogue-vm.pdf)
+
+        - [Address Spaces](http://pages.cs.wisc.edu/~remzi/OSTEP/vm-intro.pdf)
+
+        - [Memory API](http://pages.cs.wisc.edu/~remzi/OSTEP/vm-api.pdf)
+
+        - [Address Translation](http://pages.cs.wisc.edu/~remzi/OSTEP/vm-mechanism.pdf)
+
+        - [Free-Space Management](http://pages.cs.wisc.edu/~remzi/OSTEP/vm-freespace.pdf)
+
+    </div>
+
+    <div class="flex-col-25 centered">
+      <img src="static/img/ostep.jpg">
+    </div>
+
+    </div>
+
+    ## Quiz
+
+    Once you have done the readings, answer the following [Reading 07 Quiz]
+    questions:
+
+    <div id="quiz-questions"></div>
+
+    <div id="quiz-responses"></div>
+
+    <script src="static/js/dredd-quiz.js"></script>
+    <script>
+    loadQuiz('static/json/reading07.json');
+    </script>
+
+    <pre style="display: none;" id="dr-container" class="codehilite"><code id="dredd-response"></code></pre>
+
+    ### Program
+
+    For this week, you are to identify common memory problems.  Given the
+    following five snippets of code:
+
+        :::C
+        // Snippet A
+        for (int i = 1; i < argc; i++) {
+            char *copy = strdup(argv[i]);
+            puts(copy);
+        }
+
+        // Snippet B
+        char buffer[BUFSIZ];
+        puts(buffer);
+
+        // Snippet C
+        char *s = "string";
+        *s = 'S';
+
+        // Snippet D
+        char *s = "string";
+        free(s);
+
+        // Snippet E
+        char *buffer = calloc(1, strlen(argv[0]));
+        strcat(buffer, argv[0]);
+        puts(buffer);
+        free(buffer);
+
+    Identify if the code snippet demonstrates one of the following errors:
+
+    1. `segfault`
+    2. `buffer overflow`
+    3. `uninitialized read`
+    4. `memory leak`
+    5. `dangling pointer`
+    6. `double free`
+    7. `invalid free`
+
+    In your `program.c`, simply use `puts` to print out the error:
+
+        :::c
+        int main(int argc, char *argv[]) {
+            puts("segfault");
+            ...
+            puts("invalid free");
+            return 0;
+        }
+
+    ## Submission
+
+    To submit you work, follow the same process outlined in [Reading 01]:
+
+        :::bash
+        $ git switch master                   # Make sure we are in master branch
+        $ git pull --rebase                   # Make sure we are up-to-date with GitLab
+
+        $ git switch -c reading07             # Create reading07 branch and check it out
+
+        $ cd reading07                        # Go into reading07 folder
+        $ $EDITOR answers.json                # Edit your answers.json file
+
+        $ ../.scripts/check.py                # Check reading07 quiz
+        Checking reading07 quiz ...
+             Q01  4.00 /  4.00
+             Q02  3.00 /  3.00
+             Q03  4.00 /  4.00
+             Q04  7.00 /  7.00
+             Q05  3.00 /  3.00
+             Q06  6.00 /  6.00
+             Q07  3.00 /  3.00
+             Q08  3.00 /  3.00
+           --------------------
+           Score 33.00 / 33.00
+           Grade  1.00 /  1.00
+          Status Success
+
+        $ git add answers.json                # Add answers.json to staging area
+        $ git commit -m "Reading 07: Quiz"    # Commit work
+
+        $ $EDITOR program.c                   # Edit your program.c file
+
+        $ make test-program                   # Check reading03 program
+        Testing reading07 program...
+           Score 2.00 / 2.00
+          Status Success
+
+        $ git add Makefile                    # Add Makefile to staging area
+        $ git add program.c                   # Add program.c to staging area
+        $ git commit -m "Reading 07: Code"    # Commit work
+
+        $ git push -u origin reading07        # Push branch to GitHub
+
+    <div class="alert warning-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "lifebuoy" | embed_icon }}</i> Acknowledgments
+
+    If you collaborated with any other students, or received help from TAs or AI
+    tools on this assignment, please record this support in the `README.md` in
+    the `reading07` folder and include it with your **Pull Request**.
+
+    </div>
+
+    <div class="alert success-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "account-question" | embed_icon }}</i> Graders
+
+    Once you have committed your work and pushed it to [GitHub], remember to
+    create a **pull request** and assign it to the appropriate **teaching
+    assistant** from the [Reading 07 TA List].
+
+    **Note**: this list changes each week, so be sure to consult the appropriate
+    list for each assignment.
+
+    </div>
+
+    [Operating Systems: Three Easy Pieces]: http://pages.cs.wisc.edu/~remzi/OSTEP/
+    [GitHub]: https://github.com
+    [Reading 01]: reading01.html
+    [Reading 07 Quiz]: static/json/reading07.json
+    [JSON]: http://www.json.org/
+    [dredd]: https://dredd.h4x0r.space
+    [Reading 07 TA List]: reading07_tas.html
+    [virtualization]: https://en.wikipedia.org/wiki/Virtualization
