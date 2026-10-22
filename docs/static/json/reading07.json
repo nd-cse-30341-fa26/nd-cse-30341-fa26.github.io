@@ -1,0 +1,57 @@
+{
+    "q01": {
+        "type": "blank",
+        "question": "\n<p>As with the CPU, the operating system <b>(1)</b> ____ or abstracts\nmemory by providing an illusion of a large and private <b>(2)</b> ____ to\neach process.  To maintain this illusion, the OS will need some hardware\nhelp to translate pretend <b>(3)</b> ____ addresses into real <b>(4)</b>\n____ addresses.</p>\n"
+    },
+    "q02": {
+        "type": "blank",
+        "question": "\n<p>In virtualizing memory, the OS has three major goals:</p>\n\n<ol>\n  <li><b>(1)</b> ____: The virtualization should ensure processes are guarded from one another as well as the OS itself.</li>\n  <li><b>(2)</b> ____: The virtualization should be invisible to the running program.</li>\n  <li><b>(3)</b> ____: The virtualization should be as effective as possible in terms of space and time.</li>\n</ol>\n"
+    },
+    "q03": {
+        "type": "order",
+        "question": "\n<p>An address space is usually divided into four components:</p>\n\n<ol>\n    <li>Contains data that is the instructions of the program.</li>\n    <li>Contains data that is implicitly or automatically managed by the compiler.</li>\n    <li>Contains data that is explicitly or manually managed by the user.</li>\n    <li>Contains data that is statically allocated by the program.</li>\n</ol>\n\n<p>Order the following labels to match the components described above.</p>\n",
+        "responses": {
+            "data": "Data",
+            "heap": "Heap",
+            "stack": "Stack",
+            "code": "Code"
+        }
+    },
+    "q04": {
+        "type": "order",
+        "question": "\n<p>The following are descriptions of various memory errors:</p>\n\n\n<ol>\n  <li>Illegal memory access.</li>\n  <li>Not allocating enough memory.</li>\n  <li>Forgetting to initialize allocated memory.</li>\n  <li>Forgetting to free allocated memory.</li>\n  <li>Freeing memory before you are done with it.</li>\n  <li>Freeing memory repeatedly.</li>\n  <li>Incorrectly freeing memory.</li>\n</ol>\n\n<p>Order the following labels to match the descriptions above.</p>\n",
+        "responses": {
+            "overflow": "Buffer Overflow",
+            "dangling": "Dangling Pointer",
+            "invalid": "Invalid Free",
+            "segfault": "Segmentation Fault",
+            "memleak": "Memory Leak",
+            "uninitread": "Uninitialized Read",
+            "double": "Double Free"
+        }
+    },
+    "q05": {
+        "type": "blank",
+        "question": "\n<p>To implement virtual memory, operating systems typically use <b>(1)</b>\n____, where the hardware transforms each <b>(2)</b> ____ by redirecting the\nreferenced address to the actual location in physical memory.  The OS\nparticipates in this illusion by setting up the hardware to ensure correct\ntranslation takes places and by <b>(3)</b> ____, that is keeping track of\nwhich locations are free and which are in use.</p>\n"
+    },
+    "q06": {
+        "type": "blank",
+        "question": "\n<p>In the technique known as <b>(1)</b> ____, we use two hardware\nregisters: a <b>(2)</b> ____ register which sets the starting point, and a\n<b>(3)</b> ____ register which sets the limit of our addresses.  This\ninformation is used by the <b>(4)</b> ____ in the processor to translate\naddresses using the following formula:</p>\n\n<pre>\n\nphysical address = <b>(5)</b> ____ + virtual address\n\n</pre>\n\n<p>Unfortunately, this technique suffers from an inefficiency known as\n<b>(6)</b> ____, which means that space inside an allocated unit is not\ncompletely utilized (and thus wasted).</p>\n"
+    },
+    "q07": {
+        "type": "blank",
+        "question": "\n<p>To manage free space, the operating system usually maintains a data\nstructure called the <b>(1)</b> ____ to keep track of which memory units\nare available (or in use).  When a request for memory is made, the OS can\nuse a technique called <b>(2)</b> ____, which involves locating a free\nchunk of memory and dividing it into two.  Conversely, when memory is\nreturned, the OS can perform <b>(3)</b> ____ to combine contiguous free\nspace.</p>\n"
+    },
+    "q08": {
+        "type": "multiple",
+        "question": "\n<p>Which of the following statements regarding strategies for growing the heap\nare true (<i>choose all that apply</i>)?</p>\n",
+        "responses": {
+            "bestfit": "Best fit is effective and has low costs.",
+            "worstfit": "Worst fit is prone to excess fragmentation and has high overheads.",
+            "firstfit": "First fit finds the first available block and returns it.",
+            "nextfit": "Next fit keeps track of where the OS left off in the free list and returns next available block.",
+            "segregated": "Segregated lists are used to separate memory requests from different processes.",
+            "buddy": "Buddy allocators always allocate memory in pairs to ensure future requests are possible."
+        }
+    }
+}
