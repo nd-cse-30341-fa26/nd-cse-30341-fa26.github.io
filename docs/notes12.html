@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Notes 12: Concurrency Bugs</title>
+</head>
+<body>
+<header>
+<a class="logo" href="notes12.html">
+    <h1>Notes 12: Concurrency Bugs</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<h2 id="logistics">Logistics<a class="headerlink" href="#logistics" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><a href="project02.html">Project 02</a>: Due today.</p>
+</li>
+<li>
+<p><a href="interview02.html">Interview 02</a>: Under way.</p>
+</li>
+<li>
+<p>[Study Guide 02]: Exam on <strong>Thursday</strong>.</p>
+</li>
+</ul>
+<h2 id="study-guide-definitions">Study Guide: <span class="gold">Definitions</span><a class="headerlink" href="#study-guide-definitions" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Any <strong>unfamiliar</strong> terms?</p>
+</blockquote>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<p>For each <strong>description</strong>, <strong>identify</strong> the appropriate corresponding <strong>term</strong>.</p>
+<table class="bordered">
+<thead>
+<th class="info-bg">Description</th>
+<th class="caution-bg">Term</th>
+</thead>
+<tbody>
+<tr>
+<td class="info-bg">
+
+  In this <b>thread model</b> used by programming languages such as
+  <b>Go</b>, multiple user threads map to several kernel threads (e.g.
+  <i>lightweight processes</i>).
+
+  </td>
+<td class="caution-bg centered" width="50%"><b>Many-to-Many</b></td>
+</tr>
+<tr>
+<td class="info-bg">
+
+  This <b>system call</b> allows us to <b>check if I/O is ready or not</b>
+  before performing the blocking call.
+
+  </td>
+<td class="caution-bg centered" width="50%"><b>select/poll</b></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Hint</strong>: Review <a href="reading04.html">Reading 04</a>, <a href="reading05.html">Reading 05</a>, and <a href="reading06.html">Reading 06</a>.</p>
+</blockquote>
+<h2 id="study-guide-concurrency-and-parallelism">Study Guide: <span class="gold">Concurrency and Parallelism</span><a class="headerlink" href="#study-guide-concurrency-and-parallelism" title="Permanent link">&para;</a></h2>
+<h3 id="key-conceptual-questions">Key Conceptual Questions:<a class="headerlink" href="#key-conceptual-questions" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>What is <strong>concurrency</strong>? <strong>parallelism</strong>?</p>
+</li>
+<li>
+<p>How do <strong>processes</strong>, <strong>threads</strong>, and <strong>event-based I/O</strong> support
+<strong>concurrency</strong>? <strong>parallelism</strong>?</p>
+</li>
+</ol>
+<h3 id="examples_1">Examples<a class="headerlink" href="#examples_1" title="Permanent link">&para;</a></h3>
+<p>How did you implement <strong>sha1sum</strong> using <strong>processes</strong> and <strong>threads</strong>?</p>
+<ul>
+<li>
+<div class="flex-col" markdown="1">
+<p>What type of <strong>parallelism</strong> does <code>sha1sum</code> exhibit?</p>
+<blockquote>
+<p><strong>data parallelism</strong></p>
+</blockquote>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p>What are the <strong>advantages</strong> and <strong>disadvantages</strong> of each approach?</p>
+<p><table class="bordered">
+<tbody>
+<tr class="info-bg">
+  <td><b>Processes</b></td>
+  <td>Better memory protection.</td>
+</tr>
+<tr class="success-bg">
+  <td><b>Threads</b></td>
+  <td>Less memory usage.</td>
+</tr>
+</tbody>
+</table></p>
+<blockquote>
+<p><strong>Firefox</strong>: <a href="https://wiki.mozilla.org/Electrolysis">Project Electrolysis</a></p>
+</blockquote>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p>Should you use <strong>event-based I/O</strong> for <strong>sha1sum</strong>? Why or why not?</p>
+<blockquote>
+<p>No! <code>sha1sum</code> is compute bound and <strong>events</strong> cannot take <strong>advantage
+of multiple cores</strong>.</p>
+</blockquote>
+<div class="alert warning-bg" markdown="1">
+<p><strong>Examples</strong>: <code>mq_server.py</code>, <code>libcurl</code></p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<h2 id="study-guide-salsa-night">Study Guide: <span class="gold">Salsa Night</span><a class="headerlink" href="#study-guide-salsa-night" title="Permanent link">&para;</a></h2>
+<h3 id="locks-and-condition-variables">Locks and Condition Variables<a class="headerlink" href="#locks-and-condition-variables" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Global Variables</span>
+<span class="n">size_t</span> <span class="n">MIN_FRIENDS</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># Minimum number of friends before we have courage</span>
+<span class="n">size_t</span> <span class="n">Friends</span>     <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Current number of friends brave enough</span>
+
+<span class="n">Mutex</span> <span class="n">Lock</span>
+<span class="n">Cond</span>  <span class="n">Dancing</span>
+
+<span class="c1"># Threads</span>
+
+<span class="k">def</span> <span class="nf">thread_you_dance</span><span class="p">():</span>
+    <span class="n">mutex_lock</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">Friends</span> <span class="o">&lt;</span> <span class="n">MIN_FRIENDS</span><span class="p">:</span>
+        <span class="n">cond_wait</span><span class="p">(</span><span class="n">Dancing</span><span class="p">,</span> <span class="n">Lock</span><span class="p">)</span>
+    <span class="n">mutex_unlock</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+
+    <span class="n">dance</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">thread_friend_dance</span><span class="p">():</span>
+    <span class="n">mutex_lock</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+    <span class="n">Friends</span><span class="o">++</span>
+    <span class="n">cond_signal</span><span class="p">(</span><span class="n">Dancing</span><span class="p">)</span>
+    <span class="n">mutex_unlock</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+
+    <span class="n">dance</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="semaphores">Semaphores<a class="headerlink" href="#semaphores" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code> <span class="c1"># Global Variables</span>
+<span class="n">size_t</span> <span class="n">MIN_FRIENDS</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># Minimum number of friends before we have courage</span>
+<span class="n">size_t</span> <span class="n">Friends</span>     <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Current number of friends brave enough</span>
+
+<span class="n">Semaphore</span> <span class="n">Lock</span>     <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Review</span>
+<span class="n">Semaphore</span> <span class="n">Dancing</span>  <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Threads</span>
+
+<span class="k">def</span> <span class="nf">thread_you_dance</span><span class="p">():</span> <span class="c1"># Ask Kirby about his solution</span>
+    <span class="n">sem_wait</span><span class="p">(</span><span class="n">Dancing</span><span class="p">)</span>
+
+    <span class="n">dance</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">thread_friend_dance</span><span class="p">():</span>
+    <span class="n">sem_wait</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+    <span class="n">Friends</span><span class="o">++</span>
+    <span class="k">if</span> <span class="n">Friends</span> <span class="o">==</span> <span class="n">MIN_FRIENDS</span><span class="p">:</span>
+        <span class="n">sem_post</span><span class="p">(</span><span class="n">Dancing</span><span class="p">)</span>
+    <span class="n">sem_post</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+
+    <span class="n">dance</span><span class="p">()</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>Salsa night</strong> is an example of <strong>barrier</strong> pattern.</p>
+</blockquote>
+<h2 id="bug-atomicity-violation">Bug: <span class="gold">Atomicity Violation</span><a class="headerlink" href="#bug-atomicity-violation" title="Permanent link">&para;</a></h2>
+<p>An <strong class="danger">atomicity violation</strong> occurs when we have a
+code region that assumes its execution is <strong
+class="special">atomic</strong>, but it is not actually enforced.</p>
+<table class="bordered">
+<thead>
+    <th class="success-bg">Thread 1</th>
+    <th class="success-bg">Thread 2</th>
+</thead>
+<tbody>
+<tr>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">LOCK</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">buf_index</span> <span class="o">+</span> <span class="nb">len</span> <span class="o">&lt;</span> <span class="n">BUFSIZ</span><span class="p">:</span>
+    <span class="n">memcpy</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="n">buf_index</span><span class="p">],</span> <span class="n">log</span><span class="p">,</span> <span class="nb">len</span><span class="p">)</span>
+<span class="n">UNLOCK</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+</td>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">LOCK</span><span class="p">()</span>
+<span class="n">buf_index</span> <span class="o">+=</span> <span class="nb">len</span>
+<span class="n">UNLOCK</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<div class="alert warning-bg">
+<p><strong>Observations</strong>:</p>
+<ul>
+<li>Use <strong>monitor</strong> pattern to abstract <strong>synchronization</strong>.</li>
+<li>Needed to do this in <code>mq_shutdown</code></li>
+</ul>
+</div>
+<table class="bordered">
+<thead>
+    <th class="success-bg">Thread 1</th>
+    <th class="success-bg">Thread 2</th>
+</thead>
+<tbody>
+<tr>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">lock</span><span class="p">()</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">calculate</span><span class="p">()</span>
+<span class="n">unlock</span><span class="p">()</span>  <span class="c1"># Fix: Remove</span>
+
+<span class="n">lock</span><span class="p">()</span>    <span class="c1"># Fix: Remove</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Avoid division by zero</span>
+<span class="n">unlock</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+</td>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">lock</span><span class="p">()</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="n">y</span>
+<span class="n">unlock</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="bug-order-violation">Bug: <span class="gold">Order Violation</span><a class="headerlink" href="#bug-order-violation" title="Permanent link">&para;</a></h2>
+<p>An <strong class="danger">order violation</strong> occurs when we desire a
+certain <strong class="special">sequence</strong> of operations, but it is
+not actually enforced.</p>
+<table class="bordered">
+<thead>
+    <th class="success-bg">Thread 1</th>
+    <th class="success-bg">Thread 2</th>
+</thead>
+<tbody>
+<tr>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">mq</span><span class="o">.</span><span class="n">incoming</span> <span class="o">=</span> <span class="n">queue_create</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+</td>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">mq</span><span class="o">.</span><span class="n">incoming</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">queue_pop</span><span class="p">(</span><span class="n">mq</span><span class="o">.</span><span class="n">incoming</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<table class="bordered">
+<thead>
+    <th class="success-bg">Thread 1</th>
+    <th class="success-bg">Thread 2</th>
+</thead>
+<tbody>
+<tr>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">queue_push</span><span class="p">(</span><span class="n">mq</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+</td>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">queue_delete</span><span class="p">(</span><span class="n">mq</span><span class="o">.</span><span class="n">incoming</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<div class="alert warning-bg">
+<p><strong>Observations</strong>:</p>
+<ul>
+<li><strong>Barrier</strong> could be helpful here.</li>
+<li><code>mq_server.py</code> has a <strong>race condition</strong>!</li>
+</ul>
+</div>
+<h2 id="bug-deadlock">Bug: <span class="gold">Deadlock</span><a class="headerlink" href="#bug-deadlock" title="Permanent link">&para;</a></h2>
+<p>A <strong class="danger">deadlock</strong> occurs when each <strong
+class="primary">thread</strong> is waiting for another to give up a resource
+and none can run.  Usually this is because there is a <strong
+class="warning">cycle</strong> in the graph of dependencies.</p>
+<table class="bordered">
+<thead>
+    <th class="success-bg">Thread 1</th>
+    <th class="success-bg">Thread 2</th>
+</thead>
+<tbody>
+<tr>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">Lock</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+<span class="n">Lock</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+</td>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">Lock</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">)</span>
+<span class="n">Lock</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="bug-livelock">Bug: <span class="gold">Livelock</span><a class="headerlink" href="#bug-livelock" title="Permanent link">&para;</a></h2>
+<p><strong class="danger">Livelock</strong> occurs when multiple <strong
+class="primary">threads</strong> are actively attempting to acquire resources,
+but <strong class="warning">cannot make progress</strong>.</p>
+<table class="bordered">
+<thead>
+    <th class="success-bg">Thread 1</th>
+    <th class="success-bg">Thread 2</th>
+</thead>
+<tbody>
+<tr>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">Lock</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+    <span class="c1"># Check if other resource</span>
+    <span class="c1"># is already locked</span>
+    <span class="k">if</span> <span class="n">Locked</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">):</span>
+        <span class="n">Unlock</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+        <span class="k">continue</span>
+    <span class="n">Lock</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="n">Unlock</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">)</span>
+    <span class="n">Unlock</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+</td>
+<td class="caution-bg" width="600px">
+
+
+<div class="codehilite"><pre><span></span><code><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">Lock</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">)</span>
+    <span class="c1"># Check if other resource</span>
+    <span class="c1"># is already locked</span>
+    <span class="k">if</span> <span class="n">Locked</span><span class="p">(</span><span class="n">Mask</span><span class="p">):</span>
+        <span class="n">Unlock</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">)</span>
+        <span class="k">continue</span>
+    <span class="n">Lock</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="n">Unlock</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+    <span class="n">Unlock</span><span class="p">(</span><span class="n">Sanitizer</span><span class="p">)</span>
+</code></pre></div>
+
+
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="bug-dining-philosophers">Bug: <span class="gold">Dining Philosophers</span><a class="headerlink" href="#bug-dining-philosophers" title="Permanent link">&para;</a></h2>
+<p>There are <strong>five philosophers</strong> eating dinner...</p>
+<ul>
+<li>
+<p>There are only <strong>five forks</strong>.</p>
+</li>
+<li>
+<p>To eat, each person needs a <strong>left</strong> and <strong>right fork</strong>.</p>
+</li>
+</ul>
+<div class="alert warning-bg centered">
+<p>Need to ensure no <strong class="danger">deadlock</strong> and no one <strong
+class="danger">starves</strong>.</p>
+</div>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">philosopher</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">think</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">get_forks</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>    <span class="c1"># Deadlock!!!</span>
+        <span class="n">eat</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">put_forks</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_forks</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">sem_wait</span><span class="p">(</span><span class="n">forks</span><span class="p">[</span><span class="n">left</span><span class="p">(</span><span class="n">p</span><span class="p">)])</span>
+    <span class="n">sem_wait</span><span class="p">(</span><span class="n">forks</span><span class="p">[</span><span class="n">right</span><span class="p">(</span><span class="n">p</span><span class="p">)])</span>
+
+<span class="k">def</span> <span class="nf">put_forks</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">sem_post</span><span class="p">(</span><span class="n">forks</span><span class="p">[</span><span class="n">left</span><span class="p">(</span><span class="n">p</span><span class="p">)])</span>
+    <span class="n">sem_post</span><span class="p">(</span><span class="n">forks</span><span class="p">[</span><span class="n">right</span><span class="p">(</span><span class="n">p</span><span class="p">)])</span>
+</code></pre></div>
+
+<h2 id="bug-deadlock-conditions">Bug: <span class="gold">Deadlock Conditions</span><a class="headerlink" href="#bug-deadlock-conditions" title="Permanent link">&para;</a></h2>
+<table class="bordered">
+<tbody>
+<tr>
+<td class="special-bg" width="50%">
+<p><b>Mutual Execution</b></p>
+
+<br>
+
+<p>Threads claim exclusive control of resources.</p>
+
+<br>
+
+<p><i>Don't share, add more chopsticks</i></p>
+</td>
+<td class="caution-bg" width="50%">
+<p><b>No Pre-emption</b></p>
+
+<br>
+
+<p>Resources cannot be forcibly removed from threads holding them.</p>
+
+<br>
+
+<p><i>Run-time/scheduler that pre-empts threads (take away resources).</i></p>
+</td>
+</tr>
+<tr>
+<td class="warning-bg">
+<p><b>Hold-and-Wait</b></p>
+
+<br>
+
+<p>Threads hold resources while waiting for additional resources.</p>
+
+<br>
+
+<p><i>Try, put down, retry... could lead to <b>livelock</b>.</i></p>
+</td>
+<td class="danger-bg">
+<p><b>Circular Wait</b></p>
+
+<br>
+
+<p>There exists a circular chain of threads such that each thread holds one or
+more resources needed by another.</p>
+
+<br>
+
+<p><i>Provide an ordering: odds/evens, token ring (bottle of wine), one
+person grabs right then left.</i></p>
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="project-02-dpac-semaphores">Project 02: <span class="gold">DPAC</span> (<i class="muted">Semaphores</i>)<a class="headerlink" href="#project-02-dpac-semaphores" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Global Variables</span>
+<span class="n">Semaphore</span> <span class="n">StudentA</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">Semaphore</span> <span class="n">StudentB</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Thread Functions</span>
+
+<span class="k">def</span> <span class="nf">thread_student_A</span><span class="p">():</span>
+    <span class="n">Post</span><span class="p">(</span><span class="n">StudentB</span><span class="p">)</span>
+    <span class="n">Wait</span><span class="p">(</span><span class="n">StudentA</span><span class="p">)</span>
+
+    <span class="n">EnterDPAC</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">thread_student_B</span><span class="p">():</span>
+    <span class="n">Post</span><span class="p">(</span><span class="n">StudentA</span><span class="p">)</span>
+    <span class="n">Wait</span><span class="p">(</span><span class="n">StudentB</span><span class="p">)</span>
+
+    <span class="n">EnterDPAC</span><span class="p">()</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>DPAC</strong> is an example of <strong>barrier</strong> pattern.</p>
+</blockquote>
+<h2 id="project-02-dpac-locks-condition-variables">Project 02: <span class="gold">DPAC</span> (<i class="muted">Locks, Condition Variables</i>)<a class="headerlink" href="#project-02-dpac-locks-condition-variables" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Global Variables</span>
+<span class="n">size_t</span> <span class="n">NUM_STUDENTS</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># Number of students going to the movies</span>
+<span class="n">size_t</span> <span class="n">Arrived</span>      <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Number of students who have arrived</span>
+
+<span class="n">Mutex</span>  <span class="n">Lock</span>
+<span class="n">Cond</span>   <span class="n">Waiting</span>
+
+<span class="c1"># Thread Functions</span>
+<span class="k">def</span> <span class="nf">thread_student</span><span class="p">():</span>
+    <span class="n">mutex_lock</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+    <span class="n">Arrived</span><span class="o">++</span>
+    <span class="k">while</span> <span class="n">Arrived</span> <span class="o">&lt;</span> <span class="n">NUM_STUDENTS</span><span class="p">:</span>
+        <span class="n">cond_wait</span><span class="p">(</span><span class="n">Waiting</span><span class="p">,</span> <span class="n">Lock</span><span class="p">)</span>
+    <span class="n">cond_signal</span><span class="p">(</span><span class="n">Waiting</span><span class="p">)</span>
+    <span class="n">mutex_unlock</span><span class="p">(</span><span class="n">Lock</span><span class="p">)</span>
+</code></pre></div>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
