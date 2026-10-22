@@ -21,11 +21,16 @@ echo "Testing reading07 program ... "
 DIFF=$(compare "$(./program)" "$(output)")
 COUNT=$(output | wc -l)
 SCORE=$(python3 <<EOF
-print("{:0.2f} / $POINTS.00".format(($COUNT - $DIFF) * $POINTS.0 / $COUNT.0))
+print("{:5.2f} / $COUNT.00".format(($COUNT - $DIFF)))
+EOF
+)
+GRADE=$(python3 <<EOF
+print("{:5.2f} / 1.00".format(($COUNT - $DIFF) / $COUNT.0))
 EOF
 )
 
 echo "   Score $SCORE"
+echo "   Grade $GRADE"
 
 if [ "$DIFF" -eq 0 ]; then
     echo "  Status Success"
