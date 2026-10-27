@@ -1,0 +1,25 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="Yll6fHIb633bTQxxrnJE">
+    <mxGraphModel dx="1131" dy="674" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="120" width="200" x="440" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;align=center;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Stack&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="200" x="440" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;align=center;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Heap&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="200" x="440" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;align=center;dashed=1;dashPattern=8 8;" value="" vertex="1">
+          <mxGeometry height="40" width="200" x="440" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-19" edge="1" parent="1" source="HEtF2axrAPFgZNj4YoJZ-17" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="HEtF2axrAPFgZNj4YoJZ-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

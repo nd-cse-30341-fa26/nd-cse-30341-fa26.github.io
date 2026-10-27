@@ -1,0 +1,52 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="Yll6fHIb633bTQxxrnJE">
+    <mxGraphModel dx="1414" dy="843" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Size: 32&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-13" edge="1" parent="1" source="HEtF2axrAPFgZNj4YoJZ-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="HEtF2axrAPFgZNj4YoJZ-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Next: 56&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Free: true&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Size: 64&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-14" edge="1" parent="1" source="HEtF2axrAPFgZNj4YoJZ-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="HEtF2axrAPFgZNj4YoJZ-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Next: 144&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Free: true&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Block A&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-8" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Block B&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Size: 16&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Next: NULL&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;Free: true&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="HEtF2axrAPFgZNj4YoJZ-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Block C&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="240" y="480" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

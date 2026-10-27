@@ -1,0 +1,120 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="Yll6fHIb633bTQxxrnJE">
+    <mxGraphModel dx="1414" dy="843" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;capacity:&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;size:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-30" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;defaultLabelBackgroundColor=page;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="o1C_Z7xYIK2gvzSMaRD0-21">
+          <mxGeometry relative="1" x="-0.3214" as="geometry">
+            <mxPoint x="930" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;prev:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-31" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="o1C_Z7xYIK2gvzSMaRD0-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;next:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#1F2F1E);strokeColor=#82b366;strokeWidth=2;align=center;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;data&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="400" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;capacity:&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;size:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-27" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="o1C_Z7xYIK2gvzSMaRD0-16">
+          <mxGeometry relative="1" x="-0.4286" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="540" />
+              <mxPoint x="380" y="420" />
+              <mxPoint x="260" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;prev:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-33" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="o1C_Z7xYIK2gvzSMaRD0-21">
+          <mxGeometry relative="1" x="-0.1111" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="580" />
+              <mxPoint x="660" y="400" />
+              <mxPoint x="780" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;next:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="400" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#ffffff, #36210a);strokeColor=#d79b00;strokeWidth=2;align=center;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;data&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="400" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;capacity:&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="80" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;size:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="80" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-26" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="o1C_Z7xYIK2gvzSMaRD0-1">
+          <mxGeometry relative="1" x="-0.125" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;prev:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="80" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;next:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="80" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#ffffff, #36210a);strokeColor=#d79b00;strokeWidth=2;align=center;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;data&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="80" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;capacity:&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="720" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;size:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="720" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-28" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.789;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;entryPerimeter=0;" target="o1C_Z7xYIK2gvzSMaRD0-6">
+          <mxGeometry relative="1" x="-0.4087" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="540" />
+              <mxPoint x="700" y="420" />
+              <mxPoint x="589.4" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;prev:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="720" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-34" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="o1C_Z7xYIK2gvzSMaRD0-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;align=left;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&amp;nbsp;next:&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="720" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-25" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#ffffff, #36210a);strokeColor=#d79b00;strokeWidth=2;align=center;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;data&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="720" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="o1C_Z7xYIK2gvzSMaRD0-32" edge="1" parent="1" source="o1C_Z7xYIK2gvzSMaRD0-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="o1C_Z7xYIK2gvzSMaRD0-6">
+          <mxGeometry relative="1" x="-0.0556" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="580" />
+              <mxPoint x="340" y="400" />
+              <mxPoint x="460" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
