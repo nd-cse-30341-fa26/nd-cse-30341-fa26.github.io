@@ -1,0 +1,479 @@
+title:  "Notes 13: Address Space, Memory API"
+body:   |
+
+  ## Logistics
+
+  - <strong class="danger">Exam 02</strong>: **Graded**
+
+  -   <div class="flex-col" markdown="1">
+
+      [Exam 02 - Redemption](extracredit02.html): Another opportunity to practice using **threads**.
+
+      - We live in **multi-core** world.
+      - Inspired by **theprimeagen**, **Noah (Anthropic)**.
+
+      <div class="alert warning-bg" markdown="1">
+
+      - Is this **task** or **data** parallel? `data`
+
+      - What **concurrency pattern** should you use? `rate-limiting`
+
+      </div>
+
+  - [Reading 07](reading07.html): Due **today** but will allow late submission due to **Fall Break**.
+
+  - [Project 01](project01.html): **Graded**, finally.  Make sure to check for errors.
+
+  - [Project 02](project02.html): Will be **graded** soon, probably, hopefully.
+
+  -   <div class="flex-col" markdown="1">
+
+      [Project 03](project03.html): Implementing... `malloc`... out soon, probably.
+
+      <div class="alert warning-bg">
+
+      - **Challenge**: Can't use `printf` since it uses `malloc` internally.
+
+      - **Real Life Story**: Emory Michaels implemented a custom `malloc` while
+      working at a startup (*Lucata*).
+
+      </div>
+
+  ## Review: <span class="gold">OS Themes</span>
+
+  1. **Virtualization**: **Processes (*CPU*)**, **Threads (*Execution Context*)**
+
+  2. **Concurrency**: **Synchronization (*race conditions, deadlock, mutex, cond var, semaphore*)**
+
+  3. **Persistence**: **File System**
+
+  ## Virtual Memory: <span class="gold">Motivation</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col centered" markdown="1">
+
+  ### <span class="danger">Batch</span>
+
+  </div>
+
+  <div class="flex-col centered" markdown="1">
+
+  ### <span class="success">Interactive</span>
+
+  </div>
+
+  </div>
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Analogy**: Dorm Room (*take your stuff* -> *need protection*).
+
+  </div>
+
+  <div class="centered">
+
+  <img src="static/img/slides13-motivation.svg" class="transparent responsive">
+
+  </div>
+
+  <div class="centered">
+
+  With the development of <strong class="success">multi-programming</strong> and
+  <strong class="caution">time-sharing</strong>, we needed a way to <strong
+  class="danger">protect</strong> programs from each other and to effectively
+  <strong class="warning">switch</strong> between them.
+
+  </div>
+
+  ## Virtual Memory: <span class="gold">Address Space</span>
+
+  The <strong class="caution">operating system</strong> provides each <strong
+  class="success">process</strong> an <strong
+  class="special">abstraction</strong> of <strong class="info">memory</strong>
+  called the <strong class="success">address space</strong>.
+
+  <div class="centered">
+
+  <img src="static/img/slides13-address-space-virtualization.svg" class="transparent responsive">
+
+  </div>
+
+  <div class="alert success-bg" markdown="1">
+
+  **Demo 1**: [addresses.c]
+
+  - Jumps (*name of function is address*)
+  - Relative addresses (*stack is high, code is low*)
+  - Loader (*adjusts memory addresses*)
+  - ASLR (*address space layout randomization*)
+
+  **Demo 2**:
+
+  - Modify `Global` and add `sleep(10)` and run two concurrently.
+
+  </div>
+
+  [addresses.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture13/addresses.c
+
+  ## Virtual Memory: <span class="gold">Challenges</span>
+
+  1. **Protection**: Prevent one process from interfering with another.
+
+  2. **Ownership**: Each process believes it has sole control of all of memory
+  (*and infinite memory*).
+
+  ## Address Translation: <span class="gold">Overview</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  Each **address** in our program is actually a <strong class="warning">virtual
+  address</strong> that must be <strong class="success">translated</strong> to a
+  <strong class="info">physical address</strong>.
+
+  This <strong class="special">virtualization</strong> allows us to <strong
+  class="caution">relocate</strong> a <strong class="success">process</strong> to
+  any location in <strong class="info">memory</strong>.
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <div class="alert caution-bg" markdown="1">
+
+  #### <span class="primary">Goals</span>
+
+  1. <strong class="caution">Transparency</strong>
+
+      Invisible to application.
+
+  2. <strong class="success">Efficiency</strong>
+
+      As little overhead as possible.
+
+  3. <strong class="danger">Protection</strong>
+
+      Must isolate programs from each other.
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## Address Translation: <span class="gold">Relocation</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="danger">Static</span>
+
+  One way to achieve this <strong class="caution">relocation</strong> is to modify your
+  application whenever you need to <strong class="warning">load</strong> it into memory.
+
+  - No <strong class="danger">protection</strong>
+
+  - Difficult to <strong class="caution">relocate</strong>
+
+  - Expensive upfront costs
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="success">Dynamic</span>
+
+  A better approach is to use special <strong class="info">hardware (mmu)</strong>
+  features to perform <strong class="primary">on-demand translation</strong>.
+
+  - Can provide <strong class="danger">protection</strong>
+
+  - Can be updated
+
+  - Pay cost as you go
+
+  </div>
+
+  </div>
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Indirection**: Add middle-man/translation layer to provide protection and
+  flexibility (*base and bounds, segmentation, paging*).
+
+  </div>
+
+  ## Address Translation: <span class="gold">Base & Bounds</span>
+
+  One simple method of <strong class="success">hardware-based address
+  translation</strong> is the <strong class="warning">base and bounds</strong>
+  method:
+
+  - The CPU has a <strong class="warning">base register</strong> which holds the
+    starting point in <strong class="info">physical memory</strong>, and a
+    <strong class="warning">bounds register</strong> which holds the ending point
+    in <strong class="info">physical memory</strong>.
+
+  - The <strong class="info">physical address</strong> can be <strong
+    class="success">translated</strong> by computing the following:
+
+  <div class="centered font-large">
+
+  <strong class="info">Physical Address</strong> = <strong
+  class="warning">Base</strong> + <strong class="success">Virtual
+  Address</strong>
+
+  </div>
+
+  <div class="alert danger-bg" markdown="1">
+
+  **True/False**: The **OS** has one set of **base & bounds**?
+
+  `False`, one per **process**.  Must save and restore on each **context
+  switch**.
+
+  </div>
+
+  ## Address Translation: <span class="gold">Example</span>
+
+  Suppose we had an <strong class="success">address space</strong> of `8KB` that has been
+  loaded at <strong class="info">physical address</strong> `32KB`:
+
+  <div class="alert warning-bg" markdown="1">
+
+  - **K** = 2^10 = 1024
+  - **M** = 2^20 = Million
+  - **G** = 2^30 = Billion
+  - **T** = 2^40 = Trillion
+
+  </div>
+
+  <table class="bordered">
+  <thead>
+      <th class="success-bg">Virtual Address</th>
+      <th class="info-bg">Physical Address</th>
+  </thead>
+  <tbody>
+  <tr>
+      <td class="success-bg centered">0 KB</td>
+      <td class="info-bg centered">32 KB</td>
+  </tr>
+  <tr>
+      <td class="success-bg centered">1 KB</td>
+      <td class="info-bg centered">33 KB</td>
+  </tr>
+  <tr>
+      <td class="success-bg centered">5000</td>
+      <td class="info-bg centered">37768</td>
+  </tr>
+  <tr>
+      <td class="success-bg centered">9000</td>
+      <td class="info-bg centered"><i class="danger">Fault (Out of Bounds)</i></td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert success-bg" markdown="1">
+
+  - **Pros**: relocation, some protection.
+
+  </div>
+
+  <div class="alert danger-bg" markdown="1">
+
+  - On **out of bounds**, a **fault** is generated by the **MMU**, which is
+  captured by the **CPU**, who then consults the **trap table** and then runs
+  the **handler** in the **OS**, which then sends a `SIGSEGV` to the offending
+  **process**.
+
+  - **Cons**: empty space between **heap** and **stack** (*internal
+  fragmentation*), hard to grow **bounds** (*external fragmentation*).
+
+  </div>
+
+  ## Memory API: <span class="gold">Trivia</span>
+
+  ### Allocation
+
+  > How do we <strong class="success">allocate</strong> an array of `1,000,000` ints?
+
+  ```c
+  int *a = malloc(1000000 * sizeof(int));
+  ```
+
+  ### Deallocation
+
+  > How do we <strong class="danger">deallocate</strong> that array of ints?
+
+  ```c
+  free(a);
+  ```
+
+  ### Common Error A
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  char *buffer;
+  fgets(buffer, BUFSIZ, stdin);
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Forgot to allocate memory, so we <strong class="danger">segfault</strong>.</i>
+
+  </div>
+
+  ### Common Error B
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  char *src = "Smile like you mean it";
+  char *dst = malloc(strlen(src));
+
+  strcpy(dst, src);
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Did not allocate enough memory, so <strong class="danger">buffer
+  overflow</strong>.</i>
+
+  </div>
+
+  ### Common Error C
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  char *s = malloc(100*sizeof(char));
+
+  puts(s);
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Did not initialize memory, so <strong class="danger">uninitialized
+  read</strong>.</i>
+
+  </div>
+
+  ### Common Error D
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      process(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Forgot to free memory, so <strong class="danger">memory leak</strong>.</i>
+
+  </div>
+
+  ### Common Error E
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      process(s); free(s); puts(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Freed before we are done, so <strong class="danger">dangling pointer</strong>.</i>
+
+  </div>
+
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      process(s); free(s); puts(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Freed before we are done, so <strong class="danger">dangling pointer</strong>.</i>
+
+  </div>
+
+  ### Common Error F
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      if (check(s)) { free (s); }
+      free(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Try to free something more than once, so <strong class="danger">double free</strong>.</i>
+
+  </div>
+
+  ### Common Error G
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = argv[i];
+      process(s);
+      free(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Try to free something that wasn't dynamically allocated, so <strong
+  class="danger">invalid free</strong>.</i>
+
+  </div>
+
+  ### Where is My Mind?
+
+  <strong class="info">Dr. Thain</strong> wants you to write a <strong
+  class="danger">compiler</strong>.  He tells you don't worry about managing
+  memory, just allocate as much as you want and <strong class="warning">don't
+  bother to free anything</strong>.  You look at him in <strong
+  class="caution">horror</strong> and are ready to <strong
+  class="danger">roast</strong> him on **Slack / X**.  Are you <strong
+  class="success">justified</strong>?
+
+  <div class="alert info-bg centered">
+
+  <i>We have <strong class="warning">two levels of memory management</strong>:<br>at
+  the <strong class="caution">OS level</strong>, and at the <strong
+  class="success">process level</strong>.</i>
+
+  <i><strong class="danger">When a process exits, all of its memory is returned<br>
+  to the OS even if it was not freed by the process.</strong></i>
+
+  </div>
