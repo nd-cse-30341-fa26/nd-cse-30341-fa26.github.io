@@ -1,0 +1,66 @@
+{
+    "q01": {
+        "type": "blank",
+        "question": "\n<p>In a modern machine, we typically have a <b>(1)</b> ____ or different\nlevels of data storage.  At the bottom, we have the <b>(2)</b> ____, which\nis the largest but also the slowest.  In the middle, we have <b>(3)</b>\n____, which is where we usually put the bulk of our active data.  At the\nvery top, we have storage inside the CPU in the form of on-chip <b>(4)</b>\n____ and a small set of <b>(5)</b> ____, which are small but very fast.</p>\n\n<p>To support the illusion of a large virtual memory for multiple\nconcurrently-running processes, the OS can utilize <b>(6)</b> ____, which\nis a portion of disk used to move pages back and forth.</p>\n"
+    },
+    "q02": {
+        "type": "multiple",
+        "question": "\n<p>Which of the following statements regarding <b>page faults</b> is true\n(<i>choose all that apply</i>)?</p>\n",
+        "responses": {
+            "physical": "A page fault occurs when we access a page not in physical memory.",
+            "illegal": "A page fault occurs when we access an illegal memory address.",
+            "valid": "The valid bit records whether or not a page is in physical memory.",
+            "handler": "When a page fault occurs, the page fault handler in the OS is invoked.",
+            "swap": "If a page is not present, then the OS will raise an exception.",
+            "overlap": "While servicing a page fault for one process, another ready process can run."
+        }
+    },
+    "q03": {
+        "type": "blank",
+        "question": "\n<p>Whenever memory is full, we may need to <b>(1)</b> ____ one or more\npages in memory to make room for new pages that we wish to <b>(2)</b> ____.\nTo decide which pages to <b>(3)</b> ____, we will need to implement a\n<b>(4)</b> ____ policy.</p>\n\n<p>To determine when to evict pages, we have some kind of <b>(5)</b> ____\nand <b>(6)</b> ____ to help decide when to start swapping pages.  In this\nsystem, a <b>(7)</b> ____ runs in the background and watches for when we\nhave too few pages available.  When this happens, the daemon evicts pages\nuntil we reach our threshold.</p>\n"
+    },
+    "q04": {
+        "type": "order",
+        "question": "\n<p>Match the following <b>page-replacement</b> policies with the following\ndescriptions:</p>\n\n<ol>\n\n  <li>In this policy, pages are evicted in the order in which they\n  arrive.</li>\n\n  <li>In this policy, any page is picked and evicted.</li>\n\n  <li>In this policy, we use history to determine which page to evict.</li>\n\n  <li>In this policy, we utilize the use or reference bit to approximate\n  the use of history.</li>\n\n</ol>\n",
+        "responses": {
+            "clock": "Clock",
+            "fifo": "FIFO",
+            "lru": "LRU",
+            "random": "Random"
+        }
+    },
+    "q05": {
+        "type": "blank",
+        "question": "\n<p>To determine when to bring a page into memory, the OS needs to define a\n<b>(1)</b> ____ policy.  For instance, it can perform <b>(2)</b> ____, which means a page is\nbrought into memory when it is accessed.  It can also perform <b>(3)</b> ____, which\nmeans the OS guesses that a page is about to be used and thus brings it in\nahead of time.</p>\n\n<p>The OS also needs to determine when to write a page to disk.  For\ninstance, it may choose to perform some sort of <b>(4)</b> ____ where it\ncollects a number of pending writes together in memory and then writes them\nto disk in one (more efficient) write.</p>\n"
+    },
+    "q06": {
+        "type": "blank",
+        "question": "\n<p>When memory is oversubscribed, we may begin <b>(1)</b> ____ or\nconstantly be paging.  Ideally, the OS would have a way to reduce a\nprocesses' <b>(2)</b> ____ or active pages.  On Linux, however, we have a\ncrude mechanism called the <b>(3)</b> ____ which chooses a memory-intensive\nprocess and kills it.</p>\n"
+    },
+    "q07": {
+        "type": "single",
+        "question": "\n<p>Why does a <b>NULL</b> pointer access cause segfaults?</p>\n",
+        "responses": {
+            "reserved": "That address is reserved for the operating system.",
+            "invalid": "Page 0 is always marked invalid.",
+            "positive": "The MMU only supports non-zero addresses.",
+            "thrashing": "To prevent thrashing."
+        }
+    },
+    "q08": {
+        "type": "blank",
+        "question": "\n<p>Two optimizations implemented by <b>VMS</b> and later copied by modern\noperating systems are: <b>(1)</b> ____, which involves only zeroing a page\nwhen it is utilized, and <b>(2)</b> ____, which involves only copying a\npage from one address space to another when the page is written to\n(otherwise it is shared).</p>\n"
+    },
+    "q09": {
+        "type": "single",
+        "question": "\n<p>Generally speaking, which of the following is the most effective way of\nimproving the performance of your computer?</p>\n",
+        "responses": {
+            "openbsd": "Use OpenBSD.",
+            "linux": "Use Linux.",
+            "policies": "Tweak your current OS to use better policies.",
+            "ram": "Buy more RAM.",
+            "turbo": "Use the turbo button.",
+            "windows": "Use Windows."
+        }
+    }
+}
