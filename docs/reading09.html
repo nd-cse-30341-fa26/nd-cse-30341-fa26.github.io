@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Reading 09: Swapping</title>
+</head>
+<body>
+<header>
+<a class="logo" href="reading09.html">
+    <h1>Reading 09: Swapping</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<p><strong>Everyone</strong>:</p>
+<p>Next week, after finishing up <a href="https://en.wikipedia.org/wiki/Paging">paging</a>, we will explore how an OS uses
+<a href="https://en.wikipedia.org/wiki/Paging#History">swapping</a> to allow for virtual address spaces larger than physical memory
+along with various page replacement algorithms.</p>
+<div class="alert info-bg">
+<h3 id="book-embed_icon-tldr"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>book</title><path d="M18,22A2,2 0 0,0 20,20V4C20,2.89 19.1,2 18,2H12V9L9.5,7.5L7,9V2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18Z" /></svg>
+</i> TL;DR<a class="headerlink" href="#book-embed_icon-tldr" title="Permanent link">&para;</a></h3>
+<p>For this reading assignment, you are to read about <a href="https://en.wikipedia.org/wiki/Paging#History">swapping</a>, page
+replacement policies, and submit your responses to the <a href="static/json/reading09.json">Reading 09 Quiz</a>.</p>
+</div>
+<h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>The readings for this week are:</p>
+<ol>
+<li>
+<div class="flex-col">
+<p><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/">Operating Systems: Three Easy Pieces</a></p>
+<ul>
+<li><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-beyondphys.pdf">Swapping: Mechanisms</a></li>
+<li><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-beyondphys-policy.pdf">Swapping: Policies</a></li>
+<li><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-complete.pdf">Case Study: VAX/VMS</a></li>
+<li><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-dialogue.pdf">Summary</a></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="flex-col-25 centered">
+  <img src="static/img/ostep.jpg">
+</div>
+</div>
+<h3 id="optional-ai-conversation">Optional AI Conversation<a class="headerlink" href="#optional-ai-conversation" title="Permanent link">&para;</a></h3>
+<p>Using <a href="https://learning.google.com/experiments/learn-about">Learn About from Google</a> (<em>or your preferred AI agent</em>), have a
+conversation about <a href="https://en.wikipedia.org/wiki/Paging">paging</a> and <a href="https://en.wikipedia.org/wiki/Paging#History">swapping</a> using the following prompts:</p>
+<blockquote>
+<ol>
+<li>When using paging, why do we need TLBs?</li>
+<li>When using paging, why do we use multiple levels?</li>
+<li>When does swapping occur?</li>
+<li>How does swapping and paging work together?</li>
+<li>What are some common page replacement algorithms?</li>
+</ol>
+</blockquote>
+<p>As you explore, feel free to dive into any suggested related questions.</p>
+<h2 id="quiz">Quiz<a class="headerlink" href="#quiz" title="Permanent link">&para;</a></h2>
+<p>Once you have done the readings, answer the following <a href="static/json/reading09.json">Reading 09 Quiz</a>
+questions:</p>
+<div id="quiz-questions"></div>
+
+<div id="quiz-responses"></div>
+
+<script src="static/js/dredd-quiz.js"></script>
+<script>
+loadQuiz('static/json/reading09.json');
+</script>
+
+<pre style="display: none;" id="dr-container" class="codehilite"><code id="dredd-response"></code></pre>
+
+<h3 id="program">Program<a class="headerlink" href="#program" title="Permanent link">&para;</a></h3>
+<p>For this week, you are to implement a <code>program</code> that translates <strong>8-bit
+virtual addresses</strong> into <strong>physical addresses</strong>, while also detecting
+<strong>segmentation and protection faults</strong> in a simple <a href="https://en.wikipedia.org/wiki/Paging">paging</a> system with <strong>16-byte pages</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Download addresses binary file</span>
+$<span class="w"> </span>curl<span class="w"> </span>-LO<span class="w"> </span>https://pnutz.h4x0r.space/courses/cse.30341.fa26/static/txt/reading09/addresses.bin
+
+<span class="c1"># Translate virtual addresses in binary file to physical addresses</span>
+$<span class="w"> </span>./program<span class="w"> </span>&lt;<span class="w"> </span>addresses.bin
+VA<span class="o">[</span><span class="m">24</span><span class="o">]</span><span class="w"> </span>-&gt;<span class="w"> </span>PA<span class="o">[</span><span class="m">54</span><span class="o">]</span>
+VA<span class="o">[</span><span class="m">81</span><span class="o">]</span><span class="w"> </span>-&gt;<span class="w"> </span>PA<span class="o">[</span><span class="m">01</span><span class="o">]</span><span class="w"> </span>Segmentation<span class="w"> </span>Fault
+VA<span class="o">[</span><span class="m">05</span><span class="o">]</span><span class="w"> </span>-&gt;<span class="w"> </span>PA<span class="o">[</span><span class="m">35</span><span class="o">]</span>
+VA<span class="o">[</span>cf<span class="o">]</span><span class="w"> </span>-&gt;<span class="w"> </span>PA<span class="o">[</span>0f<span class="o">]</span><span class="w"> </span>Segmentation<span class="w"> </span>Fault
+VA<span class="o">[</span>3c<span class="o">]</span><span class="w"> </span>-&gt;<span class="w"> </span>PA<span class="o">[</span>2c<span class="o">]</span><span class="w"> </span>Protection<span class="w"> </span>Fault
+VA<span class="o">[</span><span class="m">19</span><span class="o">]</span><span class="w"> </span>-&gt;<span class="w"> </span>PA<span class="o">[</span><span class="m">79</span><span class="o">]</span>
+</code></pre></div>
+
+<p>The program reads in a binary <a href="static/txt/reading09/addresses.bin">addresses.bin</a> file from <code>stdin</code> where each
+<strong>virtual address</strong> is a <strong>8-bit integer</strong> and then uses the following
+<strong>Page Table</strong> to translate each <strong>virtual address</strong> into a <strong>physical
+address</strong>:</p>
+<div class="centered">
+  <img src="static/img/reading09-table.svg" class="transparent responsive">
+</div>
+
+<p>As discussed in class, when using <a href="https://en.wikipedia.org/wiki/Paging">paging</a> each <strong>virtual address</strong> can be
+broken down into a <code>vpn</code> portion and an <code>offset</code> portion:</p>
+<div class="centered">
+  <img src="static/img/reading09-address.svg" class="transparent responsive">
+</div>
+
+<ul>
+<li>
+<div class="flex-col">
+<p>The <code>vpn</code> portion is the first few bits in the <strong>virtual address</strong>.
+Given that we have an <strong>8-bit virtual address</strong> and each <strong>page</strong> is
+<strong>16 bytes</strong>, we will use the first <code>4</code> bits to denote the <code>vpn</code> in
+each <strong>virtual address</strong>.</p>
+<blockquote>
+<p>To programatically extract the <code>vpn</code>, we can apply a <strong>bitmask</strong>
+to the <strong>virtual address</strong> and <strong>shift the bits to the right</strong> (the
+length of the <code>offset</code>).</p>
+</blockquote>
+</div>
+</li>
+<li>
+<div class="flex-col">
+<p>The <code>offset</code> portion of the <strong>virtual address</strong> are the remaining bits
+not in the <code>vpn</code>.</p>
+<blockquote>
+<p>To programatically extract the <code>offset</code>, we can apply a <strong>bitmask</strong> to
+the <strong>virtual address</strong>.</p>
+</blockquote>
+</div>
+</li>
+</ul>
+<p>Once we know the <code>vpn</code> and the <code>offset</code>, we can use the <code>PFN</code> of the
+corresponding <strong>Page Table Entry</strong> in the <strong>Page Table</strong> to compute the
+<strong>physical address</strong>:</p>
+<div class="codehilite"><pre><span></span><code>Physical Address = (PageTableEntry.PFN &lt;&lt; VPN_SHIFT) | offset
+</code></pre></div>
+
+<p>To detect <strong>segmentation faults</strong>, we can check that the <code>Valid</code> bit of the
+<strong>Page Table Entry</strong>.  Likewise, to detect <strong>protection faults</strong>, we can
+check the <code>Protected</code> bit of the <strong>Page Table Entry</strong>.</p>
+<h3 id="template">Template<a class="headerlink" href="#template" title="Permanent link">&para;</a></h3>
+<p>Your task is to implement this <a href="https://en.wikipedia.org/wiki/Paging">Paging</a> address translation process
+by completing the following <a href="static/txt/reading09/template.c">template.c</a>:</p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* Reading 09 */</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+
+<span class="cm">/* Constants */</span>
+
+<span class="cp">#define ADDRESS_LENGTH  </span><span class="c1">// TODO: Define number of bits in virtual address</span>
+<span class="cp">#define PAGE_SIZE       </span><span class="c1">// TODO: Define number of bytes per Page</span>
+
+<span class="cp">#define MAX_PAGES       </span><span class="c1">// TODO: Define number of Pages in virtual address space</span>
+<span class="cp">#define VPN_MASK        </span><span class="c1">// TODO: Define bitmask for VPN portion of virtual address</span>
+<span class="cp">#define VPN_SHIFT       </span><span class="c1">// TODO: Define bitshift amount for VPN portion of virtual address</span>
+<span class="cp">#define OFFSET_MASK     </span><span class="c1">// TODO: Define bitmask for offset portion of virtual address</span>
+
+<span class="cm">/* Structures */</span>
+
+<span class="cm">/**</span>
+<span class="cm">* Each Page Table Entry is a byte with the followin bit fields:</span>
+<span class="cm">*</span>
+<span class="cm">*  NNNNNNVP</span>
+<span class="cm">*</span>
+<span class="cm">*  NNNNNN: Physical Frame Number</span>
+<span class="cm">*  V:     Valid bit (page is valid/in-use)</span>
+<span class="cm">*  P:     Protection bit (page is protected/accessible)</span>
+<span class="cm">**/</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">PFN</span><span class="w">       </span><span class="o">:</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">Valid</span><span class="w">     </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">Protected</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">PageTableEntry</span><span class="p">;</span>
+
+<span class="cm">/* Constants */</span>
+
+<span class="n">PageTableEntry</span><span class="w"> </span><span class="n">PageTable</span><span class="p">[</span><span class="n">MAX_PAGES</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// Page Table (normally in physical memory)</span>
+<span class="w">    </span><span class="p">{.</span><span class="n">PFN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Protected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="cm">/* Page 0 */</span>
+<span class="w">    </span><span class="p">{.</span><span class="n">PFN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Protected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="cm">/* Page 1 */</span>
+<span class="w">    </span><span class="p">{.</span><span class="n">PFN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Protected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="cm">/* Page 2 */</span>
+<span class="w">    </span><span class="p">{.</span><span class="n">PFN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">Protected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="cm">/* Page 3 */</span>
+<span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">virtual_address</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">fread</span><span class="p">(</span><span class="o">&amp;</span><span class="n">virtual_address</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">vpn</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="c1">// TODO: Determine VPN using VPN_MASK and VPN_SHIFT</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// TODO: Determine offset using OFFSET_MASK</span>
+
+<span class="w">        </span><span class="c1">// TODO: Perform bounds and protection checks</span>
+<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fault</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">fault</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot; Segmentation Fault&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">fault</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot; Protection Fault&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">physical_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// TODO: Compute physical address using PFN and offset</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;VA[%02x] -&gt; PA[%02x]%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">virtual_address</span><span class="p">,</span><span class="w"> </span><span class="n">physical_address</span><span class="p">,</span><span class="w"> </span><span class="n">fault</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>As can been seen, the <code>PageTable</code> consists of the <strong>Page Table Entries</strong>
+described above with the <code>PFN</code>, <code>Valid</code>, and <code>Protection</code> fields for each
+corresponding <strong>page</strong>.</p>
+<p>You will need to implement each of the <code>TODO</code>s to implement the <strong>virtual
+address</strong> to <strong>physical address</strong> translator.</p>
+<h3 id="hints">Hints<a class="headerlink" href="#hints" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>For <code>ADDRESS_LENGTH</code>, this is given to you in the instructions above.</p>
+</li>
+<li>
+<p>For <code>PAGE_SIZE</code>, this is given to you in the instructions above.</p>
+</li>
+<li>
+<p>For <code>MAX_PAGES</code>, this is the total number of pages possible given the
+address space size and the individual <code>PAGE_SIZE</code>.</p>
+</li>
+<li>
+<p>For <code>VPN_MASK</code>, consider writing out the <strong>bitmask</strong> on paper and
+then translating into hexadecimal.</p>
+</li>
+<li>
+<p>For <code>VPN_SHIFT</code>, remember that this is the length of the <code>offset</code>
+component of the <strong>virtual address</strong>.</p>
+</li>
+<li>
+<p>For <code>OFFSET_MASK</code>, this is the complement or inverse of the
+<code>VPN_MASK</code>.</p>
+</li>
+<li>
+<p>To compute the <code>vpn</code>, we want to apply the <code>VPN_MASK</code> to the
+<strong>virtual address</strong> and then <strong>shift the result to the right</strong> by the
+<code>VPN_SHIFT</code>.</p>
+<p>For instance, if the virtual address was <code>0010 0100</code>,
+applying the <code>VPN_MASK</code> should give us <code>0010 0000</code>.  We then
+want to shift to the right to get: <code>0000 0010</code>.</p>
+</li>
+<li>
+<p>To compute the <code>offset</code>, we want to apply the <code>OFFSET_MASK</code> to the
+<strong>virtual address</strong>.</p>
+<p>For instance, if the virtual address was <code>0010 0100</code>,
+applying the <code>OFFSET_MASK</code> should give us <code>0000 0100</code>.</p>
+</li>
+<li>
+<p>To check for <strong>segmentation and protection faults</strong>, you must check the
+<code>Valid</code> and <code>Protected</code> fields of the <strong>Page Table Entry</strong>.</p>
+</li>
+<li>
+<p>To compute the physical address, you must use the <code>PFN</code> value in the
+<strong>Page Table</strong> along with the <code>offset</code>.</p>
+</li>
+</ol>
+<h2 id="submission">Submission<a class="headerlink" href="#submission" title="Permanent link">&para;</a></h2>
+<p>To submit you work, follow the same process outlined in <a href="reading01.html">Reading 01</a>:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>switch<span class="w"> </span>master<span class="w">                   </span><span class="c1"># Make sure we are in master branch</span>
+$<span class="w"> </span>git<span class="w"> </span>pull<span class="w"> </span>--rebase<span class="w">                   </span><span class="c1"># Make sure we are up-to-date with GitLab</span>
+
+$<span class="w"> </span>git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>reading09<span class="w">             </span><span class="c1"># Create reading09 branch and check it out</span>
+
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>reading09<span class="w">                        </span><span class="c1"># Go into reading09 folder</span>
+$<span class="w"> </span><span class="nv">$EDITOR</span><span class="w"> </span>answers.json<span class="w">                </span><span class="c1"># Edit your answers.json file</span>
+
+$<span class="w"> </span>../.scripts/check.py<span class="w">                </span><span class="c1"># Check reading09 quiz</span>
+Checking<span class="w"> </span>reading09<span class="w"> </span>quiz<span class="w"> </span>...
+<span class="w">     </span>Q01<span class="w">  </span><span class="m">6</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">6</span>.00
+<span class="w">     </span>Q02<span class="w">  </span><span class="m">4</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">4</span>.00
+<span class="w">     </span>Q03<span class="w">  </span><span class="m">7</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">7</span>.00
+<span class="w">     </span>Q04<span class="w">  </span><span class="m">4</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">4</span>.00
+<span class="w">     </span>Q05<span class="w">  </span><span class="m">4</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">4</span>.00
+<span class="w">     </span>Q06<span class="w">  </span><span class="m">3</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">3</span>.00
+<span class="w">     </span>Q07<span class="w">  </span><span class="m">1</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">1</span>.00
+<span class="w">     </span>Q08<span class="w">  </span><span class="m">2</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">2</span>.00
+<span class="w">     </span>Q09<span class="w">  </span><span class="m">1</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">1</span>.00
+<span class="w">  </span>--------------------
+<span class="w">   </span>Score<span class="w"> </span><span class="m">32</span>.00<span class="w"> </span>/<span class="w"> </span><span class="m">32</span>.00
+<span class="w">   </span>Grade<span class="w">  </span><span class="m">1</span>.00<span class="w"> </span>/<span class="w">  </span><span class="m">1</span>.00
+<span class="w">  </span>Status<span class="w"> </span>Success
+
+$<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>answers.json<span class="w">                </span><span class="c1"># Add answers.json to staging area</span>
+$<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Reading 09: Quiz&quot;</span><span class="w">    </span><span class="c1"># Commit work</span>
+
+$<span class="w"> </span><span class="nv">$EDITOR</span><span class="w"> </span>program.c<span class="w">                   </span><span class="c1"># Edit your program.c file</span>
+
+$<span class="w"> </span>make<span class="w"> </span>test-program<span class="w">                   </span><span class="c1"># Check reading03 program</span>
+Testing<span class="w"> </span>reading09<span class="w"> </span>program...
+<span class="w">   </span>Score<span class="w">  </span><span class="m">6</span>.00<span class="w"> </span>/<span class="w"> </span><span class="m">6</span>.00
+<span class="w">   </span>Grade<span class="w">  </span><span class="m">1</span>.00<span class="w"> </span>/<span class="w"> </span><span class="m">1</span>.00
+<span class="w">  </span>Status<span class="w"> </span>Success
+
+$<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>Makefile<span class="w">                    </span><span class="c1"># Add Makefile to staging area</span>
+$<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>program.c<span class="w">                   </span><span class="c1"># Add program.c to staging area</span>
+$<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Reading 09: Code&quot;</span><span class="w">    </span><span class="c1"># Commit work</span>
+
+$<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>reading09<span class="w">        </span><span class="c1"># Push branch to GitHub</span>
+</code></pre></div>
+
+<div class="alert warning-bg">
+<h3 id="lifebuoy-embed_icon-acknowledgments"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>lifebuoy</title><path d="M19.79,15.41C20.74,13.24 20.74,10.75 19.79,8.59L17.05,9.83C17.65,11.21 17.65,12.78 17.06,14.17L19.79,15.41M15.42,4.21C13.25,3.26 10.76,3.26 8.59,4.21L9.83,6.94C11.22,6.35 12.79,6.35 14.18,6.95L15.42,4.21M4.21,8.58C3.26,10.76 3.26,13.24 4.21,15.42L6.95,14.17C6.35,12.79 6.35,11.21 6.95,9.82L4.21,8.58M8.59,19.79C10.76,20.74 13.25,20.74 15.42,19.78L14.18,17.05C12.8,17.65 11.22,17.65 9.84,17.06L8.59,19.79M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z" /></svg>
+</i> Acknowledgments<a class="headerlink" href="#lifebuoy-embed_icon-acknowledgments" title="Permanent link">&para;</a></h3>
+<p>If you collaborated with any other students, or received help from TAs or AI
+tools on this assignment, please record this support in the <code>README.md</code> in
+the <code>reading09</code> folder and include it with your <strong>Pull Request</strong>.</p>
+</div>
+<div class="alert success-bg">
+<h3 id="account-question-embed_icon-graders"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>account-question</title><path d="M13,8A4,4 0 0,1 9,12A4,4 0 0,1 5,8A4,4 0 0,1 9,4A4,4 0 0,1 13,8M17,18V20H1V18C1,15.79 4.58,14 9,14C13.42,14 17,15.79 17,18M20.5,14.5V16H19V14.5H20.5M18.5,9.5H17V9A3,3 0 0,1 20,6A3,3 0 0,1 23,9C23,9.97 22.5,10.88 21.71,11.41L21.41,11.6C20.84,12 20.5,12.61 20.5,13.3V13.5H19V13.3C19,12.11 19.6,11 20.59,10.35L20.88,10.16C21.27,9.9 21.5,9.47 21.5,9A1.5,1.5 0 0,0 20,7.5A1.5,1.5 0 0,0 18.5,9V9.5Z" /></svg>
+</i> Graders<a class="headerlink" href="#account-question-embed_icon-graders" title="Permanent link">&para;</a></h3>
+<p>Once you have committed your work and pushed it to <a href="https://github.com">GitHub</a>, remember to
+create a <strong>pull request</strong> and assign it to the appropriate <strong>teaching
+assistant</strong> from the <a href="reading09_tas.html">Reading 09 TA List</a>.</p>
+<p><strong>Note</strong>: this list changes each week, so be sure to consult the appropriate
+list for each assignment.</p>
+</div>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
