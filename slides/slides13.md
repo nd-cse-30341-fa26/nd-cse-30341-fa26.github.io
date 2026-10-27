@@ -184,7 +184,7 @@ application whenever you need to <strong class="warning">load</strong> it into m
 
 ## <span class="success">Dynamic</span>
 
-A better approach is to use <strong class="info">special hardware</strong>
+A better approach is to use special <strong class="info">hardware</strong>
 features to perform <strong class="primary">on-demand translation</strong>.
 
 <br>
