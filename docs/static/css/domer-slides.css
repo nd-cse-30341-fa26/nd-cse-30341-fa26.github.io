@@ -575,6 +575,10 @@ blockquote {
     color: var(--muted);
 }
 
+.comment {
+    color: var(--nord08);
+}
+
 /* Syntax Highlighting */
 
 .hljs-comment {
