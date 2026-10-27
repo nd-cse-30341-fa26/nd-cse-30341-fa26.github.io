@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Extra Credit 02: Concurrent Curl</title>
+</head>
+<body>
+<header>
+<a class="logo" href="extracredit02.html">
+    <h1>Extra Credit 02: Concurrent Curl</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<p>For up to <code>2.0</code> points of <strong>extra credit</strong>, you may implement a <code>C</code> program
+similar to <code>miles.py</code> from <a href="https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework06.html">Homework 06</a> in <a href="https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/">Systems Programming (Spring
+2024)</a>:</p>
+<blockquote>
+<p>A program that <strong>downloads</strong> multiple <strong>URLs</strong> concurrently.</p>
+</blockquote>
+<p>Instead of a <strong>process pool</strong>, you are to use <strong>threads</strong> and the
+<strong>synchronization primitives</strong> of your choice (ie. <strong>locks</strong>, <strong>condition
+variables</strong>, <strong>semaphores</strong>).</p>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
+<p>All the <strong>URLs</strong> to download will be given as <strong>command line arguments</strong>:</p>
+<div class="codehilite"><pre><span></span><code>Usage:<span class="w"> </span>program<span class="w"> </span><span class="o">[</span>-d<span class="w"> </span>DESTINATION<span class="o">]</span><span class="w"> </span><span class="o">[</span>-n<span class="w"> </span>CONCURRENCY<span class="o">]</span><span class="w"> </span>URLs…
+</code></pre></div>
+
+<ul>
+<li>
+<div class="flex-col" markdown="1">
+<p>The <strong>DESTINATION</strong> is the <strong>directory</strong> where you should store the
+downloaded files (<strong>default</strong> is the <strong>current directory</strong>).</p>
+<ul>
+<li>
+<p>If the <strong>DESTINATION</strong> does not exist, then you should create it.</p>
+</li>
+<li>
+<p>Files should be stored as <code>$DESTINATION/$(basename $URL)</code>.</p>
+</li>
+</ul>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p>The <strong>CONCURRENCY</strong> is the <strong>maximum</strong> number of <strong>concurrent
+downloads</strong> (<strong>default</strong> is <code>2</code>).</p>
+<ul>
+<li>
+<p>To manage the concurrency, you should use one of the <strong>concurrency
+patterns</strong> from <a href="reading05.html">Reading 05</a> or <a href="reading06.html">Reading 06</a>.</p>
+</li>
+<li>
+<p>To perform the HTTP requests, you are to use <a href="https://curl.se/libcurl/">libcurl</a> like you did in <a href="project02.html">Project 02</a>.</p>
+</li>
+<li>
+<p>To aid in <strong>debugging</strong> and <strong>tracing</strong>, <code>print "Starting $URL…"</code> before
+performing the <a href="https://curl.se/libcurl/">libcurl</a> operations and <code>"Finished $URL: $STATUS"</code> after
+the operations are completed.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>If any of the <strong>URLs</strong> fail to download the program should <strong>exit with failure</strong>
+after all <strong>URLs</strong> have been processed.  Otherwise, it should <strong>exit with
+success</strong>.</p>
+</li>
+</ul>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<p>Here is an example of the program in action:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./program<span class="w"> </span>-d<span class="w"> </span>html<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html<span class="w"> </span>https://pnutz.h4x0r.space/archive/cse.20289.sp24/homework03.html<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html
+Starting<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html...
+Starting<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html...
+Finished<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html:<span class="w"> </span><span class="m">0</span>
+Starting<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html...
+Finished<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html:<span class="w"> </span><span class="m">0</span>
+Starting<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework03.html...
+Finished<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html:<span class="w"> </span><span class="m">0</span>
+Finished<span class="w"> </span>https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework03.html:<span class="w"> </span><span class="m">0</span>
+
+$<span class="w"> </span>sha1sum<span class="w"> </span>html/*
+a7304b1620c764c5860b02f1a7ae00c027f59d6d<span class="w">  </span>html/homework01.html
+cd7b3427128d2cb21c721086f32bb122f7aa94ef<span class="w">  </span>html/homework02.html
+0306fab5603404380af624a5f3ac46203339e490<span class="w">  </span>html/homework03.html
+8a3142f7b2928ad3a0cdf7b50474f1de39513d31<span class="w">  </span>html/homework04.html
+</code></pre></div>
+
+<h3 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">&para;</a></h3>
+<p>To get started, you are to create an <code>exam02</code> branch in your
+<strong>assignments</strong> repository and download the following <code>Makefile</code> to a new <code>exam02</code> folder:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Go to assignments git repository</span>
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>path/to/assignments
+
+<span class="c1"># Create exam02 directory</span>
+$<span class="w"> </span>mkdir<span class="w"> </span>exam02
+
+<span class="c1"># Download Makefile</span>
+$<span class="w"> </span>curl<span class="w"> </span>-LO<span class="w"> </span>https://pnutz.h4x0r.space/courses/cse.30341.fa26/static/txt/exam02/Makefile
+</code></pre></div>
+
+<p>You should create your own <code>program.c</code> and copy <code>thread.h</code> from <a href="project02.html">Project
+02</a>.</p>
+<h3 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h3>
+<p>You can use <code>make</code> to verify that your program works:</p>
+<div class="codehilite"><pre><span></span><code>Testing<span class="w"> </span>exam02<span class="w"> </span>program...
+<span class="w"> </span>program<span class="w">                                                      </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w">                                                  </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span><span class="o">(</span>strace<span class="o">)</span><span class="w">                                         </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span><span class="w">                                                  </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span><span class="w"> </span><span class="o">(</span>strace<span class="o">)</span><span class="w">                                         </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span><span class="o">[</span><span class="m">8</span><span class="o">]</span><span class="w">                                                  </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span><span class="o">[</span><span class="m">8</span><span class="o">]</span><span class="w"> </span><span class="o">(</span>strace<span class="o">)</span><span class="w">                                         </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span>-d<span class="w"> </span>/tmp/exam02.1000/html<span class="w"> </span><span class="o">[</span><span class="m">8</span><span class="o">]</span><span class="w">                         </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span>-d<span class="w"> </span>/tmp/exam02.1000/html<span class="w"> </span><span class="o">[</span><span class="m">8</span><span class="o">]</span><span class="w"> </span><span class="o">(</span>strace<span class="o">)</span><span class="w">                </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span>-d<span class="w"> </span>/tmp/exam02.1000/html<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="o">[</span><span class="m">8</span><span class="o">]</span><span class="w">                    </span>...<span class="w"> </span>Success
+<span class="w"> </span>program<span class="w"> </span>-d<span class="w"> </span>/tmp/exam02.1000/html<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="o">[</span><span class="m">8</span><span class="o">]</span><span class="w"> </span><span class="o">(</span>strace<span class="o">)</span><span class="w">           </span>...<span class="w"> </span>Success
+<span class="w">   </span>Score<span class="w"> </span><span class="m">1</span>.00<span class="w"> </span>/<span class="w"> </span><span class="m">1</span>.00
+<span class="w">  </span>Status<span class="w"> </span>Success
+</code></pre></div>
+
+<h3 id="submission">Submission<a class="headerlink" href="#submission" title="Permanent link">&para;</a></h3>
+<p>You have until <strong>midnight, Friday, November 6, 2026</strong> to demonstrate your
+program to a <strong>teaching assistant</strong>.</p>
+<ul>
+<li>
+<p>Before meeting with a <strong>teaching assistant</strong> during their <strong>office
+hours</strong>, make a <strong>Pull Request</strong> and assign it to them.</p>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p>Be prepared to discuss the following:</p>
+<ul>
+<li>
+<p>How does the program work (ie. <strong>overall architecture</strong>)?</p>
+</li>
+<li>
+<p>Which <strong>synchronization primitives</strong> did you use and why?</p>
+</li>
+<li>
+<p>Which <strong>concurrency patterns</strong> did you use and why?</p>
+</li>
+<li>
+<p>Is your program <strong>task</strong> or <strong>data parallel</strong> (<em>or both</em>)?</p>
+</li>
+<li>
+<p>Use this program to download several large files concurrently (say
+the <a href="https://kernel.org">Linux Kernel</a>).  Does having a concurrent HTTP client improve your
+download speed?  Explain.</p>
+</li>
+<li>
+<p>Whether or not you used <strong>AI tools</strong> (<em>and how you used them</em>).</p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="alert danger-bg">
+<p>You will be graded <strong>holistically</strong> based on your <strong>code</strong> (<em>correctness,
+style</em>) and <strong>interview</strong> (<em>correctness, succinctness, integrity</em>).</p>
+</div>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
