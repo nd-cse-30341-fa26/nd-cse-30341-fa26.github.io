@@ -160,6 +160,8 @@
           - Reading 07
         items:
           - name:       Slides 13
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=1c321fab-46ee-41d4-bd59-b4f000fb7852
 
       - date:           Thu 10/29
         topics:         Free-Space Management
