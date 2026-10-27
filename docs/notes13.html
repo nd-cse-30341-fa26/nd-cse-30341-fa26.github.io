@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Notes 13: Address Space, Memory API</title>
+</head>
+<body>
+<header>
+<a class="logo" href="notes13.html">
+    <h1>Notes 13: Address Space, Memory API</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<h2 id="logistics">Logistics<a class="headerlink" href="#logistics" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong class="danger">Exam 02</strong>: <strong>Graded</strong></p>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p><a href="extracredit02.html">Exam 02 - Redemption</a>: Another opportunity to practice using <strong>threads</strong>.</p>
+<ul>
+<li>We live in <strong>multi-core</strong> world.</li>
+<li>Inspired by <strong>theprimeagen</strong>, <strong>Noah (Anthropic)</strong>.</li>
+</ul>
+<div class="alert warning-bg" markdown="1">
+<ul>
+<li>
+<p>Is this <strong>task</strong> or <strong>data</strong> parallel? <code>data</code></p>
+</li>
+<li>
+<p>What <strong>concurrency pattern</strong> should you use? <code>rate-limiting</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="reading07.html">Reading 07</a>: Due <strong>today</strong> but will allow late submission due to <strong>Fall Break</strong>.</p>
+</li>
+<li>
+<p><a href="project01.html">Project 01</a>: <strong>Graded</strong>, finally.  Make sure to check for errors.</p>
+</li>
+<li>
+<p><a href="project02.html">Project 02</a>: Will be <strong>graded</strong> soon, probably, hopefully.</p>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p><a href="project03.html">Project 03</a>: Implementing... <code>malloc</code>... out soon, probably.</p>
+<div class="alert warning-bg">
+<ul>
+<li>
+<p><strong>Challenge</strong>: Can't use <code>printf</code> since it uses <code>malloc</code> internally.</p>
+</li>
+<li>
+<p><strong>Real Life Story</strong>: Emory Michaels implemented a custom <code>malloc</code> while
+working at a startup (<em>Lucata</em>).</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+<h2 id="review-os-themes">Review: <span class="gold">OS Themes</span><a class="headerlink" href="#review-os-themes" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Virtualization</strong>: <strong>Processes (<em>CPU</em>)</strong>, <strong>Threads (<em>Execution Context</em>)</strong></p>
+</li>
+<li>
+<p><strong>Concurrency</strong>: <strong>Synchronization (<em>race conditions, deadlock, mutex, cond var, semaphore</em>)</strong></p>
+</li>
+<li>
+<p><strong>Persistence</strong>: <strong>File System</strong></p>
+</li>
+</ol>
+<h2 id="virtual-memory-motivation">Virtual Memory: <span class="gold">Motivation</span><a class="headerlink" href="#virtual-memory-motivation" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col centered">
+<h3 id="batch"><span class="danger">Batch</span><a class="headerlink" href="#batch" title="Permanent link">&para;</a></h3>
+</div>
+<div class="flex-col centered">
+<h3 id="interactive"><span class="success">Interactive</span><a class="headerlink" href="#interactive" title="Permanent link">&para;</a></h3>
+</div>
+</div>
+<div class="alert warning-bg">
+<p><strong>Analogy</strong>: Dorm Room (<em>take your stuff</em> -&gt; <em>need protection</em>).</p>
+</div>
+<div class="centered">
+
+<img src="static/img/slides13-motivation.svg" class="transparent responsive">
+
+</div>
+
+<div class="centered">
+
+With the development of <strong class="success">multi-programming</strong> and
+<strong class="caution">time-sharing</strong>, we needed a way to <strong
+class="danger">protect</strong> programs from each other and to effectively
+<strong class="warning">switch</strong> between them.
+
+</div>
+
+<h2 id="virtual-memory-address-space">Virtual Memory: <span class="gold">Address Space</span><a class="headerlink" href="#virtual-memory-address-space" title="Permanent link">&para;</a></h2>
+<p>The <strong class="caution">operating system</strong> provides each <strong
+class="success">process</strong> an <strong
+class="special">abstraction</strong> of <strong class="info">memory</strong>
+called the <strong class="success">address space</strong>.</p>
+<div class="centered">
+
+<img src="static/img/slides13-address-space-virtualization.svg" class="transparent responsive">
+
+</div>
+
+<div class="alert success-bg">
+<p><strong>Demo 1</strong>: <a href="https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture13/addresses.c">addresses.c</a></p>
+<ul>
+<li>Jumps (<em>name of function is address</em>)</li>
+<li>Relative addresses (<em>stack is high, code is low</em>)</li>
+<li>Loader (<em>adjusts memory addresses</em>)</li>
+<li>ASLR (<em>address space layout randomization</em>)</li>
+</ul>
+<p><strong>Demo 2</strong>:</p>
+<ul>
+<li>Modify <code>Global</code> and add <code>sleep(10)</code> and run two concurrently.</li>
+</ul>
+</div>
+<h2 id="virtual-memory-challenges">Virtual Memory: <span class="gold">Challenges</span><a class="headerlink" href="#virtual-memory-challenges" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Protection</strong>: Prevent one process from interfering with another.</p>
+</li>
+<li>
+<p><strong>Ownership</strong>: Each process believes it has sole control of all of memory
+(<em>and infinite memory</em>).</p>
+</li>
+</ol>
+<h2 id="address-translation-overview">Address Translation: <span class="gold">Overview</span><a class="headerlink" href="#address-translation-overview" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>Each <strong>address</strong> in our program is actually a <strong class="warning">virtual
+address</strong> that must be <strong class="success">translated</strong> to a
+<strong class="info">physical address</strong>.</p>
+<p>This <strong class="special">virtualization</strong> allows us to <strong
+class="caution">relocate</strong> a <strong class="success">process</strong> to
+any location in <strong class="info">memory</strong>.</p>
+</div>
+<div class="flex-col">
+<div class="alert caution-bg">
+<h4 id="goals"><span class="primary">Goals</span><a class="headerlink" href="#goals" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong class="caution">Transparency</strong></p>
+<p>Invisible to application.</p>
+</li>
+<li>
+<p><strong class="success">Efficiency</strong></p>
+<p>As little overhead as possible.</p>
+</li>
+<li>
+<p><strong class="danger">Protection</strong></p>
+<p>Must isolate programs from each other.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<h2 id="address-translation-relocation">Address Translation: <span class="gold">Relocation</span><a class="headerlink" href="#address-translation-relocation" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<h2 id="static"><span class="danger">Static</span><a class="headerlink" href="#static" title="Permanent link">&para;</a></h2>
+<p>One way to achieve this <strong class="caution">relocation</strong> is to modify your
+application whenever you need to <strong class="warning">load</strong> it into memory.</p>
+<ul>
+<li>
+<p>No <strong class="danger">protection</strong></p>
+</li>
+<li>
+<p>Difficult to <strong class="caution">relocate</strong></p>
+</li>
+<li>
+<p>Expensive upfront costs</p>
+</li>
+</ul>
+</div>
+<div class="flex-col">
+<h2 id="dynamic"><span class="success">Dynamic</span><a class="headerlink" href="#dynamic" title="Permanent link">&para;</a></h2>
+<p>A better approach is to use special <strong class="info">hardware (mmu)</strong>
+features to perform <strong class="primary">on-demand translation</strong>.</p>
+<ul>
+<li>
+<p>Can provide <strong class="danger">protection</strong></p>
+</li>
+<li>
+<p>Can be updated</p>
+</li>
+<li>
+<p>Pay cost as you go</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="alert warning-bg">
+<p><strong>Indirection</strong>: Add middle-man/translation layer to provide protection and
+flexibility (<em>base and bounds, segmentation, paging</em>).</p>
+</div>
+<h2 id="address-translation-base-bounds">Address Translation: <span class="gold">Base &amp; Bounds</span><a class="headerlink" href="#address-translation-base-bounds" title="Permanent link">&para;</a></h2>
+<p>One simple method of <strong class="success">hardware-based address
+translation</strong> is the <strong class="warning">base and bounds</strong>
+method:</p>
+<ul>
+<li>
+<p>The CPU has a <strong class="warning">base register</strong> which holds the
+  starting point in <strong class="info">physical memory</strong>, and a
+  <strong class="warning">bounds register</strong> which holds the ending point
+  in <strong class="info">physical memory</strong>.</p>
+</li>
+<li>
+<p>The <strong class="info">physical address</strong> can be <strong
+  class="success">translated</strong> by computing the following:</p>
+</li>
+</ul>
+<div class="centered font-large">
+
+<strong class="info">Physical Address</strong> = <strong
+class="warning">Base</strong> + <strong class="success">Virtual
+Address</strong>
+
+</div>
+
+<div class="alert danger-bg">
+<p><strong>True/False</strong>: The <strong>OS</strong> has one set of <strong>base &amp; bounds</strong>?</p>
+<p><code>False</code>, one per <strong>process</strong>.  Must save and restore on each <strong>context
+switch</strong>.</p>
+</div>
+<h2 id="address-translation-example">Address Translation: <span class="gold">Example</span><a class="headerlink" href="#address-translation-example" title="Permanent link">&para;</a></h2>
+<p>Suppose we had an <strong class="success">address space</strong> of <code>8KB</code> that has been
+loaded at <strong class="info">physical address</strong> <code>32KB</code>:</p>
+<div class="alert warning-bg">
+<ul>
+<li><strong>K</strong> = 2^10 = 1024</li>
+<li><strong>M</strong> = 2^20 = Million</li>
+<li><strong>G</strong> = 2^30 = Billion</li>
+<li><strong>T</strong> = 2^40 = Trillion</li>
+</ul>
+</div>
+<table class="bordered">
+<thead>
+    <th class="success-bg">Virtual Address</th>
+    <th class="info-bg">Physical Address</th>
+</thead>
+<tbody>
+<tr>
+    <td class="success-bg centered">0 KB</td>
+    <td class="info-bg centered">32 KB</td>
+</tr>
+<tr>
+    <td class="success-bg centered">1 KB</td>
+    <td class="info-bg centered">33 KB</td>
+</tr>
+<tr>
+    <td class="success-bg centered">5000</td>
+    <td class="info-bg centered">37768</td>
+</tr>
+<tr>
+    <td class="success-bg centered">9000</td>
+    <td class="info-bg centered"><i class="danger">Fault (Out of Bounds)</i></td>
+</tr>
+</tbody>
+</table>
+
+<div class="alert success-bg">
+<ul>
+<li><strong>Pros</strong>: relocation, some protection.</li>
+</ul>
+</div>
+<div class="alert danger-bg">
+<ul>
+<li>
+<p>On <strong>out of bounds</strong>, a <strong>fault</strong> is generated by the <strong>MMU</strong>, which is
+captured by the <strong>CPU</strong>, who then consults the <strong>trap table</strong> and then runs
+the <strong>handler</strong> in the <strong>OS</strong>, which then sends a <code>SIGSEGV</code> to the offending
+<strong>process</strong>.</p>
+</li>
+<li>
+<p><strong>Cons</strong>: empty space between <strong>heap</strong> and <strong>stack</strong> (<em>internal
+fragmentation</em>), hard to grow <strong>bounds</strong> (<em>external fragmentation</em>).</p>
+</li>
+</ul>
+</div>
+<h2 id="memory-api-trivia">Memory API: <span class="gold">Trivia</span><a class="headerlink" href="#memory-api-trivia" title="Permanent link">&para;</a></h2>
+<h3 id="allocation">Allocation<a class="headerlink" href="#allocation" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>How do we <strong class="success">allocate</strong> an array of <code>1,000,000</code> ints?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="mi">1000000</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+</code></pre></div>
+
+<h3 id="deallocation">Deallocation<a class="headerlink" href="#deallocation" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>How do we <strong class="danger">deallocate</strong> that array of ints?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="n">free</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="common-error-a">Common Error A<a class="headerlink" href="#common-error-a" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">;</span>
+<span class="n">fgets</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">BUFSIZ</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Forgot to allocate memory, so we <strong class="danger">segfault</strong>.</i>
+
+</div>
+
+<h3 id="common-error-b">Common Error B<a class="headerlink" href="#common-error-b" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Smile like you mean it&quot;</span><span class="p">;</span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">src</span><span class="p">));</span>
+
+<span class="n">strcpy</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Did not allocate enough memory, so <strong class="danger">buffer
+overflow</strong>.</i>
+
+</div>
+
+<h3 id="common-error-c">Common Error C<a class="headerlink" href="#common-error-c" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span><span class="p">));</span>
+
+<span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Did not initialize memory, so <strong class="danger">uninitialized
+read</strong>.</i>
+
+</div>
+
+<h3 id="common-error-d">Common Error D<a class="headerlink" href="#common-error-d" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Forgot to free memory, so <strong class="danger">memory leak</strong>.</i>
+
+</div>
+
+<h3 id="common-error-e">Common Error E<a class="headerlink" href="#common-error-e" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Freed before we are done, so <strong class="danger">dangling pointer</strong>.</i>
+
+</div>
+
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Freed before we are done, so <strong class="danger">dangling pointer</strong>.</i>
+
+</div>
+
+<h3 id="common-error-f">Common Error F<a class="headerlink" href="#common-error-f" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Try to free something more than once, so <strong class="danger">double free</strong>.</i>
+
+</div>
+
+<h3 id="common-error-g">Common Error G<a class="headerlink" href="#common-error-g" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Try to free something that wasn't dynamically allocated, so <strong
+class="danger">invalid free</strong>.</i>
+
+</div>
+
+<h3 id="where-is-my-mind">Where is My Mind?<a class="headerlink" href="#where-is-my-mind" title="Permanent link">&para;</a></h3>
+<p><strong class="info">Dr. Thain</strong> wants you to write a <strong
+class="danger">compiler</strong>.  He tells you don't worry about managing
+memory, just allocate as much as you want and <strong class="warning">don't
+bother to free anything</strong>.  You look at him in <strong
+class="caution">horror</strong> and are ready to <strong
+class="danger">roast</strong> him on <strong>Slack / X</strong>.  Are you <strong
+class="success">justified</strong>?</p>
+<div class="alert info-bg centered">
+
+<i>We have <strong class="warning">two levels of memory management</strong>:<br>at
+the <strong class="caution">OS level</strong>, and at the <strong
+class="success">process level</strong>.</i>
+
+<i><strong class="danger">When a process exits, all of its memory is returned<br>
+to the OS even if it was not freed by the process.</strong></i>
+
+</div>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
