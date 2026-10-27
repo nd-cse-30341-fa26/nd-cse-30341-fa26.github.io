@@ -1,0 +1,154 @@
+title:  "Extra Credit 02: Concurrent Curl"
+body:   |
+
+
+    For up to `2.0` points of **extra credit**, you may implement a `C` program
+    similar to `miles.py` from [Homework 06] in [Systems Programming (Spring
+    2024)]:
+
+    > A program that **downloads** multiple **URLs** concurrently.
+
+    Instead of a **process pool**, you are to use **threads** and the
+    **synchronization primitives** of your choice (ie. **locks**, **condition
+    variables**, **semaphores**).
+
+    ### Usage
+
+    All the **URLs** to download will be given as **command line arguments**:
+
+        :::bash
+        Usage: program [-d DESTINATION] [-n CONCURRENCY] URLs…
+
+    -   <div class="flex-col" markdown="1">
+
+        The **DESTINATION** is the **directory** where you should store the
+        downloaded files (**default** is the **current directory**).
+
+        - If the **DESTINATION** does not exist, then you should create it.
+
+        - Files should be stored as `$DESTINATION/$(basename $URL)`.
+
+    -   <div class="flex-col" markdown="1">
+
+        The **CONCURRENCY** is the **maximum** number of **concurrent
+        downloads** (**default** is `2`).
+
+        - To manage the concurrency, you should use one of the **concurrency
+        patterns** from [Reading 05] or [Reading 06].
+
+        - To perform the HTTP requests, you are to use [libcurl] like you did in [Project 02].
+
+        - To aid in **debugging** and **tracing**, `print "Starting $URL…"` before
+        performing the [libcurl] operations and `"Finished $URL: $STATUS"` after
+        the operations are completed.
+
+    - If any of the **URLs** fail to download the program should **exit with failure**
+    after all **URLs** have been processed.  Otherwise, it should **exit with
+    success**.
+
+    [Reading 05]: reading05.html
+    [Reading 06]: reading06.html
+    [Project 02]: project02.html
+    [libcurl]: https://curl.se/libcurl/
+
+    ### Example
+
+    Here is an example of the program in action:
+
+    ```
+    $ ./program -d html -n 2 https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html https://pnutz.h4x0r.space/archive/cse.20289.sp24/homework03.html https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html
+    Starting https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html...
+    Starting https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html...
+    Finished https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html: 0
+    Starting https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html...
+    Finished https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html: 0
+    Starting https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework03.html...
+    Finished https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html: 0
+    Finished https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework03.html: 0
+
+    $ sha1sum html/*
+    a7304b1620c764c5860b02f1a7ae00c027f59d6d  html/homework01.html
+    cd7b3427128d2cb21c721086f32bb122f7aa94ef  html/homework02.html
+    0306fab5603404380af624a5f3ac46203339e490  html/homework03.html
+    8a3142f7b2928ad3a0cdf7b50474f1de39513d31  html/homework04.html
+    ```
+
+    ### Preparation
+
+    To get started, you are to create an `exam02` branch in your
+    **assignments** repository and download the following `Makefile` to a new `exam02` folder:
+
+        :::bash
+        # Go to assignments git repository
+        $ cd path/to/assignments
+
+        # Create exam02 directory
+        $ mkdir exam02
+
+        # Download Makefile
+        $ curl -LO https://pnutz.h4x0r.space/courses/cse.30341.fa26/static/txt/exam02/Makefile
+
+
+    You should create your own `program.c` and copy `thread.h` from [Project
+    02].
+
+    [Homework 06]: https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework06.html
+    [Systems Programming (Spring 2024)]: https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/
+
+    ### Testing
+
+    You can use `make` to verify that your program works:
+
+        :::bash
+        Testing exam02 program...
+         program                                                      ... Success
+         program [1]                                                  ... Success
+         program [1] (strace)                                         ... Success
+         program [2]                                                  ... Success
+         program [2] (strace)                                         ... Success
+         program [8]                                                  ... Success
+         program [8] (strace)                                         ... Success
+         program -d /tmp/exam02.1000/html [8]                         ... Success
+         program -d /tmp/exam02.1000/html [8] (strace)                ... Success
+         program -d /tmp/exam02.1000/html -n 4 [8]                    ... Success
+         program -d /tmp/exam02.1000/html -n 4 [8] (strace)           ... Success
+           Score 1.00 / 1.00
+          Status Success
+
+    ### Submission
+
+    You have until **midnight, Friday, November 6, 2026** to demonstrate your
+    program to a **teaching assistant**.
+
+    - Before meeting with a **teaching assistant** during their **office
+    hours**, make a **Pull Request** and assign it to them.
+
+    -   <div class="flex-col" markdown="1">
+
+        Be prepared to discuss the following:
+
+        - How does the program work (ie. **overall architecture**)?
+
+        - Which **synchronization primitives** did you use and why?
+
+        - Which **concurrency patterns** did you use and why?
+
+        - Is your program **task** or **data parallel** (*or both*)?
+
+        - Use this program to download several large files concurrently (say
+        the [Linux Kernel]).  Does having a concurrent HTTP client improve your
+        download speed?  Explain.
+
+        - Whether or not you used **AI tools** (*and how you used them*).
+
+    <div class="alert danger-bg" markdown="1">
+
+    You will be graded **holistically** based on your **code** (*correctness,
+    style*) and **interview** (*correctness, succinctness, integrity*).
+
+    </div>
+
+
+    [Linux Kernel]: https://kernel.org
+
+
