@@ -1,0 +1,772 @@
+title:      "Project 03: Heap Management"
+body:       |
+
+    The third project is to build your own implementation of [malloc] and
+    [free].  That is, you will need to implement a library that interacts with
+    the operating system to perform heap management on behalf of a user process
+    as demonstrated in class.
+
+    Working **individually** or in **pairs**, you are to create a **library**
+    that implements [malloc] and [free] by **noon** on **Tuesday, November 17,
+    2026**.  More details about this project and your deliverables are
+    described below.
+
+    <div class="centered">
+      <img src="static/img/project03-heap.svg" class="responsive transparent">
+    </div>
+
+    ## Overview
+
+    As demonstrated in [malloc0.c] from [Lecture 14], writing a functional heap
+    management system is relatively straightforward:
+
+    > Simply grow the heap using the [sbrk] system call whenever the user
+    requests memory at run-time.
+
+    Unfortunately, this initial version of a heap manager has some serious problems:
+
+    1. It doesn't actually free anything, so it is quite possible (and likely)
+    that we would eventually run out of memory.
+
+    2.  <div class="flex-col" markdown="1">
+
+        It doesn't keep track of blocks that have been allocated but are no
+        longer in-use (ie. **free**), so it will never re-use a previous
+        allocation.  This is both wasteful (as there is memory that we could
+        use, but don't), and it is slow because we are then forced to call
+        [sbrk], which is a system call and thus incurs the overhead of *context
+        switching*.
+
+        To remedy this, we wrote [malloc1.c], which utilizes a circular
+        doubly-linked [free list] to keep track of **only** the **free** blocks as
+        shown below:
+
+        </div>
+
+    <div class="centered">
+      <img src="static/img/project03-freelist.svg" class="responsive transparent">
+    </div>
+
+    ```c
+    typedef struct block Block;
+
+    struct block {          // Embedded block header
+        size_t capacity;    // Number of bytes allocated (aligned)
+        size_t size;        // Number of bytes used
+        Block *prev;        // Pointer to previous block
+        Block *next;        // Pointer to next block
+        chat   data[];      // Label for user accessible data
+    };
+    ```
+
+    The [malloc1.c] shown in class has the following features:
+
+    1. It maintains a [free list] of all the **free** blocks (previously
+    allocated blocks that are no longer in use).
+
+    2. [malloc] will search this [free list] for a **free** block it can
+    re-use.  If no such block exists, it will simply fall-back to growing the
+    heap with [sbrk].
+
+    3. [free] will insert released blocks to the [free list] to make them
+    available for future re-use.
+
+    While this second version is better than the first heap manager, it is
+    still lacking important features.  For this project, you are to extend the
+    functionality of the [malloc1.c] allocator to incorporate the following:
+
+    0. Ensure that all memory allocations are aligned to the nearest [word size].
+
+    1.  <div class="flex-col" markdown="1">
+
+        Implement multiple **search** algorithms (**First Fit**, **Best Fit**,
+        and **Worst Fit**).
+
+        *To support different strategies in the same source file, we will use
+        [C]'s [#if] directive to select different blocks of code at compile
+        time.*
+
+        </div>
+
+    2. Implement **shrinking** the heap when a block is released.
+
+    3. Implement **splitting** a block when it is re-used.
+
+    4. Implement **merging** a block when it is inserted into the **free list**.
+
+    5. Ensure that blocks in the **free list** are stored in sorted (ie.
+    **ascending**) order.
+
+    6. Implement the complementary [calloc] and [realloc] functions.
+
+    7.  <div class="flex-col" markdown="1">
+
+        Add counters to keep track of number of operations performed by the
+        allocator and the amount of [internal fragmentation] and [external
+        fragmentation].  When the process exits, the library should output the
+        following type of information (based on the counters):
+
+            :::text
+            blocks:      0
+            free blocks: 0
+            mallocs:     10
+            frees:       10
+            callocs:     0
+            reallocs:    0
+            reuses:      0
+            grows:       10
+            shrinks:     10
+            splits:      0
+            merges:      0
+            requested:   10240
+            heap size:   0
+            internal:    0.00
+            external:    0.00
+
+        </div>
+
+    Once you have a working [malloc] implementation (as verified by the
+    provided functional and unit tests), you are to analyze the metrics above
+    for the different heap management strategies.
+
+    <div class="alert danger-bg" markdown="1">
+    **Note**: We will not consider thread-safety or support multiple threads at
+    all for this project.
+    </div>
+
+
+    <div class="alert info-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "cogs" | embed_icon }}</i> Heap Management
+
+    Implementing your own heap management library is more common than you
+    think.  For instance, [Firefox] uses [jemalloc], while [GNU] uses
+    [dlmalloc], [Google] provides [tcmalloc], and [Microsoft] has [mimalloc].
+    As hardware and operating systems evolve, the optimal **heap management
+    strategies** change as well, and so developers continue to advance the
+    state of the art.  For this project, we will focus on understanding the
+    basics and getting something that works (*good enough*).
+
+    For a reference on how to create a simple heap management library, I
+    recommend: [A quick tutorial on implementing and debugging malloc, free,
+    calloc, and realloc](http://danluu.com/malloc-tutorial/).  This is what I
+    initially used as the basis for this project (*many moons ago*).
+
+    </div>
+
+    [malloc]:   http://man7.org/linux/man-pages/man3/malloc.3.html
+    [calloc]:   http://man7.org/linux/man-pages/man3/malloc.3.html
+    [realloc]:  http://man7.org/linux/man-pages/man3/malloc.3.html
+    [free]:     http://man7.org/linux/man-pages/man3/malloc.3.html
+    [dlmalloc]: http://gee.cs.oswego.edu/dl/html/malloc.html
+    [tcmalloc]: http://goog-perftools.sourceforge.net/doc/tcmalloc.html
+    [Firefox]:  https://www.mozilla.org/en-US/firefox/
+    [jemalloc]: http://jemalloc.net/
+    [GNU]:      https://www.gnu.org
+    [Google]:   https://www.google.com
+    [atexit]:   http://man7.org/linux/man-pages/man3/atexit.3.html
+    [mimalloc]: https://github.com/microsoft/mimalloc
+    [#if]:      https://msdn.microsoft.com/en-us/library/ew2hz0yd.aspx
+
+    ## Deliverables
+
+    As noted above, you are to work **individually** or in **pairs** to
+    implement your heap management library.  You must use [C] (not [C++]) as
+    the implementation language.  Any test scripts or auxillary tools can be
+    written in any reasonable scripting language.
+
+    [C]:    https://en.wikipedia.org/wiki/C_(programming_language)
+    [C++]:  https://isocpp.org/
+
+    ### Timeline
+
+    Here is a timeline of events related to this project:
+
+    <table class="bordered" markdown="1">
+    <thead>
+      <th>Date</th>
+      <th>Event</th>
+    </thead>
+    <tbody markdown="1">
+    <tr class="success-bg">
+      <td class="text-strong">Tuesday, October 27</td>
+      <td>Project description and repository are available.</td>
+    </tr>
+    <tr class="caution-bg">
+      <td class="text-strong">Sunday, November 8</td>
+      <td>Brainstorming should be completed.</td>
+    </tr>
+    <tr class="danger-bg">
+      <td class="text-strong">Tuesday, November 17</td>
+      <td markdown="1">Library must be completed.</td>
+    </tr>
+    </tbody>
+    </table>
+
+    <div class="alert success-bg" markdown="1">
+    ### <i class="icon icon-medium">{{ "github" | embed_icon }}</i> Group Project
+
+    For the final group project submission, please open a **Pull Request** on
+    your **Project 03** repository (for your `project03` branch to the `master`
+    branch) and assign it to the **instructor**.
+
+    </div>
+
+    ### Repository
+
+    To start this project, you must message **bobbit** on [Slack] a
+    `!classroom` command in the following format:
+
+        :::bash
+        # Send Bobbit this command in a private message
+        !classroom cse-30341-fa26 project03 NOTRE_DAME_NETID GITHUB_USERNAME(S)
+
+    This will create a **private** `project03-NOTRE_DAME_NETID` inside the
+    [nd-cse-30341-fa26] organization and invite each [GitHub] account as a
+    collaborator (*each person must accept the email invitation to collaborate
+    on the repository*).
+
+    <div class="alert warning-bg" markdown="1">
+
+    **Note**: Do your work in a separate [git] branch that can be later merged
+    into the `master` branch (ie. make a `project03` branch, **DO NOT COMMIT
+    OR MERGE TO MASTER**).
+
+    </div>
+
+    [Slack]: https://nd-cse.slack.com/
+    [nd-cse-30341-fa26]: https://github.com/nd-cse-30341-fa26
+
+    ### Documentation
+
+    The [Project 03] repository includes a `README.md` file with the following
+    sections:
+
+    1. **Student**: This should be the names and email addresses of each group member.
+
+    2. **Brainstorming**: This contains questions that should help you design
+      and plan your approach to the project. **You do not need to fill these
+      out, but they are meant to be helpful**.
+
+    3. **Errata**: This should contain a description of any known errors or
+    deficiencies in your implementation.
+
+    4. **Acknowledgments**: This should list anyone you collaborated with or
+      received help from (including TAs, students, and AI tools).
+
+    You must complete this document report as part of your project.
+
+    ### Source Code
+
+    As you can see, the base [Project 03] repository contains a `README.md`
+    file and the following folder hierarchy:
+
+        :::bash
+        project03
+            \_  Makefile        # This is the project Makefile
+            \_  bin             # This contains the binary executables and test scripts
+            \_  include
+                \_  malloc      # This contains the malloc library header files
+            \_  lib             # This contains the malloc library when built
+            \_  src             # This contains the malloc library source code
+            \_  tests           # This contains the functional and unit test code
+
+    You must maintain this folder structure for your project and place files in
+    their appropriate place.
+
+    #### Compiling
+
+    To help you get started, we have provided a `Makefile` with all the
+    necessary targets:
+
+        :::bash
+        $ make                  # Build libraries and test applications
+        Building lib/libmalloc-ff.so
+        Building lib/libmalloc-bf.so
+        Building lib/libmalloc-wf.so
+        Building bin/test_00
+        Building bin/test_01
+        Building bin/test_02
+        Building bin/test_03
+        Building bin/test_04
+        Building bin/test_05
+        Building bin/unit_block
+        Building bin/unit_freelist
+
+        $ make clean            # Removes all targets
+        Removing libraries
+        Removing tests
+
+    <div class="alert warning-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "code-tags" | embed_icon }}</i> K.I.S.S.
+
+    While the exact organization of the project code is up to you, keep in mind
+    that you will be graded in part on **coding style**, **cleaniness**, and
+    **organization**.  This means your code should be consistently formatted,
+    not contain any dead code, have reasonable comments, and appropriate naming
+    among other things:
+
+    - Break long functions into smaller functions.
+
+    - Make sure each function does one thing and does it well.
+
+    - Abstract, but don't over do it.
+
+    Please refer to these [Coding Style] slides for some tips and guidelines on
+    coding style expectations.
+
+    </div>
+
+    #### Running
+
+    Once you have the library, you can use it to override the existing [malloc]
+    functions from the standard library by using the `LD_PRELOAD` trick:
+
+        :::bash
+        # Use our implementation of library
+        $ env LD_PRELOAD=lib/libmalloc-ff.so cat README.md
+
+    This will load our library first and thus link any calls to [malloc] and
+    [free] in `cat` to our library rather than the standard [C] library.  To
+    make this more convenient, you should consider creating a `bin/run.sh`
+    script that sets the environment variable for you and then runs the
+    specified command.
+
+    <div class="alert info-bg" markdown="1">
+    **Note**: there are three versions of our custom [malloc] implementation,
+    where each version corresponds to a different **search** algorithm (**first
+    fit (ff)**, **best fit (bf)**, and **worst fit (wf)**).
+    </div>
+
+    #### Implementation
+
+    All of the [C] header files are in the `include/malloc` folder, while the
+    [C] source code for the [malloc] library is in the `src` folder.  To help
+    you get started, parts of the project are already implemented:
+
+        :::bash
+        [x] include/malloc/block.h      # Block structure header (implemented)
+        [x] include/malloc/counters.h   # Counters header (implemented)
+        [x] include/malloc/freelist.h   # Free List header (implemented)
+        [~] src/block.c                 # Block structure definitions (partially implemented)
+        [~] src/counters.c              # Counters definitions (partially implemented)
+        [~] src/freelist.c              # Free List definitions (partially implemented)
+        [~] src/posix.c                 # POSIX definitions (partially implemented)
+
+    Basically, the [malloc1.c] code demonstrated in [Lecture 14] was taken and
+    split into separate files to form the skeleton provided to you.
+    Additionally, we have implemented most of the desired counting
+    functionality for you, so you can concentrate on just the block
+    manipulation and free list management operations.  Each of the functions in
+    the incomplete files above have comments that describe what needs to be
+    done.
+
+    You will need to examine these source files and complete the implementation
+    of a [malloc] library that uses a **circular doubly-linked** [free list] to
+    track **free** blocks in sorted order (ie. smaller block addresses appear
+    towards the front of the [free list]).  To do so, you should start with the
+    basic `Block` functions, then move to the [free list] functions.  Once
+    those pass the provided unit tests, you should then utilize those
+    components to complete the [malloc], [free], [calloc], and [realloc]
+    functions:
+
+    1. `src/block.c`: This file contains the functions for the `Block`
+    structure, which contains the **aligned** `capacity` of the requested
+    allocation and the **unaligned** `size` of the requested allocation
+    (neither of which includes space for the embedded `Block` structure), and
+    pointers to the previous and next `Block` structures.  If the `Block` is
+    detached, then it should just point to itself.
+
+        You will need to think carefully about how to manipulate the `Block`
+        structure in the context of circular doubly-linked list with a sentinel
+        node.
+
+    2. `src/counters.c`: This file contains the functions for keeping
+    track of the various counters utilized in the library.  Whenever [malloc]
+    is called, it will call the `init_counters` function which will register
+    the `dump_counters` function to run when the program properly terminates.
+
+        You will need to implement the functions for computing the [internal
+        fragmentation] and [external fragmentation] of the heap.
+
+    3. `src/freelist.c`: This file contains the functions for the [free
+    list].
+
+        You will need to think carefully about what needs to happen during
+        searching and insertion.  In particular, you will need to think about
+        how to ensure the [free list] remains in sorted order and then how to
+        exploit that ordering to **merge** adjacent blocks.
+
+    4. `src/posix.c`: This file contains the [POSIX] functions: [malloc],
+    [free], [calloc], [realloc].
+
+        You will need to think carefully about which of the previous functions
+        you want to utilize.
+
+    <div class="alert info-bg" markdown="1">
+    **Note**: There are also some `TODOs` to help identify which parts you need
+    to implement, along with how you will want to modify the counters.
+    </div>
+
+    <div class="alert success-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "format-align-right" | embed_icon }}</i> Alignment
+
+    For better performance, all memory allocations should be aligned by the
+    [word size] of the current machine.  For instance, if the user requests
+    `14` bytes and our [word size] is `8` bytes, then we will actually allocate
+    `16` bytes as this is the nearest multiple of the [word size] (that has
+    sufficient capacity).
+
+    A `ALIGN` macro is provided to you that will perform this *rounding*
+    automatically for you.  Whenever you are comparing or determining
+    **sizes**, you need to think carefully if you want to use the original size
+    as requested by the user and stored in the `Block` structure (e.g. `14`) or
+    if you really want to use the capacity of the Block (e.g.
+    `block->capacity`) which stores the original **aligned** allocation
+    capacity.
+
+    Failure to properly utilize this `ALIGN` macro will most likely lead to
+    **subtle** and **frustrating** errors.
+
+    </div>
+
+    ### Testing
+
+    As you develop your library, you should utilize the provided functional and
+    unit tests that ensure your heap management library works correctly:
+
+        :::text
+        $ make test             # Build and runs test programs
+        Building bin/test_00
+        Building bin/test_01
+        Building bin/test_02
+        Building bin/test_03
+        Building bin/test_04
+        Building bin/test_05
+        Building bin/unit_block
+        Building bin/unit_freelist
+
+        Testing unit_block...
+          block_allocate                         ... Success
+          block_release                          ... Success
+          block_detach                           ... Success
+          block_merge                            ... Success
+          block_split                            ... Success
+
+        Testing unit_freelist...
+          free_list_search_ff                    ... Success
+          free_list_search_bf                    ... Success
+          free_list_search_wf                    ... Success
+          free_list_insert                       ... Success
+          free_list_length                       ... Success
+
+        Building lib/libmalloc-ff.so
+        Building lib/libmalloc-bf.so
+        Building lib/libmalloc-wf.so
+        Running run_test_00.sh
+          Testing libmalloc-ff.so                ... Success
+          Testing libmalloc-bf.so                ... Success
+          Testing libmalloc-wf.so                ... Success
+
+        Running run_test_01.sh
+          Testing libmalloc-ff.so                ... Success
+          Testing libmalloc-bf.so                ... Success
+          Testing libmalloc-wf.so                ... Success
+
+        Running run_test_02.sh
+          Testing libmalloc-ff.so                ... Success
+          Testing libmalloc-bf.so                ... Success
+          Testing libmalloc-wf.so                ... Success
+
+        Running run_test_03.sh
+          Testing libmalloc-ff.so                ... Success
+          Testing libmalloc-bf.so                ... Success
+          Testing libmalloc-wf.so                ... Success
+
+        Running run_test_04.sh
+          Testing libmalloc-ff.so                ... Success
+          Testing libmalloc-bf.so                ... Success
+          Testing libmalloc-wf.so                ... Success
+
+        Running run_test_05.sh
+          Timing libmalloc-ff.so                 ... 0m1.636s
+          Timing libmalloc-bf.so                 ... 0m2.959s
+          Timing libmalloc-wf.so                 ... 0m2.976s
+
+        Running run_test_06.sh
+          Testing libmalloc-ff.so (find)         ... Success
+          Testing libmalloc-bf.so (find)         ... Success
+          Testing libmalloc-wf.so (find)         ... Success
+          Testing libmalloc-ff.so (grep)         ... Success
+          Testing libmalloc-bf.so (grep)         ... Success
+          Testing libmalloc-wf.so (grep)         ... Success
+          Testing libmalloc-ff.so (make)         ... Success
+          Testing libmalloc-bf.so (make)         ... Success
+          Testing libmalloc-wf.so (make)         ... Success
+          Testing libmalloc-ff.so (openssl)      ... Success
+          Testing libmalloc-bf.so (openssl)      ... Success
+          Testing libmalloc-wf.so (openssl)      ... Success
+
+    Note, you can run tests individually:
+
+        :::bash
+        $ ./bin/run_test_00.sh
+          Testing libmalloc-ff.so                ... Success
+          Testing libmalloc-bf.so                ... Success
+          Testing libmalloc-wf.so                ... Success
+
+    <div class="alert danger-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "thumb-up" | embed_icon }}</i> Good Enough, not Perfect
+
+    It is likely that your [malloc] will work with **most** but **not all**
+    programs on the **student machines**.  For this project, it is
+    **sufficient** to get it **correct enough to pass all the given tests**...
+    even if it fails for programs not explicitly tested by the scripts.
+
+    If you do come across a program which leads to failure, however, document
+    this under **Errata** in your `README.md`.
+
+    </div>
+
+    ### Debugging
+
+    While running the tests, you may encounter some **segfaults** and other
+    memory errors.  Because we are side-loading our own [malloc]
+    implementation, you will need to do the following to debug a test
+    application using [gdb].
+
+        :::bash
+        $ gdb ./bin/test_01
+        ...
+        (gdb) set exec-wrapper env LD_PRELOAD=./lib/libmalloc-ff.so
+        (gdb) run
+        ...
+        (gdb) bt
+
+    Basically, you want to first load [gdb] with the test program that is
+    crashing.  Next, you need to tell [gdb] to utilize the appropriate [malloc]
+    library by creating an `exec-wrapper` that loads it into memory.  Next,
+    simply run the program.  Once it segfaults, you can print a stack trace by
+    using the `bt` command.  From there, you can explore the state of your
+    program and see if you can determine what went wrong.
+
+    [gdb]: https://www.gnu.org/software/gdb/
+
+    ## Individual Quiz
+
+    Once you have completed the project, answer the following [Project 03 Quiz]
+    questions **individually** in your own personal `assignments` repository on [GitHub]:
+
+    <div id="quiz-questions"></div>
+
+    <div id="quiz-responses"></div>
+
+    <script src="static/js/dredd-quiz.js"></script>
+    <script>
+    loadQuiz('static/json/project03.json');
+    </script>
+
+    <pre style="display: none;" id="dr-container" class="codehilite"><code id="dredd-response"></code></pre>
+
+    The results of the quiz should look like the following:
+
+        :::text
+        Checking project03 quiz ...
+              Q1  5.00 /  5.00
+              Q2  5.00 /  5.00
+              Q3 20.00 / 20.00
+          --------------------
+           Score 30.00 / 30.00
+           Grade  1.00 /  1.00
+          Status Success
+
+    <div class="alert info-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "github" | embed_icon }}</i> Individual Quiz
+
+    Each group member should do the quiz on their own and record their answers
+    in the `project03` folder in their **assignments** [GitHub] repository.
+
+    Once you have committed your work and pushed it to [GitHub], remember to
+    create a **pull request** and assign it to the appropriate **teaching
+    assistant** from the [Reading 09 TA List].
+
+    </div>
+
+    [Project 03 Quiz]: static/json/project03.json
+
+    ## Grading
+
+    Your project will be graded on the following metrics:
+
+    <table class="bordered" markdown="1">
+      <thead>
+        <th>Metric</th>
+        <th>Points</th>
+      </thead>
+      <tbody>
+        <tr class="success-bg">
+          <td class="flex-col">
+            <strong>Source Code</strong>
+            <ol>
+              <li>
+              <div class="flex-col">
+              <b>General</b>
+                <ul>
+                  <li>Builds and cleans without warnings or errors</li>
+                  <li>Manages resources such as memory and files appropriately</li>
+                  <li>Is consistent, readable, and organized</li>
+                  <li>Has regular commits and submitted on-time</li>
+                </ul>
+              </div>
+              </li>
+              <li>
+              <div class="flex-col">
+              <b>Block</b>
+                <ul>
+                  <li>Implements <b>block_release</b> properly</li>
+                  <li>Implements <b>block_detach</b> properly</li>
+                  <li>Implements <b>block_merge</b> properly</li>
+                  <li>Implements <b>block_split</b> properly</li>
+                </ul>
+              </div>
+              </li>
+              <li>
+              <div class="flex-col">
+              <b>Counters</b>
+                <ul>
+                  <li>Implements <b>internal_fragmentation</b> properly</li>
+                  <li>Implements <b>external_fragmentation</b> properly</li>
+                </ul>
+              </div>
+              </li>
+              <li>
+              <div class="flex-col">
+              <b>Free List</b>
+                <ul>
+                  <li>Implements <b>free_list_search_ff</b> properly</li>
+                  <li>Implements <b>free_list_search_bf</b> properly</li>
+                  <li>Implements <b>free_list_search_wf</b> properly</li>
+                  <li>Implements <b>free_list_insert</b> properly</li>
+                  <li>Implements <b>free_list_length</b> properly</li>
+                </ul>
+              </div>
+              </li>
+              <li>
+              <div class="flex-col">
+              <b>POSIX</b>
+                <ul>
+                  <li>Implements <b>malloc</b> properly</li>
+                  <li>Implements <b>free</b> properly</li>
+                  <li>Implements <b>calloc</b> properly</li>
+                  <li>Implements <b>realloc</b> properly</li>
+                </ul>
+              </div>
+              </li>
+            </ol>
+          </td>
+          <td class="centered">
+            <div class="flex-col">
+            <strong>3.00</strong>
+            <p><b><i>0.40</i></b></p>
+                <p><i>0.10</i></p>
+                <p><i>0.10</i></p>
+                <p><i>0.10</i></p>
+                <p><i>0.10</i></p>
+            <p><b><i>0.80</i></b>
+                <p><i>0.10</i></p>
+                <p><i>0.10</i></p>
+                <p><i>0.30</i></p>
+                <p><i>0.30</i></p>
+            <p><b><i>0.20</i></b></p>
+                <p><i>0.10</i></p>
+                <p><i>0.10</i></p>
+            <p><b><i>0.70</i></b></p>
+                <p><i>0.10</i></p>
+                <p><i>0.10</i></p>
+                <p><i>0.10</i></p>
+                <p><i>0.30</i></p>
+                <p><i>0.10</i></p>
+            <p><b><i>0.90</i></b></p>
+                <p><i>0.30</i></p>
+                <p><i>0.15</i></p>
+                <p><i>0.15</i></p>
+                <p><i>0.30</i></p>
+            </div>
+          </td>
+        </tr>
+         <tr class="caution-bg">
+          <td class="flex-col">
+          <strong>Reflection</strong>
+          <ol>
+            <li><b>Individual Quiz</b></li>
+          </ol>
+          </td>
+          <td class="centered">
+            <div class="flex-col">
+            <strong>1.00</strong>
+            <p><b>1.00</b></p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert warning-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "git" | embed_icon }}</i> Commit History
+
+    To encourage you to work on the project **regularly** (rather than leaving
+    it until the last second) and to practice performing **incremental
+    development**, part of your grade will be based on whether or not you have
+    regular and reasonably sized commits in your [git] log.
+
+    That is, you will **lose** points if you commit everything at once near the
+    project deadline.
+
+    </div>
+
+    <div class="alert danger-bg" markdown="1">
+
+    ### <i class="icon icon-medium">{{ "bug" | embed_icon }}</i> Error Handling
+
+    <strike>In addition to meeting the functional requirements of the project (as
+    described above), your program **must not exhibit any memory leaks** or
+    **invalid memory accesses** as would be detected by [Valgrind].</strike>
+
+    Additionally, because [system calls] can fail, your program must implement
+    **robust error handling** and ensure your code checks the status of [system
+    calls] when reasonable.
+
+    Moreover, you code must compile **without any warnings** (and `-Wall` must
+    be one of the `CFLAGS`).
+
+    </div>
+
+    [Linux]: https://kernel.org
+    [system call]: https://en.wikipedia.org/wiki/System_call
+    [Valgrind]: http://valgrind.org/
+    [Operating Systems: Three Easy Pieces]: http://pages.cs.wisc.edu/~remzi/OSTEP/
+    [Project 03]: https://github.com/nd-cse-30341-fa26/project03
+    [Reading 00]: reading00.html
+    [Reading 09 TA List]: reading09_tas.html
+    [GitHub]: https://github.com
+    [Coding Style]: static/img/coding-style.png
+    [Google Drive]: https://drive.google.com
+    [Qt]: https://www.qt.io/
+    [sbrk]: http://man7.org/linux/man-pages/man2/brk.2.html
+    [malloc0.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture14/malloc0.c
+    [malloc1.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture14/malloc1.c
+    [Lecture 14]: slides14.html
+
+    [free list]: https://en.wikipedia.org/wiki/Free_list
+    [internal fragmentation]: https://en.wikipedia.org/wiki/Fragmentation_(computing)#Internal_fragmentation
+    [external fragmentation]: https://en.wikipedia.org/wiki/Fragmentation_(computing)#External_fragmentation
+    [word size]: https://en.wikipedia.org/wiki/Word_(computer_architecture)
+    [POSIX]: https://en.wikipedia.org/wiki/POSIX
+    [git]: https://git-scm.com/
+    [Microsoft]: https://microsoft.com
+    [system calls]: https://en.wikipedia.org/wiki/System_call
