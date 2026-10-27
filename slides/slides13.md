@@ -207,9 +207,9 @@ One simple method of <strong class="success">hardware-based address
 translation</strong> is the <strong class="warning">base and bounds</strong>
 method:
 
-- The CPU has a <strong class="special">base register</strong> which holds the
+- The CPU has a <strong class="warning">base register</strong> which holds the
   starting point in <strong class="info">physical memory</strong>, and a
-  <strong class="special">bounds register</strong> which holds the ending point
+  <strong class="warning">bounds register</strong> which holds the ending point
   in <strong class="info">physical memory</strong>.
 
 - The <strong class="info">physical address</strong> can be <strong
@@ -218,7 +218,7 @@ method:
 <div class="centered font-large">
 
 <strong class="info">Physical Address</strong> = <strong
-class="special">Base</strong> + <strong class="success">Virtual
+class="warning">Base</strong> + <strong class="success">Virtual
 Address</strong>
 
 </div>
