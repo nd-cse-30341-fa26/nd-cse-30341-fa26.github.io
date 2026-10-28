@@ -300,8 +300,8 @@ Whenever we <strong class="warning">release</strong> memory, we simply mark that
 
 When searching for a <strong class="success">free block</strong>, we can:
 
-> Simply find the <strong class="caution">first block that is big
-> enough</strong> and return that amount to the user.
+> Find the <strong class="caution">first block that is big enough</strong> and
+> return that block to the user.
 
 <br>
 
