@@ -611,6 +611,10 @@ div.footnote > hr {
     color: var(--muted);
 }
 
+.comment {
+    color: var(--nord08);
+}
+
 .responsive {
     max-width: 100%;
     height: auto;
