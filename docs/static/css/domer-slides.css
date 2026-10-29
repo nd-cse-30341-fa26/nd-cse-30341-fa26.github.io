@@ -416,6 +416,7 @@ blockquote {
 .framed {
     background: var(--table-background);
     border: 1px solid var(--border);
+    border-collapse: collapse !important;
     color: light-dark(var(--color-foreground), var(--nd-gold));
 }
 
