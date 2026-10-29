@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Notes 14-A: Memory API, Free-Space Management</title>
+</head>
+<body>
+<header>
+<a class="logo" href="notes14-A.html">
+    <h1>Notes 14-A: Memory API, Free-Space Management</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<h2 id="review-address-space-translation">Review: <span class="gold">Address Space, Translation</span><a class="headerlink" href="#review-address-space-translation" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p><strong>Virtualization</strong>:</p>
+<ul>
+<li>
+<p><strong>Address Space</strong> -&gt; <strong>Address Translation</strong></p>
+</li>
+<li>
+<p><strong>Base &amp; Bounds</strong></p>
+</li>
+<li>
+<p><strong>MMU</strong></p>
+</li>
+</ul>
+<div class="alert warning-bg">
+<ul>
+<li>
+<p>Memory <strong>allocation</strong> is <strong>reservation</strong> (<em>hotel analogy</em>).</p>
+</li>
+<li>
+<p><strong>Stack</strong>: automatic, fast, but limited.</p>
+</li>
+<li>
+<p><strong>Heap</strong>: user managed, slow, but <em>virtually</em> unlimited.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="flex-col">
+<p><img src="static/img/slides13-address-space-virtualization.svg" class="transparent responsive"></p>
+<div class="alert info-bg centered">
+<p><a href="project03.html">Project 03</a>: Out now!</p>
+</div>
+</div>
+</div>
+<h2 id="memory-api-trivia">Memory API: <span class="gold">Trivia</span><a class="headerlink" href="#memory-api-trivia" title="Permanent link">&para;</a></h2>
+<h3 id="allocation">Allocation<a class="headerlink" href="#allocation" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>How do we <strong class="success">allocate</strong> an array of <code>1,000,000</code> ints?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="mi">1</span><span class="n">_000_000</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="n">_000_000</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+</code></pre></div>
+
+<h3 id="deallocation">Deallocation<a class="headerlink" href="#deallocation" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>How do we <strong class="danger">deallocate</strong> that array of ints?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="n">free</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="common-error-a">Common Error A<a class="headerlink" href="#common-error-a" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">;</span>
+<span class="n">fgets</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">BUFSIZ</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Forgot to allocate memory, so we <strong class="danger">segfault</strong>.</i>
+
+</div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// Solution: allocate space on the stack</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="n">BUFSIZ</span><span class="p">];</span>
+<span class="n">fgets</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">BUFSIZ</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="common-error-b">Common Error B<a class="headerlink" href="#common-error-b" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Smile like you mean it&quot;</span><span class="p">;</span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">src</span><span class="p">));</span>
+
+<span class="n">strcpy</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Did not allocate enough memory, so <strong class="danger">buffer
+overflow</strong>.</i>
+
+</div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// Solution: use strdup</span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Smile like you mean it&quot;</span><span class="p">;</span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">src</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="alert success-bg">
+<p>Shout out to <strong>Cybersecurity</strong> club.</p>
+</div>
+<h3 id="common-error-c">Common Error C<a class="headerlink" href="#common-error-c" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span><span class="p">));</span>
+
+<span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Did not initialize memory, so <strong class="danger">uninitialized
+read</strong>.</i>
+
+</div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// Solution: initialize memory</span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calloc</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span><span class="p">));</span>
+
+<span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="common-error-d">Common Error D<a class="headerlink" href="#common-error-d" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Forgot to free memory, so <strong class="danger">memory leak</strong>.</i>
+
+</div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// Solution: free</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="common-error-e">Common Error E<a class="headerlink" href="#common-error-e" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Freed before we are done, so <strong class="danger">dangling
+pointer</strong>, which can lead to a <strong>use-after-free</strong>.</i>
+
+</div>
+
+<div class="alert warning-bg centered">
+<p><a href="https://www.wiz.io/blog/php2shell-php-rce">PHP2Shell</a></p>
+</div>
+<h3 id="common-error-f">Common Error F<a class="headerlink" href="#common-error-f" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strdup</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Try to free something more than once, so <strong class="danger">double free</strong>.</i>
+
+</div>
+
+<h3 id="common-error-g">Common Error G<a class="headerlink" href="#common-error-g" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>What is the <strong class="danger">memory error</strong> in the following
+code?</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert danger-bg centered">
+
+<i>Try to free something that wasn't dynamically allocated, so <strong
+class="danger">invalid free</strong>.</i>
+
+</div>
+
+<h3 id="where-is-my-mind">Where is My Mind?<a class="headerlink" href="#where-is-my-mind" title="Permanent link">&para;</a></h3>
+<p><strong class="info">Dr. Thain</strong> wants you to write a <strong
+class="danger">compiler</strong>.  He tells you don't worry about managing
+memory, just allocate as much as you want and <strong class="warning">don't
+bother to free anything</strong>.  You look at him in <strong
+class="caution">horror</strong> and are ready to <strong
+class="danger">roast</strong> him on <strong>Slack / X</strong>.  Are you <strong
+class="success">justified</strong>?</p>
+<div class="alert info-bg centered">
+
+<i>We have <strong class="warning">two levels of memory management</strong>:<br>at
+the <strong class="caution">OS level</strong>, and at the <strong
+class="success">process level</strong>.</i>
+
+<i><strong class="danger">When a process exits, all of its memory is returned<br>
+to the OS even if it was not freed by the process.</strong></i>
+
+</div>
+
+<h2 id="review-virtual-memory">Review: <span class="gold">Virtual Memory</span><a class="headerlink" href="#review-virtual-memory" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<h2 id="address-space"><span class="special">Address Space</span><a class="headerlink" href="#address-space" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong class="danger">Protection</strong></p>
+</li>
+<li>
+<p><strong class="danger">Exception / Fault</strong></p>
+</li>
+</ol>
+</div>
+<div class="flex-col">
+<h2 id="address-translation"><span class="info">Address Translation</span><a class="headerlink" href="#address-translation" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong class="info">MMU</strong></p>
+</li>
+<li>
+<p><strong class="warning">Base and Bounds</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="centered">
+<p><strong class="info">Physical Address</strong> = <strong
+class="warning">Base</strong> + <strong class="success">Virtual
+Address</strong></p>
+</div>
+<h2 id="review-os-responsibilities">Review: <span class="gold">OS Responsibilities</span><a class="headerlink" href="#review-os-responsibilities" title="Permanent link">&para;</a></h2>
+<table class="bordered">
+<thead>
+<th class="info-bg">Responsibility</td>
+<th class="info-bg">Notes</td>
+</th>
+</th>
+</thead>
+<tbody>
+<tr>
+<td class="success-bg"><b>Memory Accounting</b></td>
+<td class="success-bg">
+
+Use a <strong class="primary">data structure</strong> to track allocations.
+
+</td>
+</tr>
+<tr>
+<td class="caution-bg"><b>Hardware Management</b></td>
+<td class="caution-bg">
+
+Update the <strong class="info">MMU</strong> (<i>save and restore during
+<strong class="special">context switch</strong></i>).
+
+</td>
+</tr>
+<tr>
+<td class="danger-bg"><b>Exception Handling</b></td>
+<td class="danger-bg">
+
+Register <strong class="danger">exception handler</strong> and handle exception on
+<strong class="danger">invalid access</strong>.
+
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="challenge-external-fragmentation">Challenge: <span class="gold">External Fragmentation</span><a class="headerlink" href="#challenge-external-fragmentation" title="Permanent link">&para;</a></h2>
+<p>Because memory is divided into blocks, we may have <strong class="danger">non-contiguous free
+space</strong>.</p>
+<div class="centered">
+
+<img src="static/img/slides14-external-fragmentation.svg" class="transparent responsive">
+
+</div>
+
+<div class="alert warning-bg centered">
+<p><strong>Wedding Dinner Analogy</strong>:</p>
+<p>Where to put people at a table (ex. party of <code>20</code> across <code>2</code> tables of <code>10</code>)?</p>
+</div>
+<div class="centered">
+<p>Not enough <strong class="danger">contiguous space</strong> in a single block although we have
+enough <strong class="success">free space</strong> overall.</p>
+<p><br></p>
+<p><i><strong class="danger">External Fragmentation</strong> = <b>1 - (Largest
+Free Block / All Free Space)</b></i></p>
+</div>
+<h2 id="challenge-internal-fragmentation">Challenge: <span class="gold">Internal Fragmentation</span><a class="headerlink" href="#challenge-internal-fragmentation" title="Permanent link">&para;</a></h2>
+<p>Suppose we <strong class="caution">over-allocate</strong> a block (<em>for
+alignment, optimization, etc.</em>).</p>
+<div class="alert warning-bg centered">
+<p><strong>Wedding Dinner Analogy</strong>:</p>
+<p>Family of <code>5</code> at Table of <code>10</code>.</p>
+</div>
+<div class="centered">
+
+<img src="static/img/slides14-internal-fragmentation.svg" class="transparent responsive">
+
+</div>
+
+<div class="centered">
+<p>We <strong class="danger">waste space</strong> due to <strong
+class="caution">over-allocation</strong>.</p>
+<p><br></p>
+<p><i><strong class="warning">Internal Fragmentation</strong> = <b>All Unused / Heap Size</b></i></p>
+</div>
+<h2 id="mechanisms-splitting-coalescing">Mechanisms: <span class="gold">Splitting &amp; Coalescing</span><a class="headerlink" href="#mechanisms-splitting-coalescing" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<h3 id="splitting"><span class="special">Splitting</span><a class="headerlink" href="#splitting" title="Permanent link">&para;</a></h3>
+<p>Instead of always asking for more memory, we can <strong
+class="special">reuse</strong> a block of free space.</p>
+<div class="centered">
+
+<img src="static/img/slides14-splitting.svg" class="transparent responsive">
+
+</div>
+<p><br></p>
+<div class="alert danger-bg centered">
+<p>Helps reduce <strong class="danger">internal fragmentation</strong>.</p>
+</div>
+</div>
+<div class="flex-col">
+<h3 id="coalescing"><span class="comment">Coalescing</span><a class="headerlink" href="#coalescing" title="Permanent link">&para;</a></h3>
+<p>When we free memory, we can check if there are contiguous free blocks and
+<strong class="comment">coalesce</strong> or <strong
+class="comment">merge</strong> them.</p>
+<div class="centered">
+
+<img src="static/img/slides14-merging.svg" class="transparent responsive">
+
+</div>
+<p><br></p>
+<div class="alert danger-bg centered">
+<p>Helps reduce <strong class="danger">external fragmentation</strong>.</p>
+</div>
+</div>
+</div>
+<h2 id="free-list-overview">Free List: <span class="gold">Overview</span><a class="headerlink" href="#free-list-overview" title="Permanent link">&para;</a></h2>
+<p>To track all of the block allocations, we can use a <strong
+class="primary">free list</strong>, which is a <strong class="primary">linked
+list</strong> of all the space reservations (<em>can contain both <strong
+class="caution">active</strong> and <strong class="success">free</strong>
+blocks or just the <strong class="success">free</strong> blocks</em>).</p>
+<ul>
+<li>
+<p><strong class="caution">Operating system</strong> must track <strong
+  class="info">system memory</strong> allocations.</p>
+</li>
+<li>
+<p>Individual <strong class="success">processes</strong> must also keep track of
+  <strong class="success">heap allocations</strong>.</p>
+</li>
+<li>
+<p>Must be wary of <strong class="danger">fragmentation</strong>.</p>
+</li>
+</ul>
+<h2 id="free-list-block-structure">Free List: <span class="gold">Block Structure</span><a class="headerlink" href="#free-list-block-structure" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>We can view memory as <strong class="info">one large array</strong>.  To keep
+track of allocated blocks, we <strong class="caution">embed</strong> a <strong
+class="success">block header</strong> in front of each block:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">block</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">block</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Size of data allocation */</span>
+<span class="w">    </span><span class="n">block</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">next</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Pointer to next block */</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">    </span><span class="n">free</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Whether or not block is free */</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<div class="alert warning-bg centered">
+<p><strong>Bookshelf Analogy</strong>:</p>
+<p>Each book has a index card with information about the book itself and the
+location of the next book.</p>
+</div>
+</div>
+<div class="flex-col-25">
+<p><img src="static/img/slides14-block-structure.svg" class="transparent responsive"></p>
+</div>
+</div>
+<h2 id="free-list-allocation">Free List: <span class="gold">Allocation</span><a class="headerlink" href="#free-list-allocation" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>Whenever we get a <strong class="warning">request</strong> for memory, we must reserve a
+block:</p>
+<blockquote>
+<p>If a <strong class="caution">previously allocated block</strong> is <strong
+class="success">free</strong> and <strong class="success">large
+enough</strong>, we can use that one.  Otherwise, we need to <strong
+class="warning">allocate</strong> a new block.</p>
+</blockquote>
+<p>Whenever we <strong class="warning">release</strong> memory, we simply mark that block as
+<strong class="success">free</strong>.</p>
+</div>
+<div class="flex-col-25">
+<p><img src="static/img/slides14-block-structure.svg" class="transparent responsive"></p>
+</div>
+</div>
+<h2 id="free-list-first-fit">Free List: <span class="gold">First Fit</span><a class="headerlink" href="#free-list-first-fit" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>When searching for a <strong class="success">free block</strong>, we can:</p>
+<blockquote>
+<p>Find the <strong class="caution">first block that is big enough</strong> and
+return that block to the user.</p>
+</blockquote>
+<div class="alert info-bg">
+<p>To allocate a <code>12 byte</code> block, we would use <strong class="warning">Block
+A</strong> (<em>fast, but possibly sub-optimal</em>).</p>
+</div>
+</div>
+<div class="flex-col-25">
+<p><img src="static/img/slides14-first-fit.svg" class="transparent responsive"></p>
+</div>
+</div>
+<h2 id="free-list-next-fit">Free List: <span class="gold">Next Fit</span><a class="headerlink" href="#free-list-next-fit" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>When searching for a <strong class="success">free block</strong>, we can:</p>
+<blockquote>
+<p><strong class="caution">Keep track of the last block we search</strong>, and perform
+<strong class="special">First Fit</strong> from there.</p>
+</blockquote>
+<div class="alert info-bg">
+<p>To allocate a <code>12 byte</code> block, if we last searched <strong class="warning">Block A</strong>,
+we would use <strong class="warning">Block B</strong> (<em>fast, better distribution, but still
+sub-optimal</em>).</p>
+</div>
+</div>
+<div class="flex-col-25">
+<p><img src="static/img/slides14-next-fit.svg" class="transparent responsive"></p>
+</div>
+</div>
+<h2 id="free-list-best-fit">Free List: <span class="gold">Best Fit</span><a class="headerlink" href="#free-list-best-fit" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>When searching for a <strong class="success">free block</strong>, we can:</p>
+<blockquote>
+<p>Search all free blocks for the <strong class="caution">best possible fit</strong>.</p>
+</blockquote>
+<div class="alert info-bg">
+<p>To allocate a <code>12 byte</code> block, we would use <strong class="caution">Block C</strong>
+(<em>optimal, but slow and prone to many holes</em>).</p>
+</div>
+</div>
+<div class="flex-col-25">
+<p><img src="static/img/slides14-best-fit.svg" class="transparent responsive"></p>
+</div>
+</div>
+<h2 id="free-list-worst-fit">Free List: <span class="gold">Worst Fit</span><a class="headerlink" href="#free-list-worst-fit" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<p>When searching for a <strong class="success">free block</strong>, we can:</p>
+<blockquote>
+<p>Search all free blocks for the <strong class="caution">worst possible
+fit</strong> (<b><i class="muted">largest fit</i></b>).</p>
+</blockquote>
+<div class="alert info-bg">
+<p>To allocate a <code>12 byte</code> block, we would use <strong class="warning">Block
+B</strong> (<em>non-optimal but avoids having many small gaps, slow</em>).</p>
+</div>
+</div>
+<div class="flex-col-25">
+<p><img src="static/img/slides14-next-fit.svg" class="transparent responsive"></p>
+</div>
+</div>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
