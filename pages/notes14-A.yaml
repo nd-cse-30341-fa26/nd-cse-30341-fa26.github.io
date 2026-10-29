@@ -1,0 +1,631 @@
+title:  "Notes 14-A: Memory API, Free-Space Management"
+body:   |
+
+  ## Review: <span class="gold">Address Space, Translation</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  **Virtualization**:
+
+  - **Address Space** -> **Address Translation**
+
+  - **Base & Bounds**
+
+  - **MMU**
+
+  <div class="alert warning-bg" markdown="1">
+
+  - Memory **allocation** is **reservation** (*hotel analogy*).
+
+  - **Stack**: automatic, fast, but limited.
+
+  - **Heap**: user managed, slow, but *virtually* unlimited.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  <img src="static/img/slides13-address-space-virtualization.svg" class="transparent responsive">
+
+  <div class="alert info-bg centered" markdown="1">
+
+  [Project 03](project03.html): Out now!
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## Memory API: <span class="gold">Trivia</span>
+
+  ### Allocation
+
+  > How do we <strong class="success">allocate</strong> an array of `1,000,000` ints?
+
+  ```c
+  int *a = malloc(1_000_000 * sizeof(int));
+  int *a = calloc(1_000_000, sizeof(int));
+  ```
+
+  ### Deallocation
+
+  > How do we <strong class="danger">deallocate</strong> that array of ints?
+
+  ```c
+  free(a);
+  ```
+
+  ### Common Error A
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  char *buffer;
+  fgets(buffer, BUFSIZ, stdin);
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Forgot to allocate memory, so we <strong class="danger">segfault</strong>.</i>
+
+  </div>
+
+  ```c
+  // Solution: allocate space on the stack
+  char buffer[BUFSIZ];
+  fgets(buffer, BUFSIZ, stdin);
+  ```
+
+  ### Common Error B
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  char *src = "Smile like you mean it";
+  char *dst = malloc(strlen(src));
+
+  strcpy(dst, src);
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Did not allocate enough memory, so <strong class="danger">buffer
+  overflow</strong>.</i>
+
+  </div>
+
+  ```c
+  // Solution: use strdup
+  char *src = "Smile like you mean it";
+  char *dst = strdup(src);
+  ```
+
+  <div class="alert success-bg" markdown="1">
+
+  Shout out to **Cybersecurity** club.
+
+  </div>
+
+  ### Common Error C
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  char *s = malloc(100*sizeof(char));
+
+  puts(s);
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Did not initialize memory, so <strong class="danger">uninitialized
+  read</strong>.</i>
+
+  </div>
+
+  ```c
+  // Solution: initialize memory
+  char *s = calloc(100, sizeof(char));
+
+  puts(s);
+  ```
+
+  ### Common Error D
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      process(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Forgot to free memory, so <strong class="danger">memory leak</strong>.</i>
+
+  </div>
+
+  ```c
+  // Solution: free
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      process(s);
+      free(s);
+  }
+  ```
+
+  ### Common Error E
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      process(s); free(s); puts(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Freed before we are done, so <strong class="danger">dangling
+  pointer</strong>, which can lead to a <strong>use-after-free</strong>.</i>
+
+  </div>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  [PHP2Shell](https://www.wiz.io/blog/php2shell-php-rce)
+
+  </div>
+
+  ### Common Error F
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = strdup(argv[i]);
+      if (check(s)) { free(s); }
+      free(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Try to free something more than once, so <strong class="danger">double free</strong>.</i>
+
+  </div>
+
+  ### Common Error G
+
+  > What is the <strong class="danger">memory error</strong> in the following
+  > code?
+
+  ```c
+  for (int i = 1; i < argc; i++) {
+      char *s = argv[i];
+      process(s);
+      free(s);
+  }
+  ```
+
+  <div class="alert danger-bg centered">
+
+  <i>Try to free something that wasn't dynamically allocated, so <strong
+  class="danger">invalid free</strong>.</i>
+
+  </div>
+
+  ### Where is My Mind?
+
+  <strong class="info">Dr. Thain</strong> wants you to write a <strong
+  class="danger">compiler</strong>.  He tells you don't worry about managing
+  memory, just allocate as much as you want and <strong class="warning">don't
+  bother to free anything</strong>.  You look at him in <strong
+  class="caution">horror</strong> and are ready to <strong
+  class="danger">roast</strong> him on **Slack / X**.  Are you <strong
+  class="success">justified</strong>?
+
+  <div class="alert info-bg centered">
+
+  <i>We have <strong class="warning">two levels of memory management</strong>:<br>at
+  the <strong class="caution">OS level</strong>, and at the <strong
+  class="success">process level</strong>.</i>
+
+  <i><strong class="danger">When a process exits, all of its memory is returned<br>
+  to the OS even if it was not freed by the process.</strong></i>
+
+  </div>
+
+  ## Review: <span class="gold">Virtual Memory</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="special">Address Space</span>
+
+  1. <strong class="danger">Protection</strong>
+
+  2. <strong class="danger">Exception / Fault</strong>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="info">Address Translation</span>
+
+  1. <strong class="info">MMU</strong>
+
+  2. <strong class="warning">Base and Bounds</strong>
+
+  </div>
+
+  </div>
+
+  <div class="centered" markdown="1">
+
+  <strong class="info">Physical Address</strong> = <strong
+  class="warning">Base</strong> + <strong class="success">Virtual
+  Address</strong>
+
+  </div>
+
+  ## Review: <span class="gold">OS Responsibilities</span>
+
+  <table class="bordered" markdown="1">
+  <thead>
+  <th class="info-bg">Responsibility</td>
+  <th class="info-bg">Notes</td>
+  </thead>
+  <tbody>
+  <tr>
+  <td class="success-bg"><b>Memory Accounting</b></td>
+  <td class="success-bg">
+
+  Use a <strong class="primary">data structure</strong> to track allocations.
+
+  </td>
+  </tr>
+  <tr>
+  <td class="caution-bg"><b>Hardware Management</b></td>
+  <td class="caution-bg">
+
+  Update the <strong class="info">MMU</strong> (<i>save and restore during
+  <strong class="special">context switch</strong></i>).
+
+  </td>
+  </tr>
+  <tr>
+  <td class="danger-bg"><b>Exception Handling</b></td>
+  <td class="danger-bg">
+
+  Register <strong class="danger">exception handler</strong> and handle exception on
+  <strong class="danger">invalid access</strong>.
+
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Challenge: <span class="gold">External Fragmentation</span>
+
+  Because memory is divided into blocks, we may have <strong class="danger">non-contiguous free
+  space</strong>.
+
+  <div class="centered">
+
+  <img src="static/img/slides14-external-fragmentation.svg" class="transparent responsive">
+
+  </div>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  **Wedding Dinner Analogy**:
+
+  Where to put people at a table (ex. party of `20` across `2` tables of `10`)?
+
+  </div>
+
+  <div class="centered" markdown="1">
+
+  Not enough <strong class="danger">contiguous space</strong> in a single block although we have
+  enough <strong class="success">free space</strong> overall.
+
+  <br>
+
+  <i><strong class="danger">External Fragmentation</strong> = <b>1 - (Largest
+  Free Block / All Free Space)</b></i>
+
+  </div>
+
+  ## Challenge: <span class="gold">Internal Fragmentation</span>
+
+  Suppose we <strong class="caution">over-allocate</strong> a block (*for
+  alignment, optimization, etc.*).
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  **Wedding Dinner Analogy**:
+
+  Family of `5` at Table of `10`.
+
+  </div>
+
+  <div class="centered">
+
+  <img src="static/img/slides14-internal-fragmentation.svg" class="transparent responsive">
+
+  </div>
+
+  <div class="centered" markdown="1">
+
+  We <strong class="danger">waste space</strong> due to <strong
+  class="caution">over-allocation</strong>.
+
+  <br>
+
+  <i><strong class="warning">Internal Fragmentation</strong> = <b>All Unused / Heap Size</b></i>
+
+  </div>
+
+  ## Mechanisms: <span class="gold">Splitting & Coalescing</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="special">Splitting</span>
+
+  Instead of always asking for more memory, we can <strong
+  class="special">reuse</strong> a block of free space.
+
+  <div class="centered">
+
+  <img src="static/img/slides14-splitting.svg" class="transparent responsive">
+
+  </div>
+
+  <br>
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  Helps reduce <strong class="danger">internal fragmentation</strong>.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="comment">Coalescing</span>
+
+  When we free memory, we can check if there are contiguous free blocks and
+  <strong class="comment">coalesce</strong> or <strong
+  class="comment">merge</strong> them.
+
+  <div class="centered">
+
+  <img src="static/img/slides14-merging.svg" class="transparent responsive">
+
+  </div>
+
+  <br>
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  Helps reduce <strong class="danger">external fragmentation</strong>.
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## Free List: <span class="gold">Overview</span>
+
+  To track all of the block allocations, we can use a <strong
+  class="primary">free list</strong>, which is a <strong class="primary">linked
+  list</strong> of all the space reservations (*can contain both <strong
+  class="caution">active</strong> and <strong class="success">free</strong>
+  blocks or just the <strong class="success">free</strong> blocks*).
+
+  - <strong class="caution">Operating system</strong> must track <strong
+    class="info">system memory</strong> allocations.
+
+  - Individual <strong class="success">processes</strong> must also keep track of
+    <strong class="success">heap allocations</strong>.
+
+  - Must be wary of <strong class="danger">fragmentation</strong>.
+
+  ## Free List: <span class="gold">Block Structure</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  We can view memory as <strong class="info">one large array</strong>.  To keep
+  track of allocated blocks, we <strong class="caution">embed</strong> a <strong
+  class="success">block header</strong> in front of each block:
+
+  ```c
+  typedef struct block block;
+
+  struct block {
+      size_t  size; /* Size of data allocation */
+      block * next; /* Pointer to next block */
+      bool    free; /* Whether or not block is free */
+  };
+  ```
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  **Bookshelf Analogy**:
+
+  Each book has a index card with information about the book itself and the
+  location of the next book.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col-25" markdown="1">
+
+  <img src="static/img/slides14-block-structure.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Free List: <span class="gold">Allocation</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  Whenever we get a <strong class="warning">request</strong> for memory, we must reserve a
+  block:
+
+  > If a <strong class="caution">previously allocated block</strong> is <strong
+  > class="success">free</strong> and <strong class="success">large
+  > enough</strong>, we can use that one.  Otherwise, we need to <strong
+  > class="warning">allocate</strong> a new block.
+
+  Whenever we <strong class="warning">release</strong> memory, we simply mark that block as
+  <strong class="success">free</strong>.
+
+  </div>
+
+  <div class="flex-col-25" markdown="1">
+
+  <img src="static/img/slides14-block-structure.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Free List: <span class="gold">First Fit</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  When searching for a <strong class="success">free block</strong>, we can:
+
+  > Find the <strong class="caution">first block that is big enough</strong> and
+  > return that block to the user.
+
+  <div class="alert info-bg" markdown="1">
+
+  To allocate a `12 byte` block, we would use <strong class="warning">Block
+  A</strong> (*fast, but possibly sub-optimal*).
+
+  </div>
+
+  </div>
+
+  <div class="flex-col-25" markdown="1">
+
+  <img src="static/img/slides14-first-fit.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Free List: <span class="gold">Next Fit</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  When searching for a <strong class="success">free block</strong>, we can:
+
+  > <strong class="caution">Keep track of the last block we search</strong>, and perform
+  > <strong class="special">First Fit</strong> from there.
+
+  <div class="alert info-bg" markdown="1">
+
+  To allocate a `12 byte` block, if we last searched <strong class="warning">Block A</strong>,
+  we would use <strong class="warning">Block B</strong> (*fast, better distribution, but still
+  sub-optimal*).
+
+  </div>
+
+  </div>
+
+  <div class="flex-col-25" markdown="1">
+
+  <img src="static/img/slides14-next-fit.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Free List: <span class="gold">Best Fit</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  When searching for a <strong class="success">free block</strong>, we can:
+
+  > Search all free blocks for the <strong class="caution">best possible fit</strong>.
+
+  <div class="alert info-bg" markdown="1">
+
+  To allocate a `12 byte` block, we would use <strong class="caution">Block C</strong>
+  (*optimal, but slow and prone to many holes*).
+
+  </div>
+
+  </div>
+
+  <div class="flex-col-25" markdown="1">
+
+  <img src="static/img/slides14-best-fit.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Free List: <span class="gold">Worst Fit</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  When searching for a <strong class="success">free block</strong>, we can:
+
+  > Search all free blocks for the <strong class="caution">worst possible
+  > fit</strong> (<b><i class="muted">largest fit</i></b>).
+
+  <div class="alert info-bg" markdown="1">
+
+  To allocate a `12 byte` block, we would use <strong class="warning">Block
+  B</strong> (*non-optimal but avoids having many small gaps, slow*).
+
+  </div>
+
+  </div>
+
+  <div class="flex-col-25" markdown="1">
+
+  <img src="static/img/slides14-next-fit.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
