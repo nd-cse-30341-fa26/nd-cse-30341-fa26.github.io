@@ -167,6 +167,8 @@
         topics:         Free-Space Management
         items:
           - name:       Slides 14
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=50003b87-d31b-4baa-9e35-b4f200fd9683
 
 - name:     Heap Allocation, Segmentation
   days:
