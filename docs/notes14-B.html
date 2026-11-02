@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Notes 14-B: Free List, Heap Allocation</title>
+</head>
+<body>
+<header>
+<a class="logo" href="notes14-B.html">
+    <h1>Notes 14-B: Free List, Heap Allocation</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<h2 id="review-virtual-memory">Review: <span class="gold">Virtual Memory</span><a class="headerlink" href="#review-virtual-memory" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<div class="flex-col" markdown="1">
+<p><strong class="special">Virtual Memory</strong>: Abstract <strong class="info">RAM</strong></p>
+<div class="centered">
+<p><img src="static/img/slides14-address-space.svg" class="transparent responsive"></p>
+</div>
+</li>
+<li>
+<p><strong class="success">Address Space</strong>: <strong>Illusion</strong> that
+memory is a <strong>large</strong> (<em>possibly infinite</em>) <strong>contiguous</strong> array of
+<strong>blocks</strong> where you have <strong>sole possession</strong>.</p>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p><strong class="warning">Address Translation</strong>: Implements the
+<strong>illusion</strong> by converting <strong class="success">virtual
+addresses</strong> to <strong class="info">physical
+addresses</strong>.</p>
+<ul>
+<li>
+<div class="flex-col" markdown="1">
+<p><strong class="warning">Base and Bounds</strong>: <code>base</code> serves
+as an offset into <strong class="info">physical memory</strong>
+and <code>bounds</code> serves as upper limit.</p>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p><strong class="info">MMU</strong>: Memory management unit
+enforces this boundary.</p>
+<p>As it performs <strong class="warning">translation</strong>, the
+<strong class="info">MMU</strong> will see the boundary violation
+and triggers a <strong class="danger">fault</strong>, which then
+causes the <strong class="info">CPU</strong> to consult the
+<strong class="warning">trap table</strong>, which then causes
+the <strong class="caution">OS</strong> to be invoked, who will
+then send a <strong class="danger">signal</strong> to the
+offending <strong class="success">process</strong>.</p>
+</li>
+</ul>
+<div class="alert success-bg" markdown="1">
+<p><strong>Preview</strong>: We will introduce <strong>segmentation</strong> and <strong>paging</strong> in the next two lectures.</p>
+</div>
+</li>
+<li>
+<div class="flex-col" markdown="1">
+<p><strong class="caution">OS Kernel</strong>: Acts as a <strong>manager</strong>.</p>
+<ol>
+<li>
+<p>Handles <danger>fault</danger> as described above.</p>
+</li>
+<li>
+<p>Keep track of <strong class="warning">Base and Bounds</strong> and
+updates <strong class="info">MMU</strong> on each <strong
+class="special">context switch</strong>.</p>
+</li>
+<li>
+<p>Keep track of <strong class="info">free memory</strong>.</p>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="free-list-overview">Free List: <span class="gold">Overview</span><a class="headerlink" href="#free-list-overview" title="Permanent link">&para;</a></h2>
+<p>To track all of the block allocations, we can use a <strong
+class="primary">free list</strong>, which is a <strong class="primary">linked
+list</strong> of all the space reservations (<em>can contain both <strong
+class="caution">active</strong> and <strong class="success">free</strong>
+blocks or just the <strong class="success">free</strong> blocks</em>).</p>
+<div class="centered">
+
+<img src="static/img/slides14-free-list.svg" class="transparent responsive">
+
+</div>
+
+<ul>
+<li>
+<p><strong class="caution">Operating system</strong> must track <strong
+  class="info">system memory</strong> allocations.</p>
+</li>
+<li>
+<p>Individual <strong class="success">processes</strong> must also keep track of
+  <strong class="success">heap allocations</strong>.</p>
+</li>
+<li>
+<p>Must be wary of <strong class="danger">fragmentation</strong>.</p>
+</li>
+</ul>
+<h2 id="heap-allocation-malloc0c">Heap Allocation: <a href="https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture14/malloc0.c">malloc0.c</a><a class="headerlink" href="#heap-allocation-malloc0c" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Is <a href="https://man7.org/linux/man-pages/man3/malloc.3.html">malloc</a> a <warning>system call</warning>?</p>
+</blockquote>
+<p>No, because we are implementing it (<em>without modifying the kernel</em>).
+However, to implement it, we do need a <strong class="warning">system
+call</strong>... so we will be using <a href="https://man7.org/linux/man-pages/man2/brk.2.html">sbrk</a> (most modern allocators use
+<a href="https://man7.org/linux/man-pages/man2/mmap.2.html">mmap</a>).</p>
+<blockquote>
+<p>Read <a href="https://man7.org/linux/man-pages/man2/brk.2.html">sbrk</a> manual description and determine how we can use it.</p>
+</blockquote>
+<div class="centered">
+
+<img src="static/img/slides14-sbrk-marked.svg" class="transparent responsive">
+
+</div>
+
+<div class="codehilite"><pre><span></span><code><span class="cm">/* Allocate space */</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sbrk</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">    </span><span class="cm">/* OS allocation failed */</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* Reclaim space */</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">free</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<blockquote>
+<p>What did we <strong>compile</strong>? Why? <strong class="danger">shared library</strong>.</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="c1"># List what libraries a program uses</span>
+$<span class="w"> </span>ldd<span class="w"> </span>/usr/bin/cat
+
+<span class="c1"># Trace what libraries a program uses</span>
+$<span class="w"> </span>strace<span class="w"> </span>/usr/bin/cat
+
+<span class="c1"># Trick: Inject our library first using LD_PRELOAD</span>
+$<span class="w"> </span>env<span class="w"> </span><span class="nv">LD_PRELOAD</span><span class="o">=</span>./libmalloc0.so<span class="w"> </span>cat<span class="w"> </span>Makefile
+</code></pre></div>
+
+<blockquote>
+<p>How can we verify that it is using our <a href="https://man7.org/linux/man-pages/man3/malloc.3.html">malloc</a>? <success>add prints</success></p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">puts</span><span class="p">(</span><span class="s">&quot;hi&quot;</span><span class="p">);</span><span class="w">           </span><span class="c1">// Causes segfault... due to recursion???</span>
+<span class="w">    </span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hi</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span><span class="w">  </span><span class="c1">// Can use write though!</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="alert info-bg">
+<p><strong>Linus Story</strong>: Fixed problem in playing audio by <a href="https://bugzilla.redhat.com/show_bug.cgi?id=638477#c38">injecting his own version
+of <code>memcpy</code></a>.</p>
+</div>
+<div class="alert success-bg">
+<ul>
+<li>Simple, but fast and <em>works</em>!</li>
+</ul>
+</div>
+<div class="alert danger-bg">
+<ul>
+<li>
+<p>Doesn't actually keep <strong>track</strong> of anything</p>
+</li>
+<li>
+<p>Doesn't <strong>release</strong> memory</p>
+</li>
+<li>
+<p>Doesn't keep blocks <strong>aligned</strong></p>
+</li>
+</ul>
+</div>
+<h2 id="heap-allocation-malloc1c">Heap Allocation: <a href="https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture14/malloc1.c">malloc1.c</a><a class="headerlink" href="#heap-allocation-malloc1c" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Rather than always calling <a href="https://man7.org/linux/man-pages/man2/brk.2.html">sbrk</a> to allocate more space, try to <strong>re-use</strong>
+previous allocations from <strong class="primary">free list</strong>.</p>
+</blockquote>
+<ol>
+<li>Explain <code>struct Block</code> (<em>attributes, alignment, size</em>).</li>
+<li>Implement <code>malloc</code> (<em>begin</em>).</li>
+<li>Implement <code>free_list_search</code> (<em>discuss fit algorithms</em>).</li>
+<li>Implement <code>malloc</code> (<em>continue</em>).</li>
+<li>Implement <code>block_allocate</code>.</li>
+<li>Implement <code>block_detach</code>.</li>
+<li>Complete <code>malloc</code>.</li>
+<li>Implement <code>free</code>.</li>
+<li>Implement <code>free_list_insert</code>.</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* Block Constants */</span>
+
+<span class="cp">#define ALIGNMENT       (sizeof(double))</span>
+<span class="cp">#define ALIGN(size)     (((size) + (ALIGNMENT - 1)) &amp; ~(ALIGNMENT - 1))</span>
+<span class="cp">#define SBRK_FAILURE    ((void *)(-1))</span>
+
+<span class="cm">/* Block Macros */</span>
+
+<span class="cp">#define BLOCK_FROM_POINTER(ptr) \</span>
+<span class="cp">    (Block *)((intptr_t)(ptr) - sizeof(Block))</span>
+
+<span class="cm">/* Block Structure</span>
+<span class="cm"> *</span>
+<span class="cm"> *  [       ]</span>
+<span class="cm"> *  [       ] &lt;- Block - Data (contents)</span>
+<span class="cm"> *  [       ] &lt;- Block - Header (struct)</span>
+<span class="cm"> *</span>
+<span class="cm"> **/</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">block</span><span class="w"> </span><span class="n">Block</span><span class="p">;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">block</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">   </span><span class="n">capacity</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Number of bytes allocated to block */</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">   </span><span class="n">size</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Number of bytes used by block */</span>
+<span class="w">    </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="w">  </span><span class="n">prev</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Pointer to previous block structure */</span>
+<span class="w">    </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="w">  </span><span class="n">next</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Pointer to next block structure */</span>
+<span class="w">    </span><span class="kt">char</span><span class="w">     </span><span class="n">data</span><span class="p">[];</span><span class="w">    </span><span class="cm">/* Label for user accessible block data */</span>
+<span class="p">};</span><span class="w">                      </span><span class="cm">/* sizeof(Block) = 8 + 8 + 8 + 8 = 32 bytes */</span>
+
+<span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">block_allocate</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">intptr_t</span><span class="w"> </span><span class="n">allocated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">Block</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ALIGN</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="w">  </span><span class="n">block</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">sbrk</span><span class="p">(</span><span class="n">allocated</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SBRK_FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ALIGN</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">size</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">prev</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="w">    </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">next</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">block_detach</span><span class="p">(</span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">block</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Update prev and next blocks to reference each other</span>
+<span class="cm">     *</span>
+<span class="cm">     *  [ before ]&lt;-&gt;[ block ]&lt;-&gt;[ after ]</span>
+<span class="cm">     *</span>
+<span class="cm">     *  [ before ]&lt;-&gt;[ after ]</span>
+<span class="cm">     *</span>
+<span class="cm">     **/</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">before</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">prev</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">after</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">before</span><span class="o">-&gt;</span><span class="n">next</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">after</span><span class="p">;</span>
+<span class="w">        </span><span class="n">after</span><span class="o">-&gt;</span><span class="n">prev</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">before</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">next</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="w">        </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">prev</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* Free List Global Variable */</span>
+
+<span class="n">Block</span><span class="w"> </span><span class="n">FreeList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">FreeList</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">FreeList</span><span class="p">};</span>
+
+<span class="cm">/* Free List Functions */</span>
+
+<span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">free_list_search</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Perform first fit algorithm: find first block largest to satisfy request */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FreeList</span><span class="p">.</span><span class="n">next</span><span class="p">;</span><span class="w"> </span><span class="n">curr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">FreeList</span><span class="p">;</span><span class="w"> </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">capacity</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">curr</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Best fit algorithm: find smallest block to satisfy request in order to</span>
+<span class="cm">    minimize internal fragmentation */</span>
+
+<span class="w">    </span><span class="cm">/* Worst fit algorithm: find largest block to satisfy request in order to</span>
+<span class="cm">    minimize external fragmentation */</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w">    </span><span class="nf">free_list_insert</span><span class="p">(</span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">block</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Append to tail</span>
+<span class="cm">     *</span>
+<span class="cm">     *  [ tail ]&lt;-&gt;[ FreeList ]</span>
+<span class="cm">     *</span>
+<span class="cm">     *  [ tail ]&lt;-&gt;[ block ]&lt;-&gt;[ FreeList ]</span>
+<span class="cm">     *</span>
+<span class="cm">     **/</span>
+<span class="w">    </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">tail</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">FreeList</span><span class="p">.</span><span class="n">prev</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">tail</span><span class="o">-&gt;</span><span class="n">next</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="w">    </span><span class="n">FreeList</span><span class="p">.</span><span class="n">prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+<span class="w">    </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">next</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">FreeList</span><span class="p">;</span>
+<span class="w">    </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">prev</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">tail</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* POSIX API Functions */</span>
+
+<span class="cm">/**</span>
+<span class="cm">* Allocate specified amount memory.</span>
+<span class="cm">* @param   size    Amount of bytes to allocate.</span>
+<span class="cm">* @return  Pointer to the requested amount of memory.</span>
+<span class="cm">**/</span>
+<span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Handle empty size */</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Search free list for any available block with matching size */</span>
+<span class="w">    </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">free_list_search</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">block</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block_allocate</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block_detach</span><span class="p">(</span><span class="n">block</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Could not find free block or allocate a block, so just return NULL */</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">block</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Return data address associated with block */</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm">* Release previously allocated memory.</span>
+<span class="cm">* @param   ptr     Pointer to previously allocated memory.</span>
+<span class="cm">**/</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">free</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">Block</span><span class="w"> </span><span class="o">*</span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BLOCK_FROM_POINTER</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free_list_insert</span><span class="p">(</span><span class="n">block</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
