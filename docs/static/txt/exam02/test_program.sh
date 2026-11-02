@@ -68,6 +68,7 @@ b72cc8878c9847f99644c2c926f4589ea18d691d  homework05.html
 94291a32e94faa1c57b5c09c8a00df7c3bb9d92b  homework08.html
 97c29f3513c30fbf9a54980d3c148ed2689588c1  homework09.html
 dbec065f7de2c44056d4596190abd03e801d71aa  homework10.html
+7c034fcf957900e6647c165a826a0f944ad44be1  homework06-miles.png
 EOF
 }
 
@@ -146,6 +147,31 @@ else
     echo "Success"
 fi
 
+URLS="https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/static/img/homework06-miles.png"
+printf " %-60s ... " "program [$(echo $URLS | wc -w)]"
+valgrind --leak-check=full ./program $URLS &> $WORKSPACE/test
+if [ $? -ne 0 ]; then
+    error "Failure (Exit Code)"
+elif [ $(awk '/ERROR SUMMARY:/ {print $4}' $WORKSPACE/test | sort -rn | tail -n 1) -ne 0 ]; then
+    error "Failure (Valgrind)"
+elif ! check_sha1sums; then
+    error "Failure (Contents)"
+elif ! check_concurrency; then
+    error "Failure (Concurrency)"
+else
+    echo "Success"
+fi
+
+printf " %-60s ... " "program [$(echo $URLS | wc -w)] (strace)"
+strace -e clone,clone3 ./program $URLS &> $WORKSPACE/test
+if [ $? -ne 0 ]; then
+    error "Failure (Exit Code)"
+elif [ $(grep -v ENOSYS $WORKSPACE/test | grep -c CLONE_THREAD) -ne $(echo $URLS | wc -w) -a $(grep -v ENOSYS $WORKSPACE/test | grep -c CLONE_THREAD) -ne $CONCURRENCY ]; then
+    error "Failure (Strace)"
+else
+    echo "Success"
+fi
+
 URLS="https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework06.html
 https://fake.asdf/homeworkXX.html"
 printf " %-60s ... " "program [$(echo $URLS | wc -w)]"
@@ -178,7 +204,7 @@ https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework03.html
 https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html
 https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework05.html
 https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework06.html
-https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework07.html
+https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/static/img/homework06-miles.png
 https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework08.html"
 printf " %-60s ... " "program [$(echo $URLS | wc -w)]"
 valgrind --leak-check=full ./program $URLS &> $WORKSPACE/test
