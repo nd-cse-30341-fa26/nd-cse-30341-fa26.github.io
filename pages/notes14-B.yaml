@@ -1,0 +1,339 @@
+title:  "Notes 14-B: Free List, Heap Allocation"
+body:   |
+
+  ## Review: <span class="gold">Virtual Memory</span>
+
+  -   <div class="flex-col" markdown="1">
+
+      <strong class="special">Virtual Memory</strong>: Abstract <strong class="info">RAM</strong>
+
+      <div class="centered">
+
+      <img src="static/img/slides14-address-space.svg" class="transparent responsive">
+
+      </div>
+
+  - <strong class="success">Address Space</strong>: **Illusion** that
+  memory is a **large** (*possibly infinite*) **contiguous** array of
+  **blocks** where you have **sole possession**.
+
+  -   <div class="flex-col" markdown="1">
+
+      <strong class="warning">Address Translation</strong>: Implements the
+      **illusion** by converting <strong class="success">virtual
+      addresses</strong> to <strong class="info">physical
+      addresses</strong>.
+
+      -   <div class="flex-col" markdown="1">
+
+          <strong class="warning">Base and Bounds</strong>: `base` serves
+          as an offset into <strong class="info">physical memory</strong>
+          and `bounds` serves as upper limit.
+
+      -   <div class="flex-col" markdown="1">
+
+          <strong class="info">MMU</strong>: Memory management unit
+          enforces this boundary.
+
+          As it performs <strong class="warning">translation</strong>, the
+          <strong class="info">MMU</strong> will see the boundary violation
+          and triggers a <strong class="danger">fault</strong>, which then
+          causes the <strong class="info">CPU</strong> to consult the
+          <strong class="warning">trap table</strong>, which then causes
+          the <strong class="caution">OS</strong> to be invoked, who will
+          then send a <strong class="danger">signal</strong> to the
+          offending <strong class="success">process</strong>.
+
+      <div class="alert success-bg" markdown="1">
+
+      **Preview**: We will introduce **segmentation** and **paging** in the next two lectures.
+
+      </div>
+
+  -   <div class="flex-col" markdown="1">
+
+      <strong class="caution">OS Kernel</strong>: Acts as a **manager**.
+
+      1. Handles <danger>fault</danger> as described above.
+
+      2. Keep track of <strong class="warning">Base and Bounds</strong> and
+      updates <strong class="info">MMU</strong> on each <strong
+      class="special">context switch</strong>.
+
+      3. Keep track of <strong class="info">free memory</strong>.
+
+  ## Free List: <span class="gold">Overview</span>
+
+  To track all of the block allocations, we can use a <strong
+  class="primary">free list</strong>, which is a <strong class="primary">linked
+  list</strong> of all the space reservations (*can contain both <strong
+  class="caution">active</strong> and <strong class="success">free</strong>
+  blocks or just the <strong class="success">free</strong> blocks*).
+
+  <div class="centered">
+
+  <img src="static/img/slides14-free-list.svg" class="transparent responsive">
+
+  </div>
+
+  - <strong class="caution">Operating system</strong> must track <strong
+    class="info">system memory</strong> allocations.
+
+  - Individual <strong class="success">processes</strong> must also keep track of
+    <strong class="success">heap allocations</strong>.
+
+  - Must be wary of <strong class="danger">fragmentation</strong>.
+
+  ## Heap Allocation: [malloc0.c]
+
+  > Is [malloc] a <warning>system call</warning>?
+
+  No, because we are implementing it (*without modifying the kernel*).
+  However, to implement it, we do need a <strong class="warning">system
+  call</strong>... so we will be using [sbrk] (most modern allocators use
+  [mmap]).
+
+  > Read [sbrk] manual description and determine how we can use it.
+
+  <div class="centered">
+
+  <img src="static/img/slides14-sbrk-marked.svg" class="transparent responsive">
+
+  </div>
+
+  ```c
+  /* Allocate space */
+
+  void *malloc(size_t size) {
+      void *block = sbrk(size);
+
+      if (block == (void *)-1) {    /* OS allocation failed */
+          return NULL;
+      }
+
+      return block;
+  }
+
+  /* Reclaim space */
+
+  void free(void *ptr) {
+  }
+
+  ```
+
+  > What did we **compile**? Why? <strong class="danger">shared library</strong>.
+
+  ```bash
+  # List what libraries a program uses
+  $ ldd /usr/bin/cat
+
+  # Trace what libraries a program uses
+  $ strace /usr/bin/cat
+
+  # Trick: Inject our library first using LD_PRELOAD
+  $ env LD_PRELOAD=./libmalloc0.so cat Makefile
+  ```
+
+  > How can we verify that it is using our [malloc]? <success>add prints</success>
+
+  ```c
+  void *malloc(size_t size) {
+      puts("hi");           // Causes segfault... due to recursion???
+      write(1, "hi\n", 3);  // Can use write though!
+      ...
+  }
+  ```
+
+  <div class="alert info-bg" markdown="1">
+
+  **Linus Story**: Fixed problem in playing audio by [injecting his own version
+  of `memcpy`](https://bugzilla.redhat.com/show_bug.cgi?id=638477#c38).
+
+  </div>
+
+  <div class="alert success-bg" markdown="1">
+
+  - Simple, but fast and *works*!
+
+  </div>
+
+  <div class="alert danger-bg" markdown="1">
+
+  - Doesn't actually keep **track** of anything
+
+  - Doesn't **release** memory
+
+  - Doesn't keep blocks **aligned**
+
+  </div>
+
+
+  [sbrk]: https://man7.org/linux/man-pages/man2/brk.2.html
+  [mmap]: https://man7.org/linux/man-pages/man2/mmap.2.html
+  [malloc]: https://man7.org/linux/man-pages/man3/malloc.3.html
+  [malloc0.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture14/malloc0.c
+
+  ## Heap Allocation: [malloc1.c]
+
+  > Rather than always calling [sbrk] to allocate more space, try to **re-use**
+  previous allocations from <strong class="primary">free list</strong>.
+
+  1. Explain `struct Block` (*attributes, alignment, size*).
+  2. Implement `malloc` (*begin*).
+  3. Implement `free_list_search` (*discuss fit algorithms*).
+  4. Implement `malloc` (*continue*).
+  5. Implement `block_allocate`.
+  6. Implement `block_detach`.
+  7. Complete `malloc`.
+  8. Implement `free`.
+  9. Implement `free_list_insert`.
+
+  ```c
+  /* Block Constants */
+
+  #define ALIGNMENT       (sizeof(double))
+  #define ALIGN(size)     (((size) + (ALIGNMENT - 1)) & ~(ALIGNMENT - 1))
+  #define SBRK_FAILURE    ((void *)(-1))
+
+  /* Block Macros */
+
+  #define BLOCK_FROM_POINTER(ptr) \
+      (Block *)((intptr_t)(ptr) - sizeof(Block))
+
+  /* Block Structure
+   *
+   *  [       ]
+   *  [       ] <- Block - Data (contents)
+   *  [       ] <- Block - Header (struct)
+   *
+   **/
+  typedef struct block Block;
+  struct block {
+      size_t   capacity;  /* Number of bytes allocated to block */
+      size_t   size;      /* Number of bytes used by block */
+      Block *  prev;      /* Pointer to previous block structure */
+      Block *  next;      /* Pointer to next block structure */
+      char     data[];    /* Label for user accessible block data */
+  };                      /* sizeof(Block) = 8 + 8 + 8 + 8 = 32 bytes */
+
+  Block * block_allocate(size_t size) {
+      intptr_t allocated = sizeof(Block) + ALIGN(size);
+      Block *  block     = sbrk(allocated);
+      if (block == SBRK_FAILURE) {
+          return NULL;
+      }
+
+      block->capacity = ALIGN(size);
+      block->size     = size;
+      block->prev     = block;
+      block->next     = block;
+      return block;
+  }
+
+  Block * block_detach(Block *block) {
+      /* Update prev and next blocks to reference each other
+       *
+       *  [ before ]<->[ block ]<->[ after ]
+       *
+       *  [ before ]<->[ after ]
+       *
+       **/
+      if (block) {
+          Block *before = block->prev;
+          Block *after  = block->next;
+
+          before->next  = after;
+          after->prev   = before;
+
+          block->next   = block;
+          block->prev   = block;
+      }
+
+      return block;
+  }
+
+  /* Free List Global Variable */
+
+  Block FreeList = {0, 0, &FreeList, &FreeList};
+
+  /* Free List Functions */
+
+  Block * free_list_search(size_t size) {
+      /* Perform first fit algorithm: find first block largest to satisfy request */
+      for (Block *curr = FreeList.next; curr != &FreeList; curr = curr->next) {
+          if (curr->capacity >= size) {
+              return curr;
+          }
+      }
+
+      /* Best fit algorithm: find smallest block to satisfy request in order to
+      minimize internal fragmentation */
+
+      /* Worst fit algorithm: find largest block to satisfy request in order to
+      minimize external fragmentation */
+
+      return NULL;
+  }
+
+  void    free_list_insert(Block *block) {
+      /* Append to tail
+       *
+       *  [ tail ]<->[ FreeList ]
+       *
+       *  [ tail ]<->[ block ]<->[ FreeList ]
+       *
+       **/
+      Block *tail   = FreeList.prev;
+
+      tail->next    = block;
+      FreeList.prev = block;
+      block->next   = &FreeList;
+      block->prev   = tail;
+  }
+
+  /* POSIX API Functions */
+
+  /**
+  * Allocate specified amount memory.
+  * @param   size    Amount of bytes to allocate.
+  * @return  Pointer to the requested amount of memory.
+  **/
+  void *malloc(size_t size) {
+      /* Handle empty size */
+      if (!size) {
+          return NULL;
+      }
+
+      /* Search free list for any available block with matching size */
+      Block *block = free_list_search(size);
+
+      if (!block) {
+          block = block_allocate(size);
+      } else {
+          block = block_detach(block);
+      }
+
+      /* Could not find free block or allocate a block, so just return NULL */
+      if (!block) {
+          return NULL;
+      }
+
+      /* Return data address associated with block */
+      return block->data;
+  }
+
+  /**
+  * Release previously allocated memory.
+  * @param   ptr     Pointer to previously allocated memory.
+  **/
+  void free(void *ptr) {
+      if (!ptr) {
+          return;
+      }
+
+      Block *block = BLOCK_FROM_POINTER(ptr);
+      free_list_insert(block);
+  }
+  ```
+
+  [malloc1.c]: https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture14/malloc1.c
