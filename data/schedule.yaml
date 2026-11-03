@@ -176,6 +176,10 @@
         topics:         Heap Allocation
         assignments:
           - Reading 08
+        items:
+          - name:       Slides 14
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=632b56b9-6d38-4b93-ac61-b4f70113bed3
 
       - date:           Thu 11/05
         topics:         Segmentation
