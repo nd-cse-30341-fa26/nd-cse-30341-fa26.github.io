@@ -159,7 +159,7 @@ each <strong class="special">context switch</strong>.
 
 ---
 
-# Segmentation: <span class="gold">Addressing</span>
+# Segmentation: <span class="gold">Address Translation</span>
 
 Given the following `16-bit` <strong class="warning">virtual address</strong>:
 
