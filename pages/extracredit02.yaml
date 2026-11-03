@@ -56,7 +56,7 @@ body:   |
     Here is an example of the program in action:
 
     ```
-    $ ./program -d html -n 2 https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html https://pnutz.h4x0r.space/archive/cse.20289.sp24/homework03.html https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html
+    $ ./program -d html -n 2 https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework03.html https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework04.html
     Starting https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework01.html...
     Starting https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html...
     Finished https://pnutz.h4x0r.space/archive/teaching/cse.20289.sp24/homework02.html: 0
