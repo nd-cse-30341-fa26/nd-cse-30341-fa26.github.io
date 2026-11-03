@@ -27,7 +27,7 @@ body:       |
     [University of Notre Dame]: http://www.nd.edu
 
     <div class="centered">
-        <img src="static/img/house-of-cards.svg" class="transparent responsive" style="max-width: 720px; padding: 10px;">
+        <img src="static/img/house-of-cards.svg" class="transparent responsive">
     </div>
 
     Upon successful completion of this course, students will be able to:
@@ -255,31 +255,31 @@ body:       |
         <td></td>
         <td></td>
         <td style="font-weight: bold;">A</td>
-        <td>99.99-93.33</td>
+        <td>99.99 - 93.33</td>
         <td style="font-weight: bold;">A-</td>
-        <td>93.33-90.00</td>
+        <td>93.33 - 90.00</td>
       </tr>
       <tr class="centered info-bg">
         <td style="font-weight: bold;">B+</td>
-        <td>90.00-86.67</td>
+        <td>90.00 - 86.67</td>
         <td style="font-weight: bold;">B</td>
-        <td>86.67-83.33</td>
+        <td>86.67 - 83.33</td>
         <td style="font-weight: bold;">B-</td>
-        <td>83.33-80.00</td>
+        <td>83.33 - 80.00</td>
       </tr>
       <tr class="centered caution-bg">
         <td style="font-weight: bold;">C+</td>
-        <td>80.00-76.67</td>
+        <td>80.00 - 76.67</td>
         <td style="font-weight: bold;">C</td>
-        <td>76.67-73.33</td>
+        <td>76.67 - 73.33</td>
         <td style="font-weight: bold;">C-</td>
-        <td>73.33-70.00</td>
+        <td>73.33 - 70.00</td>
       </tr>
       <tr class="centered danger-bg">
         <td style="font-weight: bold;">D&nbsp;</td>
-        <td>70.00-66.66</td>
+        <td>70.00 - 66.67</td>
         <td style="font-weight: bold;">F</td>
-        <td>66.66-00.00</td>
+        <td>66.67 - 00.00</td>
         <td></td>
         <td></td>
       </tr>
