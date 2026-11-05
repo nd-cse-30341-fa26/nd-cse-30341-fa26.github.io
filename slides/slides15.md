@@ -123,32 +123,32 @@ class="info">MMU</strong> now needs to know the following information:
 </thead>
 <tbody>
 <tr class="danger-bg">
-    <td>Code</td>
-    <td>32K</td>
-    <td>2K</td>
-    <td>1</td>
-    <td>Read-Execute</td>
+    <td class="centered">Code</td>
+    <td class="centered">32K</td>
+    <td class="centered">2K</td>
+    <td class="centered">1</td>
+    <td class="centered">Read-Execute</td>
 </tr>
 <tr class="caution-bg">
-    <td>Data</td>
-    <td>34K</td>
-    <td>2K</td>
-    <td>1</td>
-    <td>Read-Write</td>
+    <td class="centered">Data</td>
+    <td class="centered">34K</td>
+    <td class="centered">2K</td>
+    <td class="centered">1</td>
+    <td class="centered">Read-Write</td>
 </tr>
 <tr class="success-bg">
-    <td>Heap</td>
-    <td>36K</td>
-    <td>2K</td>
-    <td>1</td>
-    <td>Read-Write</td>
+    <td class="centered">Heap</td>
+    <td class="centered">36K</td>
+    <td class="centered">2K</td>
+    <td class="centered">1</td>
+    <td class="centered">Read-Write</td>
 </tr>
 <tr class="info-bg">
-    <td>Stack</td>
-    <td>28K</td>
-    <td>2K</td>
-    <td>0</td>
-    <td>Read-Write</td>
+    <td class="centered">Stack</td>
+    <td class="centered">28K</td>
+    <td class="centered">2K</td>
+    <td class="centered">0</td>
+    <td class="centered">Read-Write</td>
 </tr>
 </tbody>
 </table>
