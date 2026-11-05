@@ -185,6 +185,8 @@
         topics:         Segmentation
         items:
           - name:       Slides 15
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=af9188a3-fd09-45dc-baef-b4f9010cf210
 
 - name:     Paging
   days:
