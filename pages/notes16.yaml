@@ -1,0 +1,524 @@
+title:  "Notes 16: Segmentation/Paging"
+body:   |
+
+  ## Segmentation: <span class="gold">Overview</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  <strong class="warning">Segmentation</strong> is a generalized form of <strong
+  class="warning">base and bounds</strong>:
+
+  - Each component in the <strong class="success">address space</strong> is
+    considered a separate <strong class="caution">segment</strong>.
+
+  - Each <strong class="caution">segment</strong> has its own <strong
+    class="warning">base and bounds registers</strong>.
+
+  </div>
+
+  <div class="flex-col-33" markdown="1">
+
+  <img src="static/img/slides15-segmentation-overview.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Segmentation: <span class="gold">Segments</span>
+
+  Because our <strong class="success">address space</strong> is split into
+  separate <strong class="caution">segments</strong>, we have some additional
+  issues and opportunities:
+
+  - <strong class="primary">Code Sharing</strong>: We can now share common
+    <strong class="danger">code segments</strong> (<strong><i class="muted">ie.
+    multiple instances of programs</i></strong>)
+
+  - <strong class="comment">Growth Direction</strong>: While most <strong
+    class="caution">segments</strong> such as <strong
+    class="success">heap</strong> grow in positive direction, the <strong
+    class="info">stack</strong> grows downwards.
+
+  <div class="alert warning-bg" markdown="1">
+
+  - <strong class="warning">Ubuntu</strong> has switched to **Rust**
+  coreutils... by default **Rust** applications are <strong
+  class="danger">statically linked</strong>... is this an issue when it comes
+  to <strong class="primary">code sharing</strong>? <strong class="danger">more
+  memory usage because libraries can't be shared</strong>
+
+  - <strong class="warning">Ubuntu</strong> actually uses <strong
+  class="success">dynamic linking</strong> and ... compiles all the programs
+  into a <strong class="caution">single binary with hardlinks</strong> for each
+  utility... is this also an issue?  <strong class="success">no because the
+  binary can be loaded once and shared for each utility</strong>.
+
+  </div>
+
+  <div class="alert info-bg" markdown="1">
+
+  In addition to the <strong class="warning">base and bounds</strong>, we will need
+  <strong class="special">accounting information</strong>!
+
+  </div>
+
+  ## Segmentation: <span class="gold">Hardware Information</span>
+
+  To support <strong class="warning">segmentation</strong>, the <strong
+  class="info">MMU</strong> now needs to know the following information:
+
+  <table class="bordered">
+  <thead>
+      <th class="special-bg">Segment</th>
+      <th class="special-bg">Base</th>
+      <th class="special-bg">Size</th>
+      <th class="special-bg">Growth Positive?</th>
+      <th class="special-bg">Protection</th>
+  </thead>
+  <tbody>
+  <tr class="danger-bg">
+      <td class="centered">Code</td>
+      <td class="centered">32K</td>
+      <td class="centered">2K</td>
+      <td class="centered">1</td>
+      <td class="centered">Read-Execute</td>
+  </tr>
+  <tr class="caution-bg">
+      <td class="centered">Data</td>
+      <td class="centered">34K</td>
+      <td class="centered">2K</td>
+      <td class="centered">1</td>
+      <td class="centered">Read-Write</td>
+  </tr>
+  <tr class="success-bg">
+      <td class="centered">Heap</td>
+      <td class="centered">36K</td>
+      <td class="centered">2K</td>
+      <td class="centered">1</td>
+      <td class="centered">Read-Write</td>
+  </tr>
+  <tr class="info-bg">
+      <td class="centered">Stack</td>
+      <td class="centered">28K</td>
+      <td class="centered">2K</td>
+      <td class="centered">0</td>
+      <td class="centered">Read-Write</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <strong class="caution">Operating system</strong> must track this information
+  for every <strong class="success">process</strong> and save and restore it on
+  each <strong class="special">context switch</strong>.
+
+  ## Segmentation: <span class="gold">Address Translation</span>
+
+  Given the following `16-bit` <strong class="warning">virtual address</strong>:
+
+  <div class="centered">
+
+  <img src="static/img/reading08-address.svg" class="transparent responsive">
+
+  </div>
+
+  <div class="alert warning-bg" markdown="1">
+
+  - Why `2-bits` for <strong class="caution">segments</strong>? `4`
+
+  </div>
+
+  1.  <div class="flex-col" markdown="1">
+
+      What is the <strong class="danger">largest possible segment size</strong>?
+
+          :::text
+          2^14 = 2^4 * 2^10 = 16 K
+
+  2.  <div class="flex-col" markdown="1">
+
+      What is the <strong class="success">maximum possible offset value</strong>?
+
+          :::text
+          2^14 - 1 = 11 1111 1111 1111
+                   = 3  F    F    F
+                   = 16383
+
+  3.  <div class="flex-col" markdown="1">
+
+      Which <strong class="caution">segment</strong> is this <strong
+      class="warning">virtual address</strong> located in?
+
+      <strong class="success">heap</strong>
+
+  4.  <div class="flex-col" markdown="1">
+
+      What is the <strong class="info">physical address</strong> of this
+      <strong class="warning">virtual address</strong>?
+
+          :::text
+          PA = 36K + Offset = 36K + 522 = 37386
+
+  ## Segmentation: [Reading 08]
+
+  ```c
+  /* Constants */
+
+  #define KB              (1<<10)
+  #define SEGMENT_MASK    (0xC000)
+  #define SEGMENT_SHIFT   (14)
+  #define OFFSET_MASK     (~SEGMENT_MASK)
+
+  /* Structures */
+
+  typedef struct {
+      uint16_t base;
+      uint16_t size;
+  } SegmentRecord;
+
+  /* Constants */
+
+  SegmentRecord MMU[] = {
+      {.base = 32*KB, .size = 2*KB},   /* 00: Code  */
+      {.base = 34*KB, .size = 2*KB},   /* 01: Data  */
+      {.base = 36*KB, .size = 2*KB},   /* 10: Heap  */
+      {.base = 28*KB, .size = 2*KB},   /* 11: Stack */
+  };
+
+  int main(int argc, char *argv[]) {
+      uint16_t virtual_address;
+
+      while (fread(&virtual_address, sizeof(uint16_t), 1, stdin)) {
+          uint16_t segment = (virtual_address & SEGMENT_MASK) >> SEGMENT_SHIFT;
+          uint16_t offset  = (virtual_address & OFFSET_MASK);
+
+          char   *fault    = "";
+          if (offset >= MMU[segment].size) {
+              fault = " Segmentation Fault";
+          }
+
+          uint16_t physical_address = MMU[segment].base + offset;
+          printf("VA[%04hx] -> PA[%04hx]%s\n", virtual_address, physical_address, fault);
+      }
+
+      return EXIT_SUCCESS;
+  }
+  ```
+
+  [Reading 08]: reading08.html
+
+  ## Segmentation: <span class="gold">Problems</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  Unfortunately, <strong class="warning">segmentation</strong> suffers from a major
+  <strong class="danger">problem</strong>:
+
+  > <strong class="danger">External fragmentation</strong>: the
+  > variable sized <strong class="warning">segments</strong> leads to many tiny
+  > <strong class="caution">holes</strong>.
+
+  - We can compact <strong class="caution">segments</strong>, but that is <strong
+    class="danger">expensive</strong>.
+
+  - We can rely on <strong class="primary">free-list</strong> management
+    algorithms, but they can only <strong class="caution">minimize
+    fragmentation</strong>.
+
+  <div class="alert warning-bg" markdown="1">
+
+  **Analogy**: Packing a suitcase (*regular sized things*)
+
+  </div>
+
+  </div>
+
+  <div class="flex-col-33" markdown="1">
+
+  <img src="static/img/slides15-segmentation-problem.svg" class="transparent responsive">
+
+  </div>
+
+  </div>
+
+  ## Paging: <span class="gold">Overview</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  Rather than chop memory up into <strong class="danger">variable sized
+  pieces</strong>, <strong class="warning">paging</strong> uses <strong
+  class="caution">fixed-sized</strong> units called <strong
+  class="warning">pages</strong>:
+
+  - Each <strong class="success">process</strong> has an <strong
+    class="success">address space</strong> that consists of <strong
+    class="caution">fixed-size</strong> <strong class="warning">virtual
+    pages</strong>.
+
+  - Each <strong class="warning">virtual page</strong> maps to a <strong
+    class="info">physical page frame</strong> (*of the same size*).
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  Typical page size is `4K` (`BUFSIZ` is `8K`).
+
+  </div>
+
+  <div class="alert success-bg centered" markdown="1">
+
+  Need a **data structure** to store mapping from <strong
+  class="success">virtual</strong> to <strong class="info">physical</strong>.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col centered">
+
+  <img src="static/img/slides16-paging-overview.svg" class="responsive transparent">
+
+  </div>
+
+  </div>
+
+  ## Paging: <span class="gold">Page Table</span>
+
+  Each <strong class="success">process</strong> has a <strong
+  class="primary">page table</strong> that stores the <strong
+  class="caution">mapping</strong> of each <strong class="warning">virtual page
+  number</strong> to the corresponding <strong class="info">physical page
+  frame</strong>.
+
+  <table class="bordered">
+  <thead>
+      <th class="special-bg">Bit</th>
+      <th class="special-bg">Information</th>
+  </thead>
+  <tbody>
+  <tr class="success-bg">
+      <td class="centered"><b>Valid</b></td>
+      <td>Is the <strong class="caution">mapping</strong> valid?</td>
+  </tr>
+  <tr class="danger-bg">
+      <td class="centered"><b>Protection</b></td>
+      <td>Can we read, write, or execute data in <strong class="warning">page</strong>?</td>
+  </tr>
+  <tr class="info-bg">
+      <td class="centered"><b>Present</b></td>
+      <td>Is the <strong class="warning">page</strong> in <strong class="info">physical memory</strong>?</td>
+  </tr>
+  <tr class="caution-bg">
+      <td class="centered"><b>Reference</b></td>
+      <td>Has the <strong class="warning">page</strong> been accessed?</td>
+  </tr>
+  </tbody>
+  </table>
+
+  In addition to the <strong class="caution">mapping</strong>, each <strong
+  class="primary">page table entry (PTE)</strong> may contain the bits of
+  information above.
+
+  ## Paging: <span class="gold">Address Translation</span>
+
+  Given the <strong class="warning">virtual address</strong>, `36`, answer the following questions:
+
+  <div class="centered">
+
+  <img src="static/img/reading09-address.svg" class="responsive transparent">
+
+  </div>
+
+  1.  <div class="flex-col" markdown="1">
+
+      Which <strong class="warning">page</strong> is this address located?
+
+      > Since we have `4` <strong class="warning">pages</strong>, we now need `2
+      bits` to represent the <strong class="special">virtual page number
+      (VPN)</strong>. Therefore, in this case, the **VPN** is `10`, which is
+      <strong class="warning">Page</strong> `2`.
+
+  2.  <div class="flex-col" markdown="1">
+
+      Which <strong class="info">page frame</strong> is this address located?
+
+      > According to our diagram, the <strong class="warning">virtual
+      page</strong> `2` corresponds to <strong class="info">physical page
+      frame</strong> `5`.
+
+  3.  <div class="flex-col" markdown="1">
+
+      What is the <strong class="warning">offset</strong> of this address?
+
+      > The remaining `4 bits` represent the <strong
+      class="warning">offset</strong>, which is `0100` or `4`.
+
+  5.  <div class="flex-col" markdown="1">
+
+      What is the <strong class="info">physical address</strong>?
+
+      > The <strong class="info">physical address</strong> is the base of <strong class="info">page
+      frame</strong> `5` `(80) + offset (4) = 84`.
+
+  ## Paging: [Reading 09]
+
+  ```c
+  /* Reading 09 */
+
+  #include <stdint.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  /* Constants */
+
+  #define ADDRESS_LENGTH  (8)
+  #define PAGE_SIZE       (1<<4)
+
+  #define MAX_PAGES       ((1<<ADDRESS_LENGTH) / PAGE_SIZE)
+  #define VPN_MASK        (0xf0)
+  #define VPN_SHIFT       (4)
+  #define OFFSET_MASK     (~VPN_MASK)
+
+  /* Structures */
+
+  /**
+  * Each Page Table Entry is a byte with the followin bit fields:
+  *
+  *  NNNNNNVP
+  *
+  *  NNNNNN: Physical Frame Number
+  *  V:      Valid bit (page is valid/in-use)
+  *  P:      Protection bit (page is protected/accessible)
+  **/
+  typedef struct {
+      uint8_t PFN       : 6;
+      uint8_t Valid     : 1;
+      uint8_t Protected : 1;
+  } PageTableEntry;
+
+  /* Constants */
+
+  PageTableEntry PageTable[MAX_PAGES] = {
+      {.PFN = 3, .Valid = 1, .Protected = 0}, /* Page 0 */
+      {.PFN = 7, .Valid = 1, .Protected = 0}, /* Page 1 */
+      {.PFN = 5, .Valid = 1, .Protected = 0}, /* Page 2 */
+      {.PFN = 2, .Valid = 1, .Protected = 1}, /* Page 3 */
+  };
+
+  int main(int argc, char *argv[]) {
+      uint8_t virtual_address;
+
+      while (fread(&virtual_address, sizeof(uint8_t), 1, stdin)) {
+          uint8_t vpn    = (virtual_address & VPN_MASK) >> VPN_SHIFT;
+          uint8_t offset = (virtual_address & OFFSET_MASK);
+
+          char *fault = "";
+          if (!PageTable[vpn].Valid) {
+              fault = " Segmentation Fault";
+          } else if (PageTable[vpn].Protected) {
+              fault = " Protection Fault";
+          }
+
+          uint8_t physical_address = (PageTable[vpn].PFN << VPN_SHIFT) | offset;
+          printf("VA[%02x] -> PA[%02x]%s\n", virtual_address, physical_address, fault);
+      }
+
+      return EXIT_SUCCESS;
+  }
+  ```
+
+  [Reading 09]: reading09.html
+
+  ## Paging: <span class="gold">Memory Usage</span>
+
+  Suppose we had a `32-bit` machine with `4KB` <strong class="warning">pages</strong>:
+
+  1.  <div class="flex-col" markdown="1">
+
+      How many <strong class="warning">pages</strong> can a <strong
+      class="success">process</strong> have?
+
+          :::text
+          Number of Pages = Number of Virtual Addresses / Size of Each Page
+                          = 2^32 / 2^12 = 2^20 ~ A million
+
+  2.  <div class="flex-col" markdown="1">
+
+      How many **bits** do we need for the <strong class="special">VPN</strong>?
+
+          :::text
+          20 bits
+
+  3.  <div class="flex-col" markdown="1">
+
+      How many **bits** do we need for the <strong class="warning">offset</strong>?
+
+          :::text
+          12 bits
+
+  4.  <div class="flex-col" markdown="1">
+
+      How large is the <strong class="primary">page table</strong> (*assuming
+      each <strong class="primary">PTE</strong> is `4` bytes*)?
+
+          :::text
+          Page Table Size = Number of Pages * Size of each Page Table Entry
+                          = 2^20 * 4 = 4MB
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  <strong class="primary">Page Table</strong> size is a concern because it is
+  per <strong class="success">process</strong>.
+
+  </div>
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  <strong class="primary">Page Table</strong> is stored in <strong
+  class="info">physical memory</strong>.
+
+  </div>
+
+  ## Paging: <span class="gold">Memory Access</span>
+
+  ```python
+  # Extract VPN from Virtual Address
+  VPN = (VirtualAddress & VPN_MASK) >> VPN_SHIFT
+
+  # Form the address of the page-table entry (PTE)
+  PTEAddress = PTBR + (VPN * sizeof(PTE))
+
+  # Fetch the PTE
+  PTE = AccessMemory(PTEAddress)
+
+  # Check if process can access the page
+  if not PTE.Valid:                       raise SegmentationFault
+  elif not CanAccess(PTE.Protection):     raise ProtectionFault
+  else:
+      Offset          = VirtualAddress & OFFSET_MASK
+      PhysicalAddress = (PTE.PFN << PFN_SHIFT) | Offset
+      Register        = AccessMemory(PhysicalAddress)
+  ```
+
+  ## Paging: <span class="gold">Problems</span>
+
+  While better than <strong class="warning">segmentation</strong> when it comes
+  to <strong class="danger">external fragmentation</strong>, <strong
+  class="warning">paging</strong> suffers from the following problems:
+
+  1. <strong class="danger">Overhead</strong>: Because each <strong
+    class="success">process</strong> requires a <strong class="primary">page
+    table</strong> and each table can be quite large, <strong
+    class="warning">paging</strong> incurs <strong class="danger">high memory
+    usage</strong>.
+
+  2. <strong class="caution">Indirection</strong>: Because each memory access
+    requires us to lookup the corresponding <strong
+    class="primary">PTE</strong>, we need to perform `2` <strong
+    class="info">physical memory</strong> accesses per <strong
+    class="warning">virtual address</strong>.
+
