@@ -196,6 +196,8 @@
           - Reading 09
         items:
           - name:       Slides 16
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=fc51a72a-c278-4944-963c-b4fe010d8b4d
 
       - date:           Thu 11/12
         topics:         TLB / Multi-Level
