@@ -136,6 +136,14 @@ body:   |
           :::text
           2^14 = 2^4 * 2^10 = 16 K
 
+      <div class="alert info-bg" markdown="1">
+
+      **Dorm Analogy**: Rooms have `3` digits... first digit is `floor`,
+      remaining `2` digits identify which room on that floor.  Because we have
+      `2` digits, then the maximum number of rooms is... `10^2 = 100`.
+
+      </div>
+
   2.  <div class="flex-col" markdown="1">
 
       What is the <strong class="success">maximum possible offset value</strong>?
@@ -522,3 +530,12 @@ body:   |
     class="info">physical memory</strong> accesses per <strong
     class="warning">virtual address</strong>.
 
+  ## Review: [Project 03]
+
+  <div class="centered">
+
+  <img src="static/img/notes16-malloc-block.svg" class="transparent responsive">
+
+  </div>
+
+  [Project 03]: project03.html

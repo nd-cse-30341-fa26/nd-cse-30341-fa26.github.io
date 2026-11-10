@@ -1,0 +1,46 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="Yll6fHIb633bTQxxrnJE">
+    <mxGraphModel dx="755" dy="732" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="oiHI3e4Be2S8bgPeqGZ7-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;header&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="120" x="280" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="oiHI3e4Be2S8bgPeqGZ7-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="&lt;font face=&quot;Ubuntu Sans Mono&quot; data-font-src=&quot;https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&amp;amp;display=swap&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;data&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="320" x="400" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-2" edge="1" parent="1" source="pFlibOn1fzw2xKPG24LK-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="oiHI3e4Be2S8bgPeqGZ7-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Block *b&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="120" x="120" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-4" edge="1" parent="1" source="pFlibOn1fzw2xKPG24LK-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="oiHI3e4Be2S8bgPeqGZ7-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;b-&amp;gt;data&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="120" x="340" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-5" parent="1" style="verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;html=1;verticalAlign=top;strokeWidth=2;shape=mxgraph.mockup.markup.curlyBrace;whiteSpace=wrap;strokeColor=#000000;labelPerimeter=1;" value="" vertex="1">
+          <mxGeometry height="20" width="280" x="400" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;b-&amp;gt;size&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="120" x="480" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-7" parent="1" style="verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;html=1;verticalAlign=top;strokeWidth=2;shape=mxgraph.mockup.markup.curlyBrace;whiteSpace=wrap;strokeColor=#000000;labelPerimeter=1;" value="" vertex="1">
+          <mxGeometry height="20" width="320" x="400" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-8" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;b-&amp;gt;capacity&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="480" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-10" edge="1" parent="1" source="pFlibOn1fzw2xKPG24LK-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;strokeWidth=2;" target="oiHI3e4Be2S8bgPeqGZ7-3">
+          <mxGeometry relative="1" x="-0.5" as="geometry" />
+        </mxCell>
+        <mxCell id="pFlibOn1fzw2xKPG24LK-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;intptr_t end = b-&amp;gt;data + b-&amp;gt;capacity&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="400" x="480" y="360" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
