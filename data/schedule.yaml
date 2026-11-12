@@ -203,6 +203,8 @@
         topics:         TLB / Multi-Level
         items:
           - name:       Slides 17
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=54fdf781-5762-49b4-af00-b500010f8707
 
 - name:     Exam 03
   days:
