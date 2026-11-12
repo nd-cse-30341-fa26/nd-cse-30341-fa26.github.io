@@ -76,65 +76,6 @@ theme: domer-slides
 
 ---
 
-<div class="slide-centered">
-
-<img src="https://camo.githubusercontent.com/7b158d2ef5659efc05042f0d323530bfc3a82f1dc2dbf5401c2cd55f315036fb/687474703a2f2f692e696d6775722e636f6d2f6b307431652e706e67">
-
-<a href="https://gist.github.com/hellerbarde/2843375">Latency numbers every
-programmer should know</a>
-
-</div>
-
----
-
-# Caching: <span class="gold">Locality</span>
-
-<div class="columns">
-
-<div class="margin-top-0-5">
-
-## <span class="special"> _______________________</span>
-
-This is the idea that if we access memory at address `x`, then we will most
-likely access memory <strong class="special">near</strong> `x` soon in the future.
-
-<br>
-<br>
-
-<div class="alert special-bg centered">
-
-<br>
-<br>
-
-</div>
-
-</div>
-
-<div class="margin-top-0-5">
-
-## <span class="caution"> _______________________</span>
-
-This is the idea that if we access an instruction or data item, then we will
-most likely access it <strong class="caution">again</strong> soon in the
-future.
-
-<br>
-
-<div class="alert caution-bg centered">
-
-<br>
-<br>
-
-
-</div>
-
-</div>
-
-</div>
-
----
-
-
 # TLBs: <span class="gold">Memory Access</span>
 
 <div class="columns">
@@ -201,6 +142,54 @@ bits</strong>, <strong class="special">address space identifier</strong>, etc.
 <br>
 <br>
 <br>
+
+</div>
+
+---
+
+# TLBs: <span class="gold">Locality</span>
+
+> **Demonstrate**: [locality.c](https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture17/locality.c)
+
+<div class="columns">
+
+<div class="margin-top-0-5">
+
+## <span class="special"> _______________________</span>
+
+This is the idea that if we access memory at address `x`, then we will most
+likely access memory <strong class="special">near</strong> `x` soon in the future.
+
+<br>
+<br>
+
+<div class="alert special-bg centered">
+
+<br>
+<br>
+
+</div>
+
+</div>
+
+<div class="margin-top-0-5">
+
+## <span class="caution"> _______________________</span>
+
+This is the idea that if we access an instruction or data item, then we will
+most likely access it <strong class="caution">again</strong> soon in the
+future.
+
+<br>
+
+<div class="alert caution-bg centered">
+
+<br>
+<br>
+
+</div>
+
+</div>
 
 </div>
 

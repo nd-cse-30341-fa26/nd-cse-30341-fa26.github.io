@@ -1,6 +1,10 @@
 title:  "Notes 17: TLBs, Multi-Level Paging"
 body:   |
 
+  ## Logistics
+
+  - [Interview 03](interview03.html): Memory Bugs in the context of `malloc`.
+
   ## Review: [Project 03]
 
   <div class="centered">
@@ -50,8 +54,10 @@ body:   |
   - Assign offense, defense, and special teams (<strong
   class="success">process</strong>) to different boxes.
 
-  - Store translation in end zone (<strong class="primary">page
-  table</strong>).
+  - Marcus Freeman needs to know allocations (<strong class="primary">FreeList</strong>).
+
+  - Assistant Coaches need to know mapping of each unit (<strong
+  class="primary">page table</strong>).
 
   ## Paging: <span class="gold">Problems</span>
 
@@ -95,61 +101,7 @@ body:   |
 
   <div class="alert danger-bg centered" markdown="1">
 
-  **Page** `0` is usually **invalid** to catch `NULL` **pointers**!
-
-  </div>
-
-  ## Memory: <span class="gold">Hierarchy</span>
-
-  <img src="https://camo.githubusercontent.com/7b158d2ef5659efc05042f0d323530bfc3a82f1dc2dbf5401c2cd55f315036fb/687474703a2f2f692e696d6775722e636f6d2f6b307431652e706e67" class="responsive">
-
-  <div class="centered">
-
-  <a href="https://gist.github.com/hellerbarde/2843375">Latency numbers every
-  programmer should know</a>
-
-  </div>
-
-  <div class="alert success-bg centered" markdown="1">
-
-  **Caches** are important for **performance**!
-
-  </div>
-
-  ## Caching: <span class="gold">Locality</span>
-
-  <div class="flex-row" markdown="1">
-
-  <div class="flex-col" markdown="1">
-
-  ## <span class="special">Spatial Locality</span>
-
-  This is the idea that if we access memory at address `x`, then we will most
-  likely access memory <strong class="special">near</strong> `x` soon in the future.
-
-  <div class="alert special-bg centered" markdown="1">
-
-  Accessing **elements** in **array** sequentially.
-
-  </div>
-
-  </div>
-
-  <div class="flex-col" markdown="1">
-
-  ## <span class="caution">Temporal Locality</span>
-
-  This is the idea that if we access an instruction or data item, then we will
-  most likely access it <strong class="caution">again</strong> soon in the
-  future.
-
-  <div class="alert caution-bg centered" markdown="1">
-
-  Accessing same **variable** in a **loop**.
-
-  </div>
-
-  </div>
+  By convention, **page** `0` is usually **invalid** to catch `NULL` **pointers**!
 
   </div>
 
@@ -215,16 +167,69 @@ body:   |
 
   </div>
 
+  ## TLBs: <span class="gold">Locality</span>
+
+  > **Demonstrate**: [locality.c](https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture17/locality.c)
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="special">Spatial Locality</span>
+
+  This is the idea that if we access memory at address `x`, then we will most
+  likely access memory <strong class="special">near</strong> `x` soon in the future.
+
+  <div class="alert special-bg centered" markdown="1">
+
+  Accessing **elements** in **array** sequentially.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="caution">Temporal Locality</span>
+
+  This is the idea that if we access an instruction or data item, then we will
+  most likely access it <strong class="caution">again</strong> soon in the
+  future.
+
+  <div class="alert caution-bg centered" markdown="1">
+
+  Accessing same **variable** in a **loop**.
+
+  </div>
+
+  </div>
+
+  </div>
+
+  <div class="alert success-bg centered" markdown="1">
+
+  **Analogy**: **Water bottle** is a **cache** for **water fountain**.
+
+  </div>
+
   ## TLBs: <span class="gold">Context Switch</span>
 
-  On each <strong class="warning">context switch</strong>, the <strong class="caution">operating
-  system</strong> must either:
+  <div class="alert warning-bg" markdown="1">
+
+  In **Computer Science**, we have `2` **major problems**:<br>
+
+  `1`. naming things, `2`. cache invalidation, `3`. and off by one errors.
+
+  </div>
+
+  On each <strong class="warning">context switch</strong>, the <strong
+  class="caution">operating system</strong> must either:
 
   <div class="alert danger-bg" markdown="1">
 
   **Flush** the <strong class="info">TLB</strong> to mark all entries as
   invalid so that we don't use a wrong <strong
-  class="warning">translation</strong>.
+  class="warning">translation</strong>. (*Meltdown*)
 
   </div>
 
@@ -248,7 +253,7 @@ body:   |
 
   <div class="flex-col" markdown="1">
 
-  ## <span class="info">Hardware</span>
+  ### <span class="info">Hardware</span>
 
   On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
   walks the <strong class="primary">page table</strong>, finds <strong
@@ -265,7 +270,7 @@ body:   |
 
   <div class="flex-col" markdown="1">
 
-  ## <span class="caution">Software</span>
+  ### <span class="caution">Software</span>
 
   On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
   raises an <strong class="warning">exception</strong>, and triggers a <strong
