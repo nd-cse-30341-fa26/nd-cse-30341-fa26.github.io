@@ -1,0 +1,529 @@
+title:  "Notes 17: TLBs, Multi-Level Paging"
+body:   |
+
+  ## Review: [Project 03]
+
+  <div class="centered">
+
+  <img src="static/img/notes16-malloc-block.svg" class="transparent responsive">
+
+  </div>
+
+  [Project 03]: project03.html
+
+  ## Review: <span class="gold">Paging</span>
+
+  - Split <strong class="info">physical memory</strong> into fixed sized
+  <strong class="info">Page Frames</strong>
+
+  - Split <strong class="warning">virtual memory</strong> (ie. <strong
+  class="success">address space</strong>) into <strong
+  class="warning">Pages</strong>
+
+  - Each <strong class="success">process</strong> has mapping of <strong
+  class="warning">Pages</strong> to <strong class="info">Page Frames</strong>
+  in <strong class="primary">Page Table</strong>
+
+  -   <div class="flex-col" markdown="1">
+
+      <strong class="info">MMU</strong> performs <strong
+      class="warning">translation</strong> on-demand
+
+      - <strong class="danger">Con</strong>: need `2` memory accesses ->
+      <strong class="special">caching</strong>
+
+      - <strong class="danger">Con</strong>: <strong class="primary">Page
+      Table</strong> stored in memory -> <strong
+      class="special">multi-level</strong>
+
+  ### Football Analogy
+
+  <div class="centered">
+
+  <img src="https://www.visitsouthbend.com/imager/files_idss_com/C532/62fb2879-accd-4fd2-bcd1-48aff9b0a7b8_b0799cbd572dd78746316d28b5c1bc75.jpg" class="transparent responsive">
+
+  </div>
+
+  - Divide **Field** into `10`-yard boxes (<strong
+  class="warning">pages</strong>).
+
+  - Assign offense, defense, and special teams (<strong
+  class="success">process</strong>) to different boxes.
+
+  - Store translation in end zone (<strong class="primary">page
+  table</strong>).
+
+  ## Paging: <span class="gold">Problems</span>
+
+  <div class="centered">
+
+  <img src="static/img/notebook17-paging-overview.svg" class="transparent responsive">
+
+  </div>
+
+  ### <span class="success">Observations</span>
+
+  1.  One <strong class="primary">page table</strong> per <strong
+  class="success">process</strong>.
+
+  2. <strong class="primary">Page table</strong> is stored in <strong
+  class="info">physical memory</strong>.
+
+  ### <span class="danger">Problems</span>
+
+  1.  <div class="flex-col" markdown="1">
+
+      Each <strong class="warning">virtual address translation</strong>
+      requires `2` <strong class="info">physical memory accesses</strong>.
+
+      <div class="alert success-bg centered">
+
+      **Cache (TLB)**
+
+      </div>
+
+  2.  <div class="flex-col" markdown="1">
+
+      <strong class="primary">Page table</strong> requires a lot of **physical
+      memory**.
+
+      <div class="alert success-bg centered">
+
+      **Multi-Level (Data Structure)**
+
+      </div>
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  **Page** `0` is usually **invalid** to catch `NULL` **pointers**!
+
+  </div>
+
+  ## Memory: <span class="gold">Hierarchy</span>
+
+  <img src="https://camo.githubusercontent.com/7b158d2ef5659efc05042f0d323530bfc3a82f1dc2dbf5401c2cd55f315036fb/687474703a2f2f692e696d6775722e636f6d2f6b307431652e706e67" class="responsive">
+
+  <div class="centered">
+
+  <a href="https://gist.github.com/hellerbarde/2843375">Latency numbers every
+  programmer should know</a>
+
+  </div>
+
+  <div class="alert success-bg centered" markdown="1">
+
+  **Caches** are important for **performance**!
+
+  </div>
+
+  ## Caching: <span class="gold">Locality</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="special">Spatial Locality</span>
+
+  This is the idea that if we access memory at address `x`, then we will most
+  likely access memory <strong class="special">near</strong> `x` soon in the future.
+
+  <div class="alert special-bg centered" markdown="1">
+
+  Accessing **elements** in **array** sequentially.
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="caution">Temporal Locality</span>
+
+  This is the idea that if we access an instruction or data item, then we will
+  most likely access it <strong class="caution">again</strong> soon in the
+  future.
+
+  <div class="alert caution-bg centered" markdown="1">
+
+  Accessing same **variable** in a **loop**.
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## TLBs: <span class="gold">Memory Access</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="danger">Problem</span>
+
+  Each <strong class="warning">virtual memory</strong> access requires <strong class="danger">two
+  fetches</strong> from <strong class="info">physical memory</strong>.
+
+  - The **first** for the <strong class="primary">PTE</strong> to perform the
+  <strong class="warning">address translation</strong>.
+
+  - The **second** for the data itself.
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="success">Solution</span>
+
+  Add a <strong class="success">cache</strong> called the <strong
+  class="special">translation-lookaside buffer (TLB)</strong> to the <strong
+  class="info">MMU</strong> and use it to store <strong class="warning">
+  address translations</strong>:
+
+  <div class="alert success-bg centered" markdown="1">
+
+  <i>Upon <strong class="warning">virtual memory reference</strong>, check <strong
+  class="special">TLB</strong> for translation, and if present use that without
+  consulting <strong class="primary">page table</strong>.</i>
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## TLBs: <span class="gold">Hardware Information</span>
+
+  The <strong class="info">MMU</strong> usually uses a <strong
+  class="success">fully associative cache</strong> (<i class="muted">entries can
+  go anywhere and the whole cache must be searched</i>) and usually stores
+  entries in the following format:
+
+  ```
+  VPN -> PFN | Other Bits
+  ```
+
+  Where other bits could be <strong class="special">valid bits</strong>, <strong
+  class="special">protection bits</strong>, <strong class="special">dirty
+  bits</strong>, <strong class="special">address space identifier</strong>, etc.
+
+  <div class="alert info-bg centered" markdown="1">
+
+  There may be multiple levels of <strong class="info">TLBs</strong> where the
+  smaller ones are <strong class="success">fully associative</strong> and the
+  large ones are <strong class="success">set associative</strong>.
+
+  </div>
+
+  ## TLBs: <span class="gold">Context Switch</span>
+
+  On each <strong class="warning">context switch</strong>, the <strong class="caution">operating
+  system</strong> must either:
+
+  <div class="alert danger-bg" markdown="1">
+
+  **Flush** the <strong class="info">TLB</strong> to mark all entries as
+  invalid so that we don't use a wrong <strong
+  class="warning">translation</strong>.
+
+  </div>
+
+  <div class="centered" markdown="1">
+
+  **OR**
+
+  </div>
+
+  <div class="alert success-bg" markdown="1">
+
+  Set the <strong class="special">ASID</strong> register to the current <strong
+  class="caution">PID</strong> so that the <strong class="info">MMU</strong>
+  knows which entries are valid.
+
+  </div>
+
+  ## TLBs: <span class="gold">Handling Misses</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="info">Hardware</span>
+
+  On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
+  walks the <strong class="primary">page table</strong>, finds <strong
+  class="primary">PTE</strong>, and updates the <strong class="info">TLB</strong>
+  with translation as described previously.
+
+  <div class="alert info-bg centered" markdown="1">
+
+  **x86**, **ARM**
+
+  </div>
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ## <span class="caution">Software</span>
+
+  On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
+  raises an <strong class="warning">exception</strong>, and triggers a <strong
+  class="caution">trap handler</strong>; <strong class="caution">OS</strong> then
+  looks up <strong class="primary">PTE</strong> and updates <strong
+  class="info">TLB</strong>.
+
+  <div class="alert caution-bg centered" markdown="1">
+
+  **SPARC**, **MIPS**
+
+  </div>
+
+  </div>
+
+  </div>
+
+  ## Multi-Level: <span class="gold">Page Table Size</span>
+
+  ### <span class="danger">Problem</span>
+
+  Simple <strong class="primary">array-based (linear) page tables</strong> are
+  <strong class="danger">too big</strong> and take up far <strong
+  class="danger">too much memory</strong>.
+
+  - We could make <strong class="caution">pages bigger</strong>, but then we would have to
+    deal with <strong class="danger">internal fragmentation</strong>.
+
+  - We could use a <strong class="warning">hybrid approach with segmentation</strong>, but then
+    we would still have problems with <strong class="danger">external fragmentation</strong> (<i
+    class="muted">variable size page tables</i>)
+
+  <div class="centered">
+
+  <img src="static/img/slides17-multi-level-problem.svg" class="transparent responsive">
+
+  </div>
+
+  This is an example of an <strong class="primary">array-based (linear) page table</strong>:
+
+  - Each <strong class="primary">PTE</strong> the <strong
+  class="info">PFN</strong> corresponding to the <strong
+  class="warning">VPN</strong> and bits.
+
+  - Because the <strong class="primary">page table</strong> itself is in
+  <strong class="info">memory</strong>, we can group sequences of <strong
+  class="primary">PTEs</strong> into <strong class="info">pages</strong>.
+
+      For instance, the first `4` <strong class="primary">PTEs</strong> belong to
+      the first <strong class="warning">page</strong> (of the <strong
+      class="primary">page table</strong>), which is located at <strong
+      class="info">physical page frame</strong> `200`.
+
+  - This data structure has a lot of <strong class="danger">wasted
+  space</strong> since we allocate <strong class="warning">pages</strong> for
+  invalid <strong class="primary">PTEs</strong>.
+
+  ### <span class="success">Solution</span>
+
+  <div class="centered">
+
+  <img src="static/img/slides17-multi-level-solution.svg" class="transparent responsive">
+
+  </div>
+
+  This is an example of a <strong class="primary">multi-level page table</strong>:
+
+  - A <strong class="caution">page directory</strong>, with <strong
+    class="caution">page directory entries (PDEs)</strong> tracks whether a
+    <strong class="warning">page</strong> of a <strong
+    class="primary">PTEs</strong> is valid and which <strong
+    class="info">PFN</strong> it maps to.
+
+  - Any invalid <strong class="warning">pages</strong> of the <strong
+    class="primary">page table</strong> remain <strong
+    class="danger">unallocated</strong>.
+
+  ## Multi-Level: <span class="gold">Checklist</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col centered" markdown="1">
+
+  `14-bit` **Virtual Address**
+
+  `16-bit` **Physical Address**
+
+  </div>
+
+  <div class="flex-col centered" markdown="1">
+
+  `64` byte **Page Size**
+
+  `4`  byte **PTE/PDE**
+
+  </div>
+
+  </div>
+
+  1.  <div class="flex-col" markdown="1">
+
+      How many **bytes** can we address?
+
+          :::bash
+          # 2^VIRTUAL_ADDRESS_LENGTH
+          2^14 = 16KB
+
+  2.  <div class="flex-col" markdown="1">
+
+      How many **pages** do we need?
+
+          :::bash
+          # Number of Pages = Total Bytes / Page Size
+          2^14 Bytes x Pages / 2^6 Bytes = 2^8 = 256 Pages
+
+  3.  <div class="flex-col" markdown="1">
+
+      How many **bits** in <strong class="special">VPN</strong>?
+
+          :::bash
+          # Exponent of Number of Pages
+          8
+
+  4.  <div class="flex-col" markdown="1">
+
+      How many **bits** in <strong class="warning">offset</strong>?
+
+          :::bash
+          # Exponent of Page Size
+          6
+
+  5.  <div class="flex-col" markdown="1">
+
+      How much **memory** does <strong class="primary">page table</strong> require?
+
+          :::bash
+          # Page Table Bytes = Number of Pages x PTE Size
+          2^8 x 2^2 = 2^10 = 1KB
+
+  6.  <div class="flex-col" markdown="1">
+
+      How many <strong class="warning">pages</strong> does <strong
+      class="primary">page table</strong> require?
+
+          :::bash
+          # Number of Pages = Page Table Bytes / Page Size
+          2^10 / 2^6 = 2^4 = 16 Pages
+
+  7.  <div class="flex-col" markdown="1">
+
+      How many <strong class="primary">PTEs</strong> per <strong
+      class="warning">page</strong>?
+
+          :::bash
+          # Number of PTEs per Page = Page Size / PTE Size
+          2^6 / 2^2 = 2^4 = 16 PTEs
+
+  8.  <div class="flex-col" markdown="1">
+
+      How many <strong class="caution">PDEs</strong> in <strong
+      class="caution">page directory</strong>?
+
+          :::bash
+          # Number of PDEs = Number of Pages for Page Table
+          2^10 / 2^6 = 2^4 = 16 PDEs
+
+  9.  <div class="flex-col" markdown="1">
+
+      How many **bits** in index <strong class="caution">page directory</strong>?
+
+          :::bash
+          # Exponent of Number of PDEs
+          4 bits
+
+  10. <div class="flex-col" markdown="1">
+
+      How many **bits** in index <strong class="primary">page table</strong>?
+
+          :::bash
+          # Exponent of Number of PTEs per Page
+          4 bits
+
+  11. <div class="flex-col" markdown="1">
+
+      How much **memory** does <strong class="caution">page directory</strong> require?
+
+          :::bash
+          # Page Directory Bytes = Number of PDEs x PDE Size
+          2^4 x 2^2 = 2^6 = 64 bytes
+
+  12. <div class="flex-col" markdown="1">
+
+      How many <strong class="warning">pages</strong> does <strong
+      class="caution">page directory</strong> require?
+
+          :::bash
+          # Number of Pages = Page Directory Bytes / Page Size
+          2^6 / 2^6 = 1
+
+  ## Multi-Level: <span class="gold">Summary</span>
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="success">Pros</span>
+
+  - Only allocates <strong class="primary">page table</strong> space in
+    proportion to the amount of <strong class="success">address space</strong> in
+    use.
+
+  - Easier to place into <strong class="info">physical memory</strong> due to
+    <strong class="warning">page</strong>-sized units.
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### <span class="danger">Cons</span>
+
+  - Requires additional <strong class="danger">loads from memory</strong> to
+    perform <strong class="warning">translation</strong> (<i
+    class="muted">time-space trade-off</i>).
+
+  - Adds additional <strong class="danger">complexity</strong> in order to improve memory usage.
+
+  </div>
+
+  </div>
+
+  ### Memory Hierarchy
+
+  <table class="bordered">
+  <tbody>
+  <tr class="centered">
+  <td><b class="success">Fast</b></td>
+  <td><b>Registers</b></td>
+  <td><b class="danger">Expensive, Small</b></td>
+  </tr>
+  <tr class="centered">
+  <td></td>
+  <td><b>Cache</b><td>
+  <td></td>
+  </tr>
+  <tr class="centered">
+  <td></td>
+  <td><b>RAM</b></td>
+  <td></td>
+  </tr>
+  <tr class="centered">
+  <td></td>
+  <td><b>HD</b></td>
+  <td></td>
+  </tr>
+  <tr class="centered">
+  <td><b class="danger">Slow</b></td>
+  <td><b>Cloud</b></td>
+  <td><b class="success">Cheap, Large</b></td>
+  </tr>
+  </tbody>
+  </table>

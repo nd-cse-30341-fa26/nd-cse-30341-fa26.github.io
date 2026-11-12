@@ -262,14 +262,46 @@ Accessing same **variable** in a **loop**.
 
 # TLBs: <span class="gold">Handling Misses</span>
 
-On a <strong class="danger">miss</strong>, the <strong class="info">MMU</strong> raises an
-<strong class="warning">exception</strong> and thus triggers a <strong class="caution">trap
-handler</strong>:
+<div class="columns">
 
-- The <strong class="caution">operating system kernel</strong> then looks up corresponding
-  <strong class="primary">page table entry</strong> and updates the <strong class="info">TLB</strong>.
+<div class="margin-top-0-5">
 
-- Need to be careful of <strong class="danger">infinite TLB misses</strong>.
+## <span class="info">Hardware</span>
+
+On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
+walks the <strong class="primary">page table</strong>, finds <strong
+class="primary">PTE</strong>, and updates the <strong class="info">TLB</strong>
+with translation as described previously.
+
+<br>
+
+<div class="alert info-bg centered">
+
+**x86**, **ARM**
+
+</div>
+
+</div>
+
+<div class="margin-top-0-5">
+
+## <span class="caution">Software</span>
+
+On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
+raises an <strong class="warning">exception</strong>, and triggers a <strong
+class="caution">trap handler</strong>; <strong class="caution">OS</strong> then
+looks up <strong class="primary">PTE</strong> and updates <strong
+class="info">TLB</strong>.
+
+<br>
+
+<div class="alert caution-bg centered">
+
+**SPARC**, **MIPS**
+
+</div>
+
+</div>
 
 ---
 
