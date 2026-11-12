@@ -22,6 +22,10 @@
         </ul>
 </nav></header>
 <main>
+<h2 id="logistics">Logistics<a class="headerlink" href="#logistics" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="interview03.html">Interview 03</a>: Memory Bugs in the context of <code>malloc</code>.</li>
+</ul>
 <h2 id="review-project-03">Review: <a href="project03.html">Project 03</a><a class="headerlink" href="#review-project-03" title="Permanent link">&para;</a></h2>
 <div class="centered">
 
@@ -79,8 +83,11 @@ class="warning">pages</strong>).</p>
 class="success">process</strong>) to different boxes.</p>
 </li>
 <li>
-<p>Store translation in end zone (<strong class="primary">page
-table</strong>).</p>
+<p>Marcus Freeman needs to know allocations (<strong class="primary">FreeList</strong>).</p>
+</li>
+<li>
+<p>Assistant Coaches need to know mapping of each unit (<strong
+class="primary">page table</strong>).</p>
 </li>
 </ul>
 <h2 id="paging-problems">Paging: <span class="gold">Problems</span><a class="headerlink" href="#paging-problems" title="Permanent link">&para;</a></h2>
@@ -121,39 +128,7 @@ memory</strong>.</p>
 </li>
 </ol>
 <div class="alert danger-bg centered">
-<p><strong>Page</strong> <code>0</code> is usually <strong>invalid</strong> to catch <code>NULL</code> <strong>pointers</strong>!</p>
-</div>
-<h2 id="memory-hierarchy">Memory: <span class="gold">Hierarchy</span><a class="headerlink" href="#memory-hierarchy" title="Permanent link">&para;</a></h2>
-<p><img src="https://camo.githubusercontent.com/7b158d2ef5659efc05042f0d323530bfc3a82f1dc2dbf5401c2cd55f315036fb/687474703a2f2f692e696d6775722e636f6d2f6b307431652e706e67" class="responsive"></p>
-<div class="centered">
-
-<a href="https://gist.github.com/hellerbarde/2843375">Latency numbers every
-programmer should know</a>
-
-</div>
-
-<div class="alert success-bg centered">
-<p><strong>Caches</strong> are important for <strong>performance</strong>!</p>
-</div>
-<h2 id="caching-locality">Caching: <span class="gold">Locality</span><a class="headerlink" href="#caching-locality" title="Permanent link">&para;</a></h2>
-<div class="flex-row">
-<div class="flex-col">
-<h2 id="spatial-locality"><span class="special">Spatial Locality</span><a class="headerlink" href="#spatial-locality" title="Permanent link">&para;</a></h2>
-<p>This is the idea that if we access memory at address <code>x</code>, then we will most
-likely access memory <strong class="special">near</strong> <code>x</code> soon in the future.</p>
-<div class="alert special-bg centered">
-<p>Accessing <strong>elements</strong> in <strong>array</strong> sequentially.</p>
-</div>
-</div>
-<div class="flex-col">
-<h2 id="temporal-locality"><span class="caution">Temporal Locality</span><a class="headerlink" href="#temporal-locality" title="Permanent link">&para;</a></h2>
-<p>This is the idea that if we access an instruction or data item, then we will
-most likely access it <strong class="caution">again</strong> soon in the
-future.</p>
-<div class="alert caution-bg centered">
-<p>Accessing same <strong>variable</strong> in a <strong>loop</strong>.</p>
-</div>
-</div>
+<p>By convention, <strong>page</strong> <code>0</code> is usually <strong>invalid</strong> to catch <code>NULL</code> <strong>pointers</strong>!</p>
 </div>
 <h2 id="tlbs-memory-access">TLBs: <span class="gold">Memory Access</span><a class="headerlink" href="#tlbs-memory-access" title="Permanent link">&para;</a></h2>
 <div class="flex-row">
@@ -200,13 +175,43 @@ bits</strong>, <strong class="special">address space identifier</strong>, etc.</
 smaller ones are <strong class="success">fully associative</strong> and the
 large ones are <strong class="success">set associative</strong>.</p>
 </div>
+<h2 id="tlbs-locality">TLBs: <span class="gold">Locality</span><a class="headerlink" href="#tlbs-locality" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Demonstrate</strong>: <a href="https://github.com/nd-cse-30341-fa26/examples/blob/master/lecture17/locality.c">locality.c</a></p>
+</blockquote>
+<div class="flex-row">
+<div class="flex-col">
+<h2 id="spatial-locality"><span class="special">Spatial Locality</span><a class="headerlink" href="#spatial-locality" title="Permanent link">&para;</a></h2>
+<p>This is the idea that if we access memory at address <code>x</code>, then we will most
+likely access memory <strong class="special">near</strong> <code>x</code> soon in the future.</p>
+<div class="alert special-bg centered">
+<p>Accessing <strong>elements</strong> in <strong>array</strong> sequentially.</p>
+</div>
+</div>
+<div class="flex-col">
+<h2 id="temporal-locality"><span class="caution">Temporal Locality</span><a class="headerlink" href="#temporal-locality" title="Permanent link">&para;</a></h2>
+<p>This is the idea that if we access an instruction or data item, then we will
+most likely access it <strong class="caution">again</strong> soon in the
+future.</p>
+<div class="alert caution-bg centered">
+<p>Accessing same <strong>variable</strong> in a <strong>loop</strong>.</p>
+</div>
+</div>
+</div>
+<div class="alert success-bg centered">
+<p><strong>Analogy</strong>: <strong>Water bottle</strong> is a <strong>cache</strong> for <strong>water fountain</strong>.</p>
+</div>
 <h2 id="tlbs-context-switch">TLBs: <span class="gold">Context Switch</span><a class="headerlink" href="#tlbs-context-switch" title="Permanent link">&para;</a></h2>
-<p>On each <strong class="warning">context switch</strong>, the <strong class="caution">operating
-system</strong> must either:</p>
+<div class="alert warning-bg">
+<p>In <strong>Computer Science</strong>, we have <code>2</code> <strong>major problems</strong>:<br></p>
+<p><code>1</code>. naming things, <code>2</code>. cache invalidation, <code>3</code>. and off by one errors.</p>
+</div>
+<p>On each <strong class="warning">context switch</strong>, the <strong
+class="caution">operating system</strong> must either:</p>
 <div class="alert danger-bg">
 <p><strong>Flush</strong> the <strong class="info">TLB</strong> to mark all entries as
 invalid so that we don't use a wrong <strong
-class="warning">translation</strong>.</p>
+class="warning">translation</strong>. (<em>Meltdown</em>)</p>
 </div>
 <div class="centered">
 <p><strong>OR</strong></p>
@@ -219,7 +224,7 @@ knows which entries are valid.</p>
 <h2 id="tlbs-handling-misses">TLBs: <span class="gold">Handling Misses</span><a class="headerlink" href="#tlbs-handling-misses" title="Permanent link">&para;</a></h2>
 <div class="flex-row">
 <div class="flex-col">
-<h2 id="hardware"><span class="info">Hardware</span><a class="headerlink" href="#hardware" title="Permanent link">&para;</a></h2>
+<h3 id="hardware"><span class="info">Hardware</span><a class="headerlink" href="#hardware" title="Permanent link">&para;</a></h3>
 <p>On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
 walks the <strong class="primary">page table</strong>, finds <strong
 class="primary">PTE</strong>, and updates the <strong class="info">TLB</strong>
@@ -229,7 +234,7 @@ with translation as described previously.</p>
 </div>
 </div>
 <div class="flex-col">
-<h2 id="software"><span class="caution">Software</span><a class="headerlink" href="#software" title="Permanent link">&para;</a></h2>
+<h3 id="software"><span class="caution">Software</span><a class="headerlink" href="#software" title="Permanent link">&para;</a></h3>
 <p>On <strong class="danger">miss</strong>, <strong class="info">MMU</strong>
 raises an <strong class="warning">exception</strong>, and triggers a <strong
 class="caution">trap handler</strong>; <strong class="caution">OS</strong> then
@@ -449,7 +454,7 @@ class="caution">page directory</strong> require?</p>
 </ul>
 </div>
 </div>
-<h3 id="memory-hierarchy_1">Memory Hierarchy<a class="headerlink" href="#memory-hierarchy_1" title="Permanent link">&para;</a></h3>
+<h3 id="memory-hierarchy">Memory Hierarchy<a class="headerlink" href="#memory-hierarchy" title="Permanent link">&para;</a></h3>
 <table class="bordered">
 <tbody>
 <tr class="centered">
