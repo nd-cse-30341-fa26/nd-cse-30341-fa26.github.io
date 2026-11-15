@@ -1,0 +1,366 @@
+title:  "Exam 03: Study Guide"
+body:   |
+
+  ## Address Space
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### Key Conceptual Questions
+
+  1. What is an **address space**?
+
+  2. What is **virtual memory**?
+
+  3. How do we **allocate memory**?
+
+  4. What are some **common memory errors**?
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### Examples
+
+  Which of following **statements** are **true**?
+
+  1. Because each **thread** in a **process** has a separate **address space**,
+  we need to use **mutexes** or **semaphores** to synchronize access to
+  **critical sections**.
+
+  2. **Malloc** is in charge of translating **virtual addresses** to **physical
+  addresses**.
+
+  3. One of the primary goals of an **address space** is to provide the
+  **illusion** of **infinite memory**.
+
+  </div>
+
+  </div>
+
+  ## Heap Management
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### Key Conceptual Questions
+
+  1. Who needs to keep **track of memory**?
+
+  2. What **data structures** do we use to keep **track of memory**?
+
+  3. What are some **strategies** for **managing memory**?
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### Examples
+
+  Which of following **statements** are **true**?
+
+  1. A **double free** occurs when we try to **free memory** that has already
+  been **freed**.
+
+  2. **External fragmentation** occurs when we **over allocate** a block of
+  memory.
+
+  3. While **malloc** is a **system call**, **calloc** is not.
+
+  </div>
+
+  </div>
+
+  ## Virtual Memory
+
+  <div class="flex-row" markdown="1">
+
+  <div class="flex-col" markdown="1">
+
+  ### Key Conceptual Questions
+
+  Given **base and bounds**, **segmentation**, and **paging**:
+
+  1. What are the **advantages** and **disadvantages** of each?
+
+  2. How does the **MMU** support each?
+
+  </div>
+
+  <div class="flex-col" markdown="1">
+
+  ### Examples
+
+  Given **base and bounds**, **segmentation**, and **paging**, which of
+  following **statements** are **true**?
+
+  1. Suffers from **external fragmentation**.
+
+  2. Easily supports **code sharing**.
+
+  3. Depends upon **extra hardware support** for efficient operation.
+
+  </div>
+
+  </div>
+
+  ## Address Translation: <span class="gold">Segmentation</span>
+
+  <table class="bordered">
+  <thead>
+    <th>Segment</th>
+    <th>Base</th>
+    <th>Bounds</th>
+    <th>Virtual Address</th>
+  </thead>
+  <tbody>
+    <tr class="centered">
+      <td><b>Code</b></td>
+      <td>7K</td>
+      <td>1K</td>
+      <td rowspan="4"><b>1100 0000 0101 0111</b></td>
+    </tr>
+    <tr class="centered">
+      <td><b>Data</b></td>
+      <td>4K</td>
+      <td>2K</td>
+    </tr>
+    <tr class="centered">
+      <td><b>Heap</b></td>
+      <td>9K</td>
+      <td>4K</td>
+    </tr>
+    <tr class="centered">
+      <td><b>Stack</b></td>
+      <td>1K</td>
+      <td>3K</td>
+    </tr>
+  </tbody>
+  </table>
+
+  Given the **segmentation table** and **virtual address** above, **answer**
+  the following **questions**:
+
+  1. Which **segment** is this **virtual address** located in?
+
+  2. What is the **physical address** of this **virtual address** translates to
+  (*in hexadecimal*)?
+
+  3. Does **writing** to this **virtual address** lead to a **segmentation
+  fault**?
+
+  ## Address Translation: <span class="gold">Paging</span>
+
+  <table class="bordered">
+  <thead>
+    <th>VPN</th>
+    <th>PFN</th>
+    <th>Valid</th>
+    <th>Protected</th>
+    <th>Virtual Address</th>
+  </thead>
+  <tbody>
+    <tr class="centered" style="font-weight: bold;">
+      <td>0</td>
+      <td>5</td>
+      <td>1</td>
+      <td>1</td>
+      <td rowspan="16">1000 0001 1001 1011</td>
+    </tr>
+    <tr class="centered" style="font-weight: bold;">
+      <td>1</td>
+      <td>9</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="centered" style="font-weight: bold;">
+      <td>2</td>
+      <td>A</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="centered">
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered" style="font-weight: bold;">
+      <td>4</td>
+      <td>7</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>6</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered" style="font-weight: bold;">
+      <td>8</td>
+      <td>C</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>9</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>A</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>B</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>C</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>D</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered">
+      <td>E</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="centered" style="font-weight: bold;">
+      <td>F</td>
+      <td>B</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+  </table>
+
+  Given the **paging table** and **virtual address** above, **answer**
+  the following **questions**:
+
+  1. Which **segment** is this **virtual address** located in?
+
+  2. What is the **physical address** of this **virtual address** translates to
+  (*in hexadecimal*)?
+
+  3. Does **writing** to this **virtual address** lead to a **segmentation
+  fault** or **protection fault**?
+
+  ## Multi-Level Page Table
+
+  Given a multi-level page table with the following properties:
+
+  <table class="bordered" markdown="1">
+  <tbody markdown="1">
+  <tr markdown="1">
+    <td class="centered" markdown="1">`32-bit` Physical Address</td>
+    <td class="centered" markdown="1">`30-bit` Virtual Address</td>
+  </tr>
+  <tr markdown="1">
+    <td class="centered" markdown="1">`4KB` Pages</td>
+    <td class="centered" markdown="1">`4 bytes` per PTE or PDE</td>
+  </tr>
+  </tbody>
+  </table>
+
+  **Answer the **questions** below.  When appropriate, write the **answer** as a **power of**
+  `2` (*optional: simplify it in terms of `K`, `M`, `G`, or `T` units*).
+
+  ### Pages
+
+  1. What is the **maximum number** of **addressable bytes**?
+
+  2. How many **pages** are there in the **virtual address space**?
+
+  3. How many **VPN bits** are there in the **virtual address**?
+
+  4. How many **offset bits** are there in the **virtual address**?
+
+  ### Page Table
+
+  1. How many **PTEs** are there in the **Page Table**?
+
+  2. How many **bytes** are required to store just the **Page Table**?
+
+  3. How many **pages** are required to store just the **Page Table**?
+
+  ### Page Directory
+
+  1. How many **PDEs** in the **Page Directory**?
+
+  2. How many **PDI bits** are in the **VPN**?
+
+  3. How many **PTI bits** are in the **VPN**?
+
+  4. How many **bytes** are required to store just the **Page Directory**?
+
+  5. How many **pages** are required to store just the **Page Directory**?
+
+  ## Project 03
+
+  Given the following `C` program, complete the table of `Counters` after
+  executing the program using your `libmalloc-ff.so` from **Project 03**:
+
+  ```c
+  int main() {
+      int **p = calloc(1<<4, sizeof(int *));
+
+      for (int i = 0; i < 1<<4; i++) {
+          p[i] = malloc(sizeof(int))
+      }
+
+      free(p);
+      return 0;
+  }
+  ```
+
+  <table class="bordered">
+  <thead>
+    <th>Counter</th>
+    <th>Value</th>
+  </thead>
+  <tbody>
+    <tr class="centered"><td style="font-weight: bold;">Free Blocks</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Mallocs</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Frees</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Reuses</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Grows</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Shrinks</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Splits</td><td>________________</td></tr>
+    <tr class="centered"><td class="centered" style="font-weight: bold;">Merges</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Requested</td><td>________________</td></tr>
+    <tr class="centered"><td style="font-weight: bold;">Heap Size</td><td>________________</td></tr>
+  </tbody>
+  </table>
+
+  For each of the following, **identify** whether the statement is `True` or `False`.
+
+  1. The program has significant amounts of **internal fragmentation**.
+  2. At the end of the program, there is a **memory leak**.

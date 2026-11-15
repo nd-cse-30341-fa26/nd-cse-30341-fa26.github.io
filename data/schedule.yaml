@@ -221,6 +221,7 @@
           - Interview 03
         items:
           - name:       Exam 03
+            link:       studyguide03.html
 
 - name:     "Unit 04: Persistence with File Systems"
 
