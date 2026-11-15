@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Exam 03: Study Guide</title>
+</head>
+<body>
+<header>
+<a class="logo" href="studyguide03.html">
+    <h1>Exam 03: Study Guide</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<h2 id="address-space">Address Space<a class="headerlink" href="#address-space" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<h3 id="key-conceptual-questions">Key Conceptual Questions<a class="headerlink" href="#key-conceptual-questions" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>What is an <strong>address space</strong>?</p>
+</li>
+<li>
+<p>What is <strong>virtual memory</strong>?</p>
+</li>
+<li>
+<p>How do we <strong>allocate memory</strong>?</p>
+</li>
+<li>
+<p>What are some <strong>common memory errors</strong>?</p>
+</li>
+</ol>
+</div>
+<div class="flex-col">
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<p>Which of following <strong>statements</strong> are <strong>true</strong>?</p>
+<ol>
+<li>
+<p>Because each <strong>thread</strong> in a <strong>process</strong> has a separate <strong>address space</strong>,
+we need to use <strong>mutexes</strong> or <strong>semaphores</strong> to synchronize access to
+<strong>critical sections</strong>.</p>
+</li>
+<li>
+<p><strong>Malloc</strong> is in charge of translating <strong>virtual addresses</strong> to <strong>physical
+addresses</strong>.</p>
+</li>
+<li>
+<p>One of the primary goals of an <strong>address space</strong> is to provide the
+<strong>illusion</strong> of <strong>infinite memory</strong>.</p>
+</li>
+</ol>
+</div>
+</div>
+<h2 id="heap-management">Heap Management<a class="headerlink" href="#heap-management" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<h3 id="key-conceptual-questions_1">Key Conceptual Questions<a class="headerlink" href="#key-conceptual-questions_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Who needs to keep <strong>track of memory</strong>?</p>
+</li>
+<li>
+<p>What <strong>data structures</strong> do we use to keep <strong>track of memory</strong>?</p>
+</li>
+<li>
+<p>What are some <strong>strategies</strong> for <strong>managing memory</strong>?</p>
+</li>
+</ol>
+</div>
+<div class="flex-col">
+<h3 id="examples_1">Examples<a class="headerlink" href="#examples_1" title="Permanent link">&para;</a></h3>
+<p>Which of following <strong>statements</strong> are <strong>true</strong>?</p>
+<ol>
+<li>
+<p>A <strong>double free</strong> occurs when we try to <strong>free memory</strong> that has already
+been <strong>freed</strong>.</p>
+</li>
+<li>
+<p><strong>External fragmentation</strong> occurs when we <strong>over allocate</strong> a block of
+memory.</p>
+</li>
+<li>
+<p>While <strong>malloc</strong> is a <strong>system call</strong>, <strong>calloc</strong> is not.</p>
+</li>
+</ol>
+</div>
+</div>
+<h2 id="virtual-memory">Virtual Memory<a class="headerlink" href="#virtual-memory" title="Permanent link">&para;</a></h2>
+<div class="flex-row">
+<div class="flex-col">
+<h3 id="key-conceptual-questions_2">Key Conceptual Questions<a class="headerlink" href="#key-conceptual-questions_2" title="Permanent link">&para;</a></h3>
+<p>Given <strong>base and bounds</strong>, <strong>segmentation</strong>, and <strong>paging</strong>:</p>
+<ol>
+<li>
+<p>What are the <strong>advantages</strong> and <strong>disadvantages</strong> of each?</p>
+</li>
+<li>
+<p>How does the <strong>MMU</strong> support each?</p>
+</li>
+</ol>
+</div>
+<div class="flex-col">
+<h3 id="examples_2">Examples<a class="headerlink" href="#examples_2" title="Permanent link">&para;</a></h3>
+<p>Given <strong>base and bounds</strong>, <strong>segmentation</strong>, and <strong>paging</strong>, which of
+following <strong>statements</strong> are <strong>true</strong>?</p>
+<ol>
+<li>
+<p>Suffers from <strong>external fragmentation</strong>.</p>
+</li>
+<li>
+<p>Easily supports <strong>code sharing</strong>.</p>
+</li>
+<li>
+<p>Depends upon <strong>extra hardware support</strong> for efficient operation.</p>
+</li>
+</ol>
+</div>
+</div>
+<h2 id="address-translation-segmentation">Address Translation: <span class="gold">Segmentation</span><a class="headerlink" href="#address-translation-segmentation" title="Permanent link">&para;</a></h2>
+<table class="bordered">
+<thead>
+  <th>Segment</th>
+  <th>Base</th>
+  <th>Bounds</th>
+  <th>Virtual Address</th>
+</thead>
+<tbody>
+  <tr class="centered">
+    <td><b>Code</b></td>
+    <td>7K</td>
+    <td>1K</td>
+    <td rowspan="4"><b>1100 0000 0101 0111</b></td>
+  </tr>
+  <tr class="centered">
+    <td><b>Data</b></td>
+    <td>4K</td>
+    <td>2K</td>
+  </tr>
+  <tr class="centered">
+    <td><b>Heap</b></td>
+    <td>9K</td>
+    <td>4K</td>
+  </tr>
+  <tr class="centered">
+    <td><b>Stack</b></td>
+    <td>1K</td>
+    <td>3K</td>
+  </tr>
+</tbody>
+</table>
+
+<p>Given the <strong>segmentation table</strong> and <strong>virtual address</strong> above, <strong>answer</strong>
+the following <strong>questions</strong>:</p>
+<ol>
+<li>
+<p>Which <strong>segment</strong> is this <strong>virtual address</strong> located in?</p>
+</li>
+<li>
+<p>What is the <strong>physical address</strong> of this <strong>virtual address</strong> translates to
+(<em>in hexadecimal</em>)?</p>
+</li>
+<li>
+<p>Does <strong>writing</strong> to this <strong>virtual address</strong> lead to a <strong>segmentation
+fault</strong>?</p>
+</li>
+</ol>
+<h2 id="address-translation-paging">Address Translation: <span class="gold">Paging</span><a class="headerlink" href="#address-translation-paging" title="Permanent link">&para;</a></h2>
+<table class="bordered">
+<thead>
+  <th>VPN</th>
+  <th>PFN</th>
+  <th>Valid</th>
+  <th>Protected</th>
+  <th>Virtual Address</th>
+</thead>
+<tbody>
+  <tr class="centered" style="font-weight: bold;">
+    <td>0</td>
+    <td>5</td>
+    <td>1</td>
+    <td>1</td>
+    <td rowspan="16">1000 0001 1001 1011</td>
+  </tr>
+  <tr class="centered" style="font-weight: bold;">
+    <td>1</td>
+    <td>9</td>
+    <td>1</td>
+    <td>1</td>
+  </tr>
+  <tr class="centered" style="font-weight: bold;">
+    <td>2</td>
+    <td>A</td>
+    <td>1</td>
+    <td>1</td>
+  </tr>
+  <tr class="centered">
+    <td>3</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered" style="font-weight: bold;">
+    <td>4</td>
+    <td>7</td>
+    <td>1</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>5</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>6</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>7</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered" style="font-weight: bold;">
+    <td>8</td>
+    <td>C</td>
+    <td>1</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>9</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>A</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>B</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>C</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>D</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered">
+    <td>E</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  </tr>
+  <tr class="centered" style="font-weight: bold;">
+    <td>F</td>
+    <td>B</td>
+    <td>1</td>
+    <td>0</td>
+  </tr>
+</tbody>
+</table>
+
+<p>Given the <strong>paging table</strong> and <strong>virtual address</strong> above, <strong>answer</strong>
+the following <strong>questions</strong>:</p>
+<ol>
+<li>
+<p>Which <strong>segment</strong> is this <strong>virtual address</strong> located in?</p>
+</li>
+<li>
+<p>What is the <strong>physical address</strong> of this <strong>virtual address</strong> translates to
+(<em>in hexadecimal</em>)?</p>
+</li>
+<li>
+<p>Does <strong>writing</strong> to this <strong>virtual address</strong> lead to a <strong>segmentation
+fault</strong> or <strong>protection fault</strong>?</p>
+</li>
+</ol>
+<h2 id="multi-level-page-table">Multi-Level Page Table<a class="headerlink" href="#multi-level-page-table" title="Permanent link">&para;</a></h2>
+<p>Given a multi-level page table with the following properties:</p>
+<table class="bordered">
+<tbody>
+<tr>
+<td class="centered"><code>32-bit</code> Physical Address</td>
+<td class="centered"><code>30-bit</code> Virtual Address</td>
+</tr>
+<tr>
+<td class="centered"><code>4KB</code> Pages</td>
+<td class="centered"><code>4 bytes</code> per PTE or PDE</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Answer the </strong>questions<strong> below.  When appropriate, write the </strong>answer<strong> as a </strong>power of<em><em>
+<code>2</code> (</em>optional: simplify it in terms of <code>K</code>, <code>M</code>, <code>G</code>, or <code>T</code> units</em>).</p>
+<h3 id="pages">Pages<a class="headerlink" href="#pages" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>What is the <strong>maximum number</strong> of <strong>addressable bytes</strong>?</p>
+</li>
+<li>
+<p>How many <strong>pages</strong> are there in the <strong>virtual address space</strong>?</p>
+</li>
+<li>
+<p>How many <strong>VPN bits</strong> are there in the <strong>virtual address</strong>?</p>
+</li>
+<li>
+<p>How many <strong>offset bits</strong> are there in the <strong>virtual address</strong>?</p>
+</li>
+</ol>
+<h3 id="page-table">Page Table<a class="headerlink" href="#page-table" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>How many <strong>PTEs</strong> are there in the <strong>Page Table</strong>?</p>
+</li>
+<li>
+<p>How many <strong>bytes</strong> are required to store just the <strong>Page Table</strong>?</p>
+</li>
+<li>
+<p>How many <strong>pages</strong> are required to store just the <strong>Page Table</strong>?</p>
+</li>
+</ol>
+<h3 id="page-directory">Page Directory<a class="headerlink" href="#page-directory" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>How many <strong>PDEs</strong> in the <strong>Page Directory</strong>?</p>
+</li>
+<li>
+<p>How many <strong>PDI bits</strong> are in the <strong>VPN</strong>?</p>
+</li>
+<li>
+<p>How many <strong>PTI bits</strong> are in the <strong>VPN</strong>?</p>
+</li>
+<li>
+<p>How many <strong>bytes</strong> are required to store just the <strong>Page Directory</strong>?</p>
+</li>
+<li>
+<p>How many <strong>pages</strong> are required to store just the <strong>Page Directory</strong>?</p>
+</li>
+</ol>
+<h2 id="project-03">Project 03<a class="headerlink" href="#project-03" title="Permanent link">&para;</a></h2>
+<p>Given the following <code>C</code> program, complete the table of <code>Counters</code> after
+executing the program using your <code>libmalloc-ff.so</code> from <strong>Project 03</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">**</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">));</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<table class="bordered">
+<thead>
+  <th>Counter</th>
+  <th>Value</th>
+</thead>
+<tbody>
+  <tr class="centered"><td style="font-weight: bold;">Free Blocks</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Mallocs</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Frees</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Reuses</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Grows</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Shrinks</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Splits</td><td>________________</td></tr>
+  <tr class="centered"><td class="centered" style="font-weight: bold;">Merges</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Requested</td><td>________________</td></tr>
+  <tr class="centered"><td style="font-weight: bold;">Heap Size</td><td>________________</td></tr>
+</tbody>
+</table>
+
+<p>For each of the following, <strong>identify</strong> whether the statement is <code>True</code> or <code>False</code>.</p>
+<ol>
+<li>The program has significant amounts of <strong>internal fragmentation</strong>.</li>
+<li>At the end of the program, there is a <strong>memory leak</strong>.</li>
+</ol>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
