@@ -126,7 +126,7 @@ body:       |
         </div>
 
     Once you have a working [malloc] implementation (as verified by the
-    provided functional and unit tests), you are to analyze the metrics above
+    provided functional and unit tests), you should examine the metrics above
     for the different heap management strategies.
 
     <div class="alert danger-bg" markdown="1">
