@@ -214,6 +214,8 @@
           - Project 03
         items:
           - name:       Slides 18
+          - name:       Panopto
+            link:       https://notredame.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=807d75a8-9e92-47ac-a82c-b505010a46db
 
       - date:           Thu 11/19
         topics:         ''
