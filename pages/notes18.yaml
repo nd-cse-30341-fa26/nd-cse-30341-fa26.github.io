@@ -54,6 +54,9 @@ body:   |
 
   - Most **Physical Memory (500MB)** is due to **Page Table**!
 
+  - Replace `malloc` with `calloc` -> `RES` grows, but not all the way (**OS**
+  does not actually *zero* until necessary).
+
   - **COW**: `fork()` conceptually copies **address space**, but underneath
   just has a reference and only copies on modification.
 
