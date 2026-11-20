@@ -1,0 +1,54 @@
+{
+    "q01": {
+        "type": "blank",
+        "question": "\n<p>In a typical computer, the CPU is connected to I/O devices via a hierarchy of\ncommunication busses or interconnects:</p>\n\n<ol>\n\n<li><b>(1)</b> ____ bus: This is the interconnect between the <b>CPU</b> and <b>main memory</b>.</li>\n\n<li><b>(2)</b> ____ bus: This is the interconnect between the <b>CPU</b> and\n<b>higher-performance devices</b> such as GPUs.</li>\n\n<li><b>(3)</b> ____ bus: This is the interconnect between the <b>CPU</b>\nand <b>slower devices</b> such as disks and mice.</li>\n\n</ol>\n\n<p>While some I/O devices are simple, more complex I/O devices may\ninclude a simple <b>(4)</b> ____ and some general purpose <b>(5)</b>\n____.  They may even require <b>(6)</b> ____ or software embedded in the\ndevice to implement certain aspects of its functionality.</p>\n"
+    },
+    "q02": {
+        "type": "multiple",
+        "question": "\n<p>Regarding interacting with <b>I/O devices</b>, which of the following\nstatements are true (<i>choose all that apply</i>)?</p>\n",
+        "responses": {
+            "pio_poll": "<b>Programmed I/O (PIO)</b> involves the OS polling the I/O device.",
+            "interrupts": "<b>Interrupts</b> allow the OS to overlap computation and I/O.",
+            "efficiency": "Using <b>interrupts</b> are always more efficient than PIO.",
+            "dma": "The <b>direct memory access (DMA)</b> orchestrates transfers between devices and main memory so the CPU doesn't need to.",
+            "drivers": "The OS abstracts the interaction with I/O devices via <b>device drivers</b>."
+        }
+    },
+    "q03": {
+        "type": "blank",
+        "question": "\n<p>Like main memory, modern disk drives can be viewed as an array of\n<b>(1)</b> ____.  Although multi-sector operations are possible,\nmanufacturers only guarantee that a single <b>(2)</b> ____ byte write is\natomic.</p>\n\n<p>In terms of geometry, a modern disk consists of one or more circular\nhard surfaces called a <b>(3)</b> ____ on which data is stored\npersistently by inducing magnetic changes to it.  These disks are bundled\ntogether around the <b>(4)</b> ____, which is connected to a motor that\nsurfaces around at a constant rate measured in <b>(5)</b> ____.  The data\non these surfaces are encoded in concentric <b>(6)</b> ____, which are\ntightly packed together on the surface.</p>\n\n<p>To read and write from the surface, a <b>(7)</b> ____ is moved to position the\n<b>(8)</b> ____ over the desired portion of the disk.</p>\n"
+    },
+    "q04": {
+        "type": "multiple",
+        "question": "\n<p>Regarding <b>disk drives</b>, which of the following statements are true\n(<i>choose all that apply</i>)?</p>\n",
+        "responses": {
+            "delay": "The rotational delay is the time it takes for the a desired sector to rotate to the disk head.",
+            "seek": "A seek involves moving the disk arm to the appropriate track and is costly.",
+            "coasting": "When a disk arm is coasting, it is stationary and waiting for the appropriate track.",
+            "settling": "After as seek, there is a settling time to ensure the disk head is over the appropriae track.",
+            "back": "Write-back caching appears faster but can be dangerous."
+        }
+    },
+    "q05": {
+        "type": "order",
+        "question": "\n<p>As with processes, the OS can schedule the order of I/O requests using a\nvariety of <b>disk scheduling algorithms</b>.  Match the following definitions\nwith their labels.</p>\n\n<ol>\n\n  <li>This strategy involves <b>sweeping across the disk</b> and servicing\n  requests as it moves across the tracks.</li>\n\n  <li>This strategy <b>orders the queue of I/O requests</b> by track and picks\n  the nearest tracks to complete first.</li>\n\n  <li>This strategy <b>selects the track with the shortest access time</b>,\n  factoring in seek and rotational time.</li>\n\n</ol>\n",
+        "responses": {
+            "ssft": "Shortest Seek Time First",
+            "elevator": "Elevator",
+            "sptf": "Shortest Positioning Time First"
+        }
+    },
+    "q06": {
+        "type": "blank",
+        "question": "\n<p><b>(1)</b> ____ is a technique for using multiple disks to build faster,\nbigger, and more reliable storage system.  Although these systems consist\nof multiple disks, the aggregation itself appears a single disk device with\nimproved:</p>\n\n<ol>\n  <li><b>(2)</b> ____: due to <b>parallel I/O operations</b>.</li>\n  <li><b>(3)</b> ____: due to the <b>use of multiple large disks</b>.</li>\n  <li><b>(4)</b> ____: due to <b>spreading data across multiple disks</b>.</li>\n</ol>\n\n<p>To do this, these multi-disk configurations can use <b>(5)</b> ____ where two\ncopies of data is stored, or <b>(6)</b> ____ where blocks are stored across multiple\ndisks.</p>\n"
+    },
+    "q07": {
+        "type": "order",
+        "question": "\n<p>Match the following descriptions with the correct <b>RAID</b> strategy.</p>\n\n<ol>\n\n  <li>In this strategy, we have only perform <b>mirroring</b>.</li>\n  <li>In this strategy, we have <b>striping</b> but no redundancy.</li>\n  <li>In this strategy, we <b>rotate the parity block</b> across multiple disks.</li>\n\n</ol>\n",
+        "responses": {
+            "raid0": "RAID 0",
+            "raid1": "RAID 1",
+            "raid5": "RAID 5"
+        }
+    }
+}
