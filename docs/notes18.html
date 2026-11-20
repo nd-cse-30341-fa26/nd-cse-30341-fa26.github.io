@@ -81,6 +81,10 @@ virtual memory</strong>?</p>
 <p>Most <strong>Physical Memory (500MB)</strong> is due to <strong>Page Table</strong>!</p>
 </li>
 <li>
+<p>Replace <code>malloc</code> with <code>calloc</code> -&gt; <code>RES</code> grows, but not all the way (<strong>OS</strong>
+does not actually <em>zero</em> until necessary).</p>
+</li>
+<li>
 <p><strong>COW</strong>: <code>fork()</code> conceptually copies <strong>address space</strong>, but underneath
 just has a reference and only copies on modification.</p>
 </li>
