@@ -1,0 +1,86 @@
+{
+    "q01": {
+        "type": "blank",
+        "question": "\n<p>One way to view file systems is that these are persistent <b>(1)</b> ____ or\norganizations of data and associated meta-data.  File systems usually\ndivide the disk into a series of <b>(2)</b> ____ sized <b>(3)</b> ____.</p>\n\n<p>The vast majority of this space is reserved for user data and is\nreferred to as the <b>(4)</b> ____.   The remaining portion includes\nspace called the <b>(5)</b> ____, which stores <b>(6)</b> ____ structures\nthat record the metadata information of the data blocks.</p>\n\n<p>Likewise, an <b>(7)</b> ____ structure is required to track whether\ninodes or data blocks are free.  This can be implemented as either a free\nlist or a <b>(8)</b> ____.</p>\n\n<p>Finally, the last piece of the file system is the <b>(9)</b> ____,\nwhich contains information about the filesystem such as how many of each\nparticular type of block it contains.</p>\n"
+    },
+    "q02": {
+        "type": "multiple",
+        "question": "\n<p>Regarding <b>inodes</b>, which of the following statements are true (<i>choose\nall that apply</i>)?</p>\n",
+        "responses": {
+            "size": "An <b>inode</b> contains a file's size and number of allocated blocks.",
+            "path": "An <b>inode</b> contains a file's path.",
+            "direct": "<b>Direct pointers</b> track other <b>inodes</b>.",
+            "indirect": "<b>Indirect pointers</b> refer to a block that contains additional pointers to user data.",
+            "ext2": "Linux's ext2 uses a <b>multi-level index</b> with pointers.",
+            "ext4": "Linux's ext4 uses <b>extents</b> rather than pointers.",
+            "fat": "Windows' FAT uses a table of <b>linked list pointers</b>."
+        }
+    },
+    "q03": {
+        "type": "blank",
+        "question": "\n<p>The Fast File System improves file system performance by being\n<b>(1)</b> ____ aware.  That is, it considered the nature of a typical\nhard drive in its design and built around those attributes.  For\ninstance, it organizes the drive into <b>(2)</b> ____, each of which\nincludes all the structures necessary to track inodes and data blocks\nwithin the group.  To combat <b>(3)</b> ____, FFS introduced <b>(4)</b>\n____ which are little 512-byte blocks that can be used to store small\nfiles.</p>\n"
+    },
+    "q04": {
+        "type": "multiple",
+        "question": "\n<p>Regarding allocation in <b>FFS</b>, which of the following statements\nare true (<i>choose all that apply</i>)?</p>\n",
+        "responses": {
+            "dir": "Directories are placed in groups with a lot of other directories.",
+            "data": "Data blocks of a file are allocated in the same group of its inode.",
+            "file": "Files in the same directory are allocated in the same group.",
+            "large": "Large files are allocated complete groups."
+        }
+    },
+    "q05": {
+        "type": "blank",
+        "question": "\n<p>In order to improve sequential writes, the Log-structured File System\n(LFS), buffers all updates (including metadata) into an in-memory\n<b>(1)</b> ____ that is written to disk only when it is full.  Rather\nthan overwrite existing data, LFS always writes to <b>(2)</b> ____\nlocations.  Because inodes are now spread all over the disk, LFS uses an\n<b>(3)</b> ____ to translate between the inode number and a disk address.\nTo keep track of the latest pieces of these structures, LFS has a fixed\nplace on disk called the <b>(4)</b> ____.  Since LFS is always writing\nnew data blocks, that means that old versions of data are left around and\nthe system must periodically perform <b>(5)</b> ____ to clean the disk\nspace.</p>\n"
+    },
+    "q06": {
+        "type": "blank",
+        "question": "\n<p>Unlike most data structures we've talked about in the past, file\nsystems must <b>(1)</b> ____.  That is, they must work properly despite\nsituations such as a <b>(2)</b> ____ or system <b>(3)</b> ____.  When\nthese events occur, the operating system must resolve the <b>(4)</b> ____ problem,\nwhich is caused by the fact that the disk may only complete a subset of\nthe desired operations before the situation happens and puts the file\nsystem in an <b>(5)</b> ____ state.</p>\n\n<p>To put the file system back in order, we can use <b>(6)</b> ____ or\nthe file system checker which runs <b>(7)</b> ____ the file system is\nmounted during boot.  To speed up this restoration process, modern file\nsystems utilize <b>(8)</b> ____, which adds a bit of overhead on each\nwrite, but allows them to quickly recover from the events discussed\nabove.</p>\n"
+    },
+    "q07": {
+        "type": "multiple",
+        "question": "\n<p>Suppose we were appending to a file and had to allocate a new data block in\nthe file system to accomodate the data we are writing.  Which of the\nfollowing scenarios would yield a \"file-system inconsistency\" problem:</p>\n",
+        "responses": {
+            "dblock_only": "Just the <b>data block</b> is writen to disk.",
+            "itable_only": "Just the <b>inode table</b> is updated.",
+            "dbitmap_only": "Just the <b>data bitmap</b> is updated.",
+            "itable_dbitmap": "Just the <b>inode table</b> and <b>data bitmap</b> are updated.",
+            "itable_dblock": "Just the <b>inode table</b> is updated and the <b>data block</b> is written to disk.",
+            "dbitmap_dblock": "Just the <b>data bitmap</b> is updated and the <b>data block</b> is written to disk."
+        }
+    },
+    "q08": {
+        "type": "multiple",
+        "question": "\n<p>As a followup to the previous question, which of the situations above\nwould yield garbage data:</p>\n",
+        "responses": {
+            "dblock_only": "Just the <b>data block</b> is writen to disk.",
+            "itable_only": "Just the <b>inode table</b> is updated.",
+            "dbitmap_only": "Just the <b>data bitmap</b> is updated.",
+            "itable_dbitmap": "Just the <b>inode table</b> and <b>data bitmap</b> are updated.",
+            "itable_dblock": "Just the <b>inode table</b> is updated and the <b>data block</b> is written to disk.",
+            "dbitmap_dblock": "Just the <b>data bitmap</b> is updated and the <b>data block</b> is written to disk."
+        }
+    },
+    "q09": {
+        "type": "order",
+        "question": "\n<p>Match the following labels to the descriptions of what fsck does:</p>\n\n<ol>\n\n  <li>The contents of each directory is checked.</li>\n\n  <li>The reference count for each inode is performed.</li>\n\n  <li>Scans inodes, indirect blocks, double indirect blocks, etc. to build\n  a correct version of the allocation bitmaps.</li>\n\n  <li>Perform sanity checks on the file system attributes such as size and\n  number of blocks allocated.</li>\n\n  <li>Locate any pointers that are outside the appropriate range.</li>\n\n  <li>The integrity of each inode is checked for corruption.</li>\n\n  <li>The references to data blocks are checked to see if a block is being\n  shared by two inodes.</li>\n\n</ol>\n",
+        "responses": {
+            "duplicates": "Check for <b>duplicates</b>.",
+            "inode_state": "Check <b>inode</b> state.",
+            "directories": "Check <b>directories</b>.",
+            "free_blocks": "Check <b>free blocks</b>.",
+            "bad_blocks": "Check for <b>bad blocks</b>.",
+            "superblock": "Check <b>superblock</b>.",
+            "inode_links": "Check <b>inode</b> links."
+        }
+    },
+    "q10": {
+        "type": "blank",
+        "question": "\n<p>To speedup recovery, modern file systems such as <b>ext4</b> use\n<b>(1)</b> ____ journaling, which requires the following four phases to\nupdate the file system:</p>\n\n<ol>\n  <li><b>(2)</b> ____: Write the contents of the transaction to the log.</li>\n  <li><b>(3)</b> ____: Write the transaction commit block to the log.</li>\n  <li><b>(4)</b> ____: Write the contents of the final on-disk location.</li>\n  <li><b>(5)</b> ____: Update the journal superblock.</li>\n</ol>\n\n<p>During the recovery process, the fsck utility can examine the log and\n<b>(6)</b> ____ or redo transactions that have been <b>(7)</b> ____ to\ndisk.</p>\n\n<p>An alternative form of journaling is <b>(8)</b> ____ journaling, which\ninvolves writing the <b>(9)</b> ____ first, and only recording the metadata\nin the journal.</p>\n"
+    },
+    "q11": {
+        "type": "blank",
+        "question": "\n<p>The primary mechanism for preserving data integrity is to <b>(1)</b>\n____ the data.  That is, we need to produce concise summaries of data\nblocks that can be compared in the future.  Ideally, the function we use\nto produce these summaries would minimize <b>(2)</b> ____ or situations where\nnon-identical blocks produce the same summary.</p>\n\n<p>While summaries allow us to detect block corruption, we still have the\nproblem of <b>(3)</b> ____, where data is written to the wrong location.\nTo solve this, we need to add a <b>(4)</b> ____ to record where the data\nis suppose to be stored.</p>\n\n<p>Once we have these summaries, we can periodically perform <b>(5)</b>\n____, which checks every block of the system and sees if the summaries\nare still valid.</p>\n"
+    }
+}
