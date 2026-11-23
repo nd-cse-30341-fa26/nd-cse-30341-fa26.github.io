@@ -325,7 +325,7 @@ class="danger">garbage</strong>:
 
 <div class="centered">
 
-<img src="https://i.extremetech.com/imagery/content-types/00KKObY3jkU1JS7GJSOl61N/images-5.png" height="400px" class="framed">
+<img src="https://yld.me/raw/ol70.webp" height="400px" class="framed">
 
 </div>
 
