@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="static/ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/ico/favicon-16x16.png">
+<link rel="manifest" href="static/ico/site.webmanifest">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="static/css/domer.css">
+<title>Project 04: Simple File System</title>
+</head>
+<body>
+<header>
+<a class="logo" href="project04.html">
+    <h1>Project 04: Simple File System</h1>
+</a>
+<nav>
+    <ul>
+        <li><a href="index.html"><h4>Home</h4></a></li>
+        </ul>
+</nav></header>
+<main>
+<div class="flex-row">
+<div class="flex-col">
+<p>The last project is to build a <em>simplified</em> version of the <a href="https://en.wikipedia.org/wiki/Unix_File_System">Unix File
+System</a> called <strong>SimpleFS</strong> as shown to the right.</p>
+<p>In this application, we have three components:</p>
+<ol>
+<li>
+<p><strong>Shell</strong>: The first component is a simple shell application that allows
+the user to perform operations on the <strong>SimpleFS</strong> such as printing
+debugging information about the file system, formatting a new file system,
+mounting a file system, creating files, and copying data in or out of the
+file system.  To do this, it will translate these user commands into <strong>file
+system</strong> operations such as <code>fs_debug</code>, <code>fs_format</code>, <code>fs_create</code>,
+<code>fs_remove</code>, <code>fs_stat</code>, <code>fs_read</code>, and <code>fs_write</code>.</p>
+</li>
+<li>
+<p><strong>File System</strong>: The second component takes the operations specified by
+the user through the <strong>shell</strong> and performs them on the <strong>SimpleFS</strong> disk
+image.  This component is charged with organizing the on-disk data
+structures and performing all the bookkeeping necessary to allow for
+persistent storage of data.  To store the data, it will need to interact
+with the <strong>disk emulator</strong> via functions such as <code>disk_read</code> and
+<code>disk_write</code>, which allow the file system read and write to the disk image
+in <code>4096</code> byte blocks.</p>
+</li>
+<li>
+<p><strong>Disk Emulator</strong>: The third component emulates a disk by dividing a
+normal file (called a <strong>disk image</strong>) into <code>4096 byte</code> blocks and only
+allows the <strong>File System</strong> to read and write in terms of blocks.  This
+emulator will persistently store the data to the disk image using the
+normal <a href="http://man7.org/linux/man-pages/man2/open.2.html">open</a>, <a href="http://man7.org/linux/man-pages/man2/read.2.html">read</a>, and <a href="http://man7.org/linux/man-pages/man2/write.2.html">write</a> system calls.</p>
+</li>
+</ol>
+</div>
+<div class="flex-col-25 centered">
+  <img src="static/img/project04-components.svg" class="responsive transparent">
+</div>
+</div>
+<p>The <strong>shell</strong> component is provided to you.  You will have to complete both
+the <strong>file system</strong> and <strong>disk emulator</strong> portion of the application for
+this project.</p>
+<p>Working <strong>individually</strong> or in <strong>pairs</strong>, you are to create a <strong>library</strong>
+that implements the <code>Disk</code> and <code>FileSystem</code> components described above by
+<strong>midnight</strong> on <strong>Wednesday, December 9, 2026</strong>.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>To implement the <strong>file system</strong> component, you will first need to
+understand the <strong>SimpleFS</strong> disk layout.  As noted previously, this project
+assumes that each disk block is <code>4KB</code> in size. The first block of the disk
+is the <strong>superblock</strong> that describes the layout of the rest of the
+filesystem. A certain number of blocks following the superblock contain
+inode data structures (ie. the <strong>inode table</strong>). Typically, <strong>ten percent</strong>
+of the total number of disk blocks are used as <strong>inode</strong> blocks (i.e.
+blocks reserved for storing the <strong>inode table</strong>).  The remaining blocks in
+the filesystem are used as plain <strong>data</strong> blocks, and occasionally as
+<strong>indirect</strong> pointer blocks as shown in the example below:</p>
+<div class="centered">
+  <img src="static/img/project04-layout.svg" class="transparent responsive">
+</div>
+
+<p>In this example, we have a <strong>SimpleFS</strong> disk image that begins with a
+<strong>superblock</strong>.  This <strong>superblock</strong> consists of four fields:</p>
+<ol>
+<li>
+<p><strong>Magic</strong>: The first field is always the <code>MAGIC_NUMBER</code> or <code>0xf0f03410</code>.
+The format routine places this number into the very first bytes of the
+<strong>superblock</strong> as a sort of filesystem "signature".  When the filesystem is
+mounted, the OS looks for this magic number. If it is correct, then the
+disk is assumed to contain a valid filesystem. If some other number is
+present, then the mount fails, perhaps because the disk is not formatted or
+contains some other kind of data.</p>
+</li>
+<li>
+<p><strong>Blocks</strong>: The second field is the total number of blocks, which should
+be the same as the number of blocks on the disk.</p>
+</li>
+<li>
+<p><strong>InodeBlocks</strong>: The third field is the number of blocks set aside for
+storing <strong>inodes</strong>.  The format routine is responsible for choosing this
+value, which should always be <code>10%</code> of the <strong>Blocks</strong>, rounding up.</p>
+</li>
+<li>
+<p><strong>Inodes</strong>: The fourth field is the total number of <strong>inodes</strong> in those
+<strong>inode blocks</strong>.</p>
+</li>
+</ol>
+<div class="alert caution-bg">
+<p>Note that the <strong>superblock</strong> data structure is quite small: only <code>16</code>
+bytes.  The remainder of disk block zero is left unusued.</p>
+</div>
+<p>Each <strong>inode</strong> in <strong>SimpleFS</strong> looks like the file:</p>
+<div class="centered">
+  <img src="static/img/project04-inode.svg" class="transparent responsive">
+</div>
+
+<p>Each field of the <strong>inode</strong> is a <code>4</code>-byte (<code>32</code>-bit) integer. The <code>Valid</code>
+field is <code>1</code> if the <strong>inode</strong> is valid (i.e. has been created) and is <code>0</code>
+otherwise.  The <code>Size</code> field contains the logical size of the <strong>inode</strong>
+data in bytes. There are <code>5</code> direct pointers to data blocks, and one
+pointer to an <strong>indirect</strong> data block. In this context, "pointer" simply
+means the number of a block where data may be found. A value of <code>0</code> may be
+used to indicate a <em>null</em> block pointer. Each inode occupies <code>32</code> bytes, so
+there are <code>128</code> inodes in each <code>4KB</code> inode block.</p>
+<p>Note that an <strong>indirect</strong> data block is just a big array of pointers to
+further data blocks. Each pointer is a <code>4</code>-byte int, and each block is
+<code>4KB</code>, so there are <code>1024</code> pointers per block. The data blocks are simply
+<code>4KB</code> of raw data.</p>
+<p>One thing missing in <strong>SimpleFS</strong> is the free block bitmap.  As discussed
+in class, a real filesystem would keep a free block bitmap on disk,
+recording one bit for each block that was available or in use.  This bitmap
+would be consulted and updated every time the filesystem needed to add or
+remove a data block from an inode.</p>
+<p>Because <strong>SimpleFS</strong> does not store this on-disk, you are required to keep
+a <strong>free block bitmap</strong> in memory. That is, there must be an array of
+<strong>booleans</strong>, one for each block of the disk, noting whether the block is
+in use or available. When it is necessary to allocate a new block for a
+file, the system must scan through the array to locate an available block.
+When a block is freed, it likewise must be marked in the bitmap.</p>
+<p>Suppose that the user makes some changes to a <strong>SimpleFS</strong> filesystem, and
+then reboots the system (ie. restarts the shell). Without a free block
+bitmap, <strong>SimpleFS</strong> cannot tell which blocks are in use and which are
+free.  Fortunately, this information can be recovered by scanning the disk.
+Each time that an <strong>SimpleFS</strong> filesystem is mounted, the system must build
+a new free block bitmap from scratch by scanning through all of the inodes
+and recording which blocks are in use.  (This is much like performing an
+<a href="https://en.wikipedia.org/wiki/Fsck">fsck</a> every time the system boots.)</p>
+<p><strong>SimpleFS</strong> looks much like the <a href="https://en.wikipedia.org/wiki/Unix_File_System">Unix file system</a>. Each "file" is
+identified by an integer called an <strong>inode number</strong>. The <strong>inode number</strong>
+is simply an index into the array of <strong>inode</strong> structures that starts in
+block <code>1</code>. When a file is created, <strong>SimpleFS</strong> chooses the first available
+<strong>inode</strong> and returns the corresponding <strong>inode number</strong> to the user.  All
+further references to that file are made using the <strong>inode number</strong>. Using
+<strong>SimpleFS</strong> as a foundation, you could easily add another layer of
+software that implements file and directory names.  However, that will not
+be part of this assignment.</p>
+<p>More details about this project and your deliverables are described below.</p>
+<div class="alert info-bg">
+<h3 id="file-tree-outline-embed_icon-file-systems"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>file-tree-outline</title><path d="M12 13H7V18H12V20H5V10H7V11H12V13M8 4V6H4V4H8M10 2H2V8H10V2M20 11V13H16V11H20M22 9H14V15H22V9M20 18V20H16V18H20M22 16H14V22H22V16Z" /></svg>
+</i> File Systems<a class="headerlink" href="#file-tree-outline-embed_icon-file-systems" title="Permanent link">&para;</a></h3>
+<p>While it may seem that <a href="https://en.wikipedia.org/wiki/File_system">file systems</a> are a solved problem with venerable
+examples such as <a href="https://en.wikipedia.org/wiki/Ext4">Ext4</a>, <a href="https://en.wikipedia.org/wiki/XFS">XFS</a>, and <a href="https://en.wikipedia.org/wiki/NTFS">NTFS</a>, the growth in <a href="https://en.wikipedia.org/wiki/Big_data">big data</a> and
+the emergence of <a href="https://en.wikipedia.org/wiki/Solid-state_drive">SSDs</a> as the primary storage medium has once again made
+<a href="https://en.wikipedia.org/wiki/File_system">file systems</a> a hot topic. Today, we have next-generation file systems in
+the form of <a href="https://en.wikipedia.org/wiki/ZFS">ZFS</a>, <a href="https://en.wikipedia.org/wiki/Btrfs">Btrfs</a>, and <a href="https://en.wikipedia.org/wiki/Apple_File_System">AppleFS</a>, which build upon the foundation
+set by previous <a href="https://en.wikipedia.org/wiki/File_system">file systems</a>.  In this assignment, you will explore the
+core principles about <a href="https://en.wikipedia.org/wiki/File_system">file systems</a> and how they work.</p>
+<p><strong>Note</strong>: This assignment is based heavily on <strong>Project 6: File Systems</strong>
+by <a href="https://dthain.github.io/">Doug Thain</a>.</p>
+</div>
+<h2 id="deliverables">Deliverables<a class="headerlink" href="#deliverables" title="Permanent link">&para;</a></h2>
+<p>As noted above, you are to work <strong>individually</strong> or in <strong>pairs</strong> to
+implement your simple file system.  For this project, you must use <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C</a> (not
+<a href="https://isocpp.org/">C++</a>) as the implementation language.  Any test scripts or auxillary tools
+can be written in any reasonable scripting language.</p>
+<h3 id="timeline">Timeline<a class="headerlink" href="#timeline" title="Permanent link">&para;</a></h3>
+<p>Here is a timeline of events related to this project:</p>
+<table class="bordered">
+<thead>
+<th>Date</th>
+<th>Event</th>
+</thead>
+<tbody>
+<tr class="success-bg">
+<td class="text-strong">Tuesday, November 24</td>
+<td>Project description and repository are available.</td>
+</tr>
+<tr class="danger-bg">
+<td class="text-strong">Wednesday, December 09</td>
+<td>File System must be completed.</td>
+</tr>
+</tbody>
+</table>
+<div class="alert success-bg">
+<h3 id="github-embed_icon-group-project"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>github</title><path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" /></svg>
+</i> Group Project<a class="headerlink" href="#github-embed_icon-group-project" title="Permanent link">&para;</a></h3>
+<p>For the final group project submission, please open a <strong>Pull Request</strong> on
+your <strong>Project 04</strong> repository (for your <code>project04</code> branch to the <code>master</code>
+branch) and assign it to the <strong>instructor</strong>.</p>
+</div>
+<h3 id="repository">Repository<a class="headerlink" href="#repository" title="Permanent link">&para;</a></h3>
+<p>To start this project, you must message <strong>bobbit</strong> on <a href="https://nd-cse.slack.com/">Slack</a> a
+<code>!classroom</code> command in the following format:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Send Bobbit this command in a private message</span>
+!classroom<span class="w"> </span>cse-30341-fa26<span class="w"> </span>project04<span class="w"> </span>NOTRE_DAME_NETID<span class="w"> </span>GITHUB_USERNAME<span class="o">(</span>S<span class="o">)</span>
+</code></pre></div>
+
+<p>This will create a <strong>private</strong> <code>project04-NOTRE_DAME_NETID</code> inside the
+<a href="https://github.com/nd-cse-30341-fa26">nd-cse-30341-fa26</a> organization and invite each <a href="https://github.com">GitHub</a> account as a
+collaborator (<em>each person must accept the email invitation to collaborate
+on the repository</em>).</p>
+<div class="alert warning-bg">
+<p><strong>Note</strong>: Do your work in a separate <a href="https://git-scm.com/">git</a> branch that can be later merged
+into the <code>master</code> branch (ie. make a <code>project04</code> branch, <strong>DO NOT COMMIT
+OR MERGE TO MASTER</strong>).</p>
+</div>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<p>The <a href="https://github.com/nd-cse-30341-fa26/project04">Project 04</a> repository includes a <code>README.md</code> file with the following
+sections:</p>
+<ol>
+<li>
+<p><strong>Student</strong>: This should be your name and email address.</p>
+</li>
+<li>
+<p><strong>Demonstration</strong>: This should contain a <strong>link</strong> to a video of your
+  demonstration of your implementation.</p>
+</li>
+<li>
+<p><strong>Errata</strong>: This should contain a description of any known errors or
+deficiencies in your implementation.</p>
+</li>
+<li>
+<p><strong>Acknowledgments</strong>: This should list anyone you collaborated with or
+received help from (including TAs, students, and AI tools).</p>
+</li>
+</ol>
+<p>You must complete this document report as part of your project.</p>
+<h3 id="source-code">Source Code<a class="headerlink" href="#source-code" title="Permanent link">&para;</a></h3>
+<p>As you can see, the base <a href="https://github.com/nd-cse-30341-fa26/project04">Project 04</a> repository contains a <code>README.md</code>
+file and the following folder hierarchy:</p>
+<div class="codehilite"><pre><span></span><code>project04
+<span class="w">    </span><span class="se">\_</span><span class="w">  </span>Makefile<span class="w">            </span><span class="c1"># This is the project Makefile</span>
+<span class="w">    </span><span class="se">\_</span><span class="w">  </span>bin<span class="w">                 </span><span class="c1"># This contains the application executables and test scripts</span>
+<span class="w">    </span><span class="se">\_</span><span class="w">  </span>data<span class="w">                </span><span class="c1"># This conatins the test Disk images</span>
+<span class="w">    </span><span class="se">\_</span><span class="w">  </span>include<span class="w">             </span><span class="c1"># This contains the SimpleFS library header files</span>
+<span class="w">        </span><span class="se">\_</span><span class="w">  </span>sfs
+<span class="w">            </span><span class="se">\_</span><span class="w">  </span>disk.h<span class="w">      </span><span class="c1"># This contains the Disk Emulator header file</span>
+<span class="w">            </span><span class="se">\_</span><span class="w">  </span>fs.h<span class="w">        </span><span class="c1"># This contains the File System header file</span>
+<span class="w">            </span><span class="se">\_</span><span class="w">  </span>logging.h<span class="w">   </span><span class="c1"># This contains the Logging header file</span>
+<span class="w">            </span><span class="se">\_</span><span class="w">  </span>utils.h<span class="w">     </span><span class="c1"># This contains the Utilities header file</span>
+<span class="w">    </span><span class="se">\_</span><span class="w">  </span>src
+<span class="w">        </span><span class="se">\_</span><span class="w">  </span>disk.c<span class="w">          </span><span class="c1"># This contains the Disk Emulator implementation code</span>
+<span class="w">        </span><span class="se">\_</span><span class="w">  </span>fs.c<span class="w">            </span><span class="c1"># This contains the File System implementation code</span>
+<span class="w">        </span><span class="se">\_</span><span class="w">  </span>sfssh.c<span class="w">         </span><span class="c1"># This contains the Shell implementation code</span>
+<span class="w">    </span><span class="se">\_</span><span class="w">  </span>tests<span class="w">               </span><span class="c1"># This contains the Unit Test implementation code</span>
+<span class="w">        </span><span class="se">\_</span><span class="w">  </span>unit_disk.c<span class="w">     </span><span class="c1"># This contains the Disk Unit Test implementation code</span>
+<span class="w">        </span><span class="se">\_</span><span class="w">  </span>unit_fs.c<span class="w">       </span><span class="c1"># This contains the File System Unit Test implementation code</span>
+</code></pre></div>
+
+<p>You must maintain this folder structure for your project and place files in
+their appropriate place.</p>
+<div class="alert info-bg">
+<p><strong>Note</strong>: Of the provided files, you are only required to modify the
+<code>src/disk.c</code> and <code>src/fs.c</code> files as described below.</p>
+</div>
+<h4 id="compiling">Compiling<a class="headerlink" href="#compiling" title="Permanent link">&para;</a></h4>
+<p>To help you get started, we have provided a <code>Makefile</code> with all the necessary
+targets:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>make<span class="w">              </span><span class="c1"># Build libraries, shell, and tests</span>
+Compiling<span class="w"> </span>src/disk.o
+Compiling<span class="w"> </span>src/fs.o
+Linking<span class="w">   </span>lib/libsfs.a
+Compiling<span class="w"> </span>tests/unit_fs.o
+Linking<span class="w">   </span>bin/unit_fs
+Compiling<span class="w"> </span>tests/unit_disk.o
+Linking<span class="w">   </span>bin/unit_disk
+Compiling<span class="w"> </span>src/sfssh.o
+Linking<span class="w">   </span>bin/sfssh
+
+$<span class="w"> </span>make<span class="w"> </span>clean<span class="w">        </span><span class="c1"># Remove all targets and intermediate files</span>
+Removing<span class="w">  </span>objects
+Removing<span class="w">  </span>libraries
+Removing<span class="w">  </span>programs
+Removing<span class="w">  </span>tests
+</code></pre></div>
+
+<div class="alert warning-bg">
+<h3 id="code-tags-embed_icon-kiss"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>code-tags</title><path d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z" /></svg>
+</i> K.I.S.S.<a class="headerlink" href="#code-tags-embed_icon-kiss" title="Permanent link">&para;</a></h3>
+<p>While the exact organization of the project code is up to you, keep in mind
+that you will be graded in part on <strong>coding style</strong>, <strong>cleaniness</strong>, and
+<strong>organization</strong>.  This means your code should be consistently formatted,
+not contain any dead code, have reasonable comments, and appropriate naming
+among other things:</p>
+<ul>
+<li>
+<p>Break long functions into smaller functions.</p>
+</li>
+<li>
+<p>Make sure each function does one thing and does it well.</p>
+</li>
+<li>
+<p>Abstract, but don't over do it.</p>
+</li>
+</ul>
+<p>Please refer to these <a href="static/img/coding-style.png">Coding Style</a> slides for some tips and guidelines on
+coding style expectations.</p>
+</div>
+<h3 id="disk-emulator">Disk Emulator<a class="headerlink" href="#disk-emulator" title="Permanent link">&para;</a></h3>
+<p>As noted above, we must implement a simple <strong>disk emulator</strong> on which to
+store your filesystem. This "disk" is actually stored as one big file in
+the file system, so that you can save data in a <strong>disk image</strong> and then
+retrieve it later. In addition, we provide you with some sample disk images
+that you can experiment with to test your filesystem (in the <code>data</code>
+directory).  Just like a real disk, the emulator only allows operations on
+entire disk blocks of <code>4KB</code> (<code>BLOCK_SIZE</code>). You cannot read or write any
+smaller unit than than that. The primary challenge of building a filesystem
+is converting the user's requested operations on arbitrary amounts of data
+into operations on fixed block sizes.</p>
+<p>The interface to the simulated disk is given in <code>include/sfs/disk.h</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* Disk Structure */</span>
+
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Disk</span><span class="w"> </span><span class="n">Disk</span><span class="p">;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Disk</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">fd</span><span class="p">;</span><span class="w">         </span><span class="cm">/* File descriptor of disk image        */</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">blocks</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Number of blocks in disk image       */</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">reads</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Number of reads to disk image        */</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">writes</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Number of writes to disk image       */</span>
+<span class="p">};</span>
+
+<span class="cm">/* Disk Functions */</span>
+
+<span class="n">Disk</span><span class="w"> </span><span class="o">*</span><span class="w">  </span><span class="nf">disk_open</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">blocks</span><span class="p">);</span>
+<span class="kt">void</span><span class="w">    </span><span class="nf">disk_close</span><span class="p">(</span><span class="n">Disk</span><span class="w"> </span><span class="o">*</span><span class="n">disk</span><span class="p">);</span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">disk_read</span><span class="p">(</span><span class="n">Disk</span><span class="w"> </span><span class="o">*</span><span class="n">disk</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">disk_write</span><span class="p">(</span><span class="n">Disk</span><span class="w"> </span><span class="o">*</span><span class="n">disk</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Before performing any sort of operation on the disk, you must call
+<code>disk_open()</code> method and specify a (real) disk image for storing the disk
+data, and the number of blocks in the simulated disk. If this function is
+called on a disk image that already exists, the contained data will not be
+changed.  When you are done using the disk, the <code>disk_close</code> must be called
+to release the file.</p>
+<p>Once the disk is open, you may check <code>disk-&gt;blocks</code> to discover the number
+of blocks on the disk. As the names suggest, <code>disk_read()</code> and
+<code>disk_write()</code> read and write one block of data on the disk. Notice that
+the first argument is a block number, so a call to <code>disk_read(disk, 0,
+data)</code> reads the first <code>4KB</code> of data on the <code>disk</code>, and <code>disk_read(disk, 1,
+data)</code> reads the next <code>4KB</code> block of data on the <code>disk</code>. Every time that
+you invoke a read or a write, you must ensure that data points to a full
+<code>4KB</code> of memory.</p>
+<p>To implement these operations, the <code>disk_read</code> and <code>disk_write</code> functions
+internally utilize low-level I/O <a href="https://en.wikipedia.org/wiki/System_call">system calls</a> such as <a href="http://man7.org/linux/man-pages/man2/lseek.2.html">lseek</a>, <a href="http://man7.org/linux/man-pages/man2/read.2.html">read</a>,
+and <a href="http://man7.org/linux/man-pages/man2/write.2.html">write</a> to operate on the <a href="https://en.wikipedia.org/wiki/File_descriptor">file descriptor</a> returned by <a href="http://man7.org/linux/man-pages/man2/open.2.html">open</a>.</p>
+<p>Note that the disk has a few programming conveniences that a real disk
+would not. A real disk is rather finicky -- if you send it invalid
+commands, it will likely crash the system or behave in other strange ways.
+This simulated disk is more "helpful." If you send it an invalid command,
+it will halt the program with an error message. For example, if you attempt
+to read or write a disk block that does not exist, it will throw an
+exception.</p>
+<h3 id="file-system">File System<a class="headerlink" href="#file-system" title="Permanent link">&para;</a></h3>
+<p>Building off the <strong>disk emulator</strong> described above, you will construct a
+working <strong>file system</strong>.  Take note that we have already constructed the
+interface to the filesystem and provided some skeleton code. The interface
+is given in <code>include/sfs/fs.h</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* File System Structure */</span>
+
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">FileSystem</span><span class="w"> </span><span class="n">FileSystem</span><span class="p">;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">FileSystem</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Disk</span><span class="w">        </span><span class="o">*</span><span class="n">disk</span><span class="p">;</span><span class="w">                          </span><span class="cm">/* Disk file system is mounted on */</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">        </span><span class="o">*</span><span class="n">free_blocks</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Free block bitmap */</span>
+<span class="w">    </span><span class="n">SuperBlock</span><span class="w">   </span><span class="n">meta_data</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* File system meta data */</span>
+<span class="p">};</span>
+
+<span class="cm">/* File System Functions */</span>
+
+<span class="kt">void</span><span class="w">    </span><span class="nf">fs_debug</span><span class="p">(</span><span class="n">Disk</span><span class="w"> </span><span class="o">*</span><span class="n">disk</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w">    </span><span class="nf">fs_format</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">Disk</span><span class="w"> </span><span class="o">*</span><span class="n">disk</span><span class="p">);</span>
+
+<span class="kt">bool</span><span class="w">    </span><span class="nf">fs_mount</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">Disk</span><span class="w"> </span><span class="o">*</span><span class="n">disk</span><span class="p">);</span>
+<span class="kt">void</span><span class="w">    </span><span class="nf">fs_unmount</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">);</span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">fs_create</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w">    </span><span class="nf">fs_remove</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inode_number</span><span class="p">);</span>
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">fs_stat</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inode_number</span><span class="p">);</span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">fs_read</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inode_number</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">fs_write</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inode_number</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
+</code></pre></div>
+
+<p>The various functions must work as follows:</p>
+<blockquote>
+<p>A. <code>void fs_debug(Disk *disk)</code></p>
+</blockquote>
+<p>This function scans a <code>disk</code> and reports on how the inodes and blocks are
+organized. Your output from this method should be similar to the following:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./bin/sfssh<span class="w"> </span>data/image.5<span class="w"> </span><span class="m">5</span>
+sfs&gt;<span class="w"> </span>debug
+SuperBlock:
+<span class="w">    </span>magic<span class="w"> </span>number<span class="w"> </span>is<span class="w"> </span>valid
+<span class="w">    </span><span class="m">5</span><span class="w"> </span>blocks
+<span class="w">    </span><span class="m">1</span><span class="w"> </span>inode<span class="w"> </span>blocks
+<span class="w">    </span><span class="m">128</span><span class="w"> </span>inodes
+Inode<span class="w"> </span><span class="m">1</span>:
+<span class="w">    </span>size:<span class="w"> </span><span class="m">965</span><span class="w"> </span>bytes
+<span class="w">    </span>direct<span class="w"> </span>blocks:<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+
+<div class="alert warning-bg">
+<p><strong>Note</strong>, you must print out the information in the <code>SuperBlock</code> and the
+information for all the <strong>valid</strong> inodes.  Be sure to print out a list of
+all the <strong>direct blocks</strong> used by the inode, along with any <strong>indirect
+block</strong> (and any <strong>indirect blocks</strong> referenced by the <strong>indirect block</strong>).</p>
+<p>For instance, in the example above, inode <code>1</code> has a <strong>file size</strong> of <code>965</code>
+bytes and has a <strong>direct block</strong> at location <code>2</code> of the underlying <strong>disk</strong>
+device (ie. block <code>2</code>).</p>
+</div>
+<blockquote>
+<p>B. <code>bool fs_format(FileSystem *fs, Disk *disk)</code></p>
+</blockquote>
+<p>This function creates a new filesystem on the <code>disk</code>, destroying any data
+already present.  It should set aside <em>ten percent</em> of the blocks for
+inodes, clear the inode table, and write the superblock.  It must return
+<code>true</code> on success, <code>false</code> otherwise.</p>
+<div class="alert warning-bg">
+<p><strong>Note</strong>: formatting a filesystem does not cause it to be mounted. Also, an
+attempt to format an already-mounted disk should do nothing and return
+failure.</p>
+</div>
+<blockquote>
+<p>C. <code>bool fs_mount(FileSystem *fs, Disk *disk)</code></p>
+</blockquote>
+<p>This function examines the disk for a filesystem. If one is present, read
+the superblock, build a free block bitmap, and prepare the filesystem for
+use.  Return <code>true</code> on success, <code>false</code> otherwise.</p>
+<div class="alert warning-bg">
+<p><strong>Note</strong>: a successful mount is a pre-requisite for the remaining calls.</p>
+</div>
+<blockquote>
+<p>D. <code>ssize_t fs_create(FileSystem *fs)</code></p>
+</blockquote>
+<p>This function creates a new <strong>inode</strong> of zero length. On success, return
+the <strong>inode number</strong>.  On failure, return <code>-1</code>.</p>
+<blockquote>
+<p>E. <code>bool    fs_remove(FileSystem *fs, size_t inode_number)</code></p>
+</blockquote>
+<p>This function removes the <strong>inode</strong> indicated by the <code>inode_number</code>.  It
+should release all data and indirect blocks assigned to this <strong>inode</strong> and
+return them to the free block map. On success, it returns <code>true</code>. On
+failure, it returns <code>false</code>.</p>
+<blockquote>
+<p>F. <code>ssize_t fs_stat(FileSystem *fs, size_t inode_number)</code></p>
+</blockquote>
+<p>This function returns the logical size of the given <code>inode_number</code>, in
+bytes.  Note that zero is a valid logical size for an <strong>inode</strong>. On
+failure, it returns <code>-1</code>.</p>
+<blockquote>
+<p>G. <code>ssize_t fs_read(FileSystem *fs, size_t inode_number, char *data, size_t length, size_t offset)</code></p>
+</blockquote>
+<p>This function reads data from a valid <strong>inode</strong>.  It then copies <code>length</code>
+bytes from the data blocks of the <strong>inode</strong> into the <code>data</code> pointer,
+starting at <code>offset</code> in the <strong>inode</strong>.  It should return the total number
+of bytes read. If the given <code>inode_number</code> is invalid, or any other error
+is encountered, the method returns <code>-1</code>.</p>
+<div class="alert warning-bg">
+<p><strong>Note</strong>: The number of bytes actually read could be smaller than the
+number of bytes requested, perhaps if the end of the <strong>inode</strong> is reached.</p>
+</div>
+<blockquote>
+<p>H. <code>ssize_t fs_write(FileSytem *fs, size_t inode_number, char *data, size_t length, size_t offset)</code></p>
+</blockquote>
+<p>This function writes data to a valid <strong>inode</strong> by copying <code>length</code> bytes
+from the pointer <code>data</code> into the data blocks of the <strong>inode</strong> starting at
+<code>offset</code> bytes.  It will allocate any necessary direct and indirect blocks
+in the process.  Afterwards, it returns the number of bytes actually
+written.  If the given <code>inode_number</code> is invalid, or any other error is
+encountered, return <code>-1</code>.</p>
+<div class="alert warning-bg">
+<p><strong>Note</strong>: The number of bytes actually written could be smaller than the
+number of bytes request, perhaps if the disk becomes full.</p>
+</div>
+<h4 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h4>
+<p>Your job is to implement <strong>SimpleFS</strong> as described above by filling in the
+implementation of both <code>src/disk.c</code> and <code>src/fs.c</code>.  You do
+not need to change any other code modules. We have already created some
+sample data structures to get you started. These can be found in
+<code>include/sfs/fs.h</code>. To begin with, we have defined a number of common
+constants that you will use.  Most of these should be self explanatory:</p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#define MAGIC_NUMBER       (0xf0f03410)</span>
+<span class="cp">#define INODES_PER_BLOCK   (128)</span>
+<span class="cp">#define POINTERS_PER_INODE (5)</span>
+<span class="cp">#define POINTERS_PER_BLOCK (1024)</span>
+</code></pre></div>
+
+<div class="alert caution-bg">
+<p>Note that <code>POINTERS_PER_INODE</code> is the number of direct pointers in each
+inode structure, while <code>POINTERS_PER_BLOCK</code> is the number of pointers to be
+found in an indirect block.</p>
+</div>
+<p>The <strong>SuperBlock</strong> and <strong>Inode</strong> structures are easily translated from the
+pictures above:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">SuperBlock</span><span class="w"> </span><span class="n">SuperBlock</span><span class="p">;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">SuperBlock</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">magic_number</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* File system magic number */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">blocks</span><span class="p">;</span><span class="w">                         </span><span class="cm">/* Number of blocks in file system */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">inode_blocks</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Number of blocks reserved for inodes */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">inodes</span><span class="p">;</span><span class="w">                         </span><span class="cm">/* Number of inodes in file system */</span>
+<span class="p">};</span>
+
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Inode</span><span class="w">      </span><span class="n">Inode</span><span class="p">;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Inode</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">valid</span><span class="p">;</span><span class="w">                          </span><span class="cm">/* Whether or not inode is valid */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">size</span><span class="p">;</span><span class="w">                           </span><span class="cm">/* Size of file */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">direct</span><span class="p">[</span><span class="n">POINTERS_PER_INODE</span><span class="p">];</span><span class="w">     </span><span class="cm">/* Direct pointers */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">indirect</span><span class="p">;</span><span class="w">                       </span><span class="cm">/* Indirect pointers */</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>Note carefully that many inodes can fit in one disk block. A <code>4KB</code> chunk of
+memory containing <code>128</code> inodes would look like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">Inode</span><span class="w">       </span><span class="n">Inodes</span><span class="p">[</span><span class="n">INODES_PER_BLOCK</span><span class="p">];</span>
+</code></pre></div>
+
+<p>Each indirect block is just a big array of <code>1024</code> integers, each pointing
+to another disk block. So, a <code>4KB</code> chunk of memory corresponding to an
+indirect block would look liks this:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">uint32_t</span><span class="w">    </span><span class="n">Pointers</span><span class="p">[</span><span class="n">POINTERS_PER_BLOCK</span><span class="p">];</span>
+</code></pre></div>
+
+<p>Finally, each data block is just raw binary data used to store the partial
+contents of a file. A data block can be specified as simply an array for
+<code>4096</code> bytes:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w">        </span><span class="n">Data</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">];</span>
+</code></pre></div>
+
+<p>Because a raw <code>4KB</code> disk block can be used to represent four different
+kinds of data: a superblock, a block of <code>128</code> inodes, an indirect pointer
+block, or a plain data block,  we can declare a union of each of our four
+different data types.  A union looks like a struct, but forces all of its
+elements to share the same memory space. You can think of a union as
+several different types, all overlaid on top of each other:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">union</span><span class="w">  </span><span class="nc">Block</span><span class="w">      </span><span class="n">Block</span><span class="p">;</span>
+<span class="k">union</span><span class="w"> </span><span class="nc">Block</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">SuperBlock</span><span class="w">  </span><span class="n">super</span><span class="p">;</span><span class="w">                          </span><span class="cm">/* View block as superblock */</span>
+<span class="w">    </span><span class="n">Inode</span><span class="w">       </span><span class="n">inodes</span><span class="p">[</span><span class="n">INODES_PER_BLOCK</span><span class="p">];</span><span class="w">       </span><span class="cm">/* View block as inode */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">pointers</span><span class="p">[</span><span class="n">POINTERS_PER_BLOCK</span><span class="p">];</span><span class="w">   </span><span class="cm">/* View block as pointers */</span>
+<span class="w">    </span><span class="kt">char</span><span class="w">        </span><span class="n">data</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">];</span><span class="w">               </span><span class="cm">/* View block as data */</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>Note that the size of an <code>Block</code> union will be exactly <code>4KB</code>: the size of
+the largest members of the union. To declare a <code>Block</code> variable:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">Block</span><span class="w"> </span><span class="n">block</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Now, we may use <code>disk_read()</code> to load in the raw data from block zero. We
+give <code>disk_read()</code> the variable <code>block.data</code>, which looks like an array of
+characters:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">disk_read</span><span class="p">(</span><span class="n">disk</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But, we may interpret that data as if it were a <code>SuperBlock</code> structure by
+accessing the <code>super</code> part of the union. For example, to extract the magic
+number of the super block, we might do this:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">super</span><span class="p">.</span><span class="n">magic_number</span><span class="p">;</span>
+</code></pre></div>
+
+<p>On the other hand, suppose that we wanted to load disk block <code>59</code>, assume
+that it is an indirect block, and then examine the <code>4th</code> pointer. Again, we
+would use <code>disk_read()</code> to load the raw data:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">disk_read</span><span class="p">(</span><span class="n">disk</span><span class="p">,</span><span class="w"> </span><span class="mi">59</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But then use the <code>pointers</code> part of the union like so:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">pointers</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+</code></pre></div>
+
+<p>The union offers a convenient way of viewing the same data from multiple
+perspectives. When we load data from the disk, it is just a <code>4KB</code> raw
+chunk of data (<code>block.data</code>). But, once loaded, the filesystem layer knows
+that this data has some structure. The filesystem layer can view the same
+data from another perspective by choosing another field in the union.</p>
+<h4 id="general-advice">General Advice<a class="headerlink" href="#general-advice" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>Implement the functions roughly in order</strong>. We have deliberately
+presented the functions of the filesystem interface in order to difficulty.
+Implement <code>debug</code>, <code>format</code>, and <code>mount</code> first. Make sure that you are able
+to access the sample disk images provided. Then, perform creation and
+deletion of inodes without worrying about data blocks. Implement reading
+and test again with disk images. If everything else is working, then
+attempt write.</p>
+</li>
+<li>
+<p><strong>Divide and conquer</strong>. Work hard to factor out common actions into
+simple functions. This will dramatically simplify your code. For example,
+you will often need to load and save individual inode structures by number.
+This involves a fiddly little computation to transform an inumber into a
+block number, and so forth. So, make two little methods to do just that:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">bool</span><span class="w">    </span><span class="nf">fs_load_inode</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inode_number</span><span class="p">,</span><span class="w"> </span><span class="n">Inode</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w">    </span><span class="nf">fs_save_inode</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inode_number</span><span class="p">,</span><span class="w"> </span><span class="n">Inode</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Now, everywhere that you need to load or save an inode structure, call
+these functions.</p>
+<p>You may also wish to have functions that help you manage and search the
+free block map:</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w">    </span><span class="nf">fs_initialize_free_block_bitmap</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">);</span>
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">fs_allocate_free_block</span><span class="p">(</span><span class="n">FileSystem</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Anytime that find yourself writing very similar code over and over
+again, factor it out into a smaller function.</p>
+</li>
+<li>
+<p><strong>Test boundary conditions</strong>. We will certainly test your code by
+probing its boundaries. Make sure that you test and fix boundary conditions
+before handing in. For example, what happens if <code>fs_create</code> discovers that
+the inode table is full? It should cleanly return with an error code. It
+certainly should not crash the program or mangle the disk!  Think
+critically about other possible boundary conditions such as the end of a
+file or a full disk.</p>
+</li>
+<li>
+<p><strong>Don't worry about performance</strong>. You will be graded on correctness,
+not performance. In fact, during the course of this assignment, you will
+discover that a simple file access can easily erupt into tens or hundreds
+of single disk accesses. Understand why this happens, but don't worry about
+optimization.</p>
+</li>
+</ol>
+<h3 id="shell">Shell<a class="headerlink" href="#shell" title="Permanent link">&para;</a></h3>
+<p>We have provided for you a simple shell that will be used to exercise your
+filesystem and the simulated disk. When grading your work, we will use the
+shell to test your code, so be sure to test extensively. To use the shell,
+simply run <code>bin/sfssh</code> with the name of a disk image, and the number of
+blocks in that image. For example, to use the <code>image.5</code> example given
+below, run:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./bin/sfssh<span class="w"> </span>data/image.5<span class="w"> </span><span class="m">5</span>
+</code></pre></div>
+
+<p>Or, to start with a fresh new disk image, just give a new filename and
+number of blocks:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./bin/sfssh<span class="w"> </span>newdisk<span class="w"> </span><span class="m">25</span>
+</code></pre></div>
+
+<p>Once the shell starts, you can use the <code>help</code> command to list the available
+commands:</p>
+<div class="codehilite"><pre><span></span><code>sfs&gt;<span class="w"> </span><span class="nb">help</span>
+Commands<span class="w"> </span>are:
+<span class="w">    </span>format
+<span class="w">    </span>mount
+<span class="w">    </span>debug
+<span class="w">    </span>create
+<span class="w">    </span>remove<span class="w">  </span>&lt;inode&gt;
+<span class="w">    </span>cat<span class="w">     </span>&lt;inode&gt;
+<span class="w">    </span>stat<span class="w">    </span>&lt;inode&gt;
+<span class="w">    </span>copyin<span class="w">  </span>&lt;file&gt;<span class="w"> </span>&lt;inode&gt;
+<span class="w">    </span>copyout<span class="w"> </span>&lt;inode&gt;<span class="w"> </span>&lt;file&gt;
+<span class="w">    </span><span class="nb">help</span>
+<span class="w">    </span>quit
+<span class="w">    </span><span class="nb">exit</span>
+</code></pre></div>
+
+<p>Most of the commands correspond closely to the filesystem interface. For
+example, <code>format</code>, <code>mount</code>, <code>debug</code>, <code>create</code> and <code>remove</code> call the
+corresponding methods in the <code>FileSystem</code> class. Make sure that you call
+these functions in a sensible order. A filesystem must be formatted once
+before it can be used.  Likewise, it must be mounted before being read or
+written.</p>
+<p>The complex commands are <code>cat</code>, <code>copyin</code>, and <code>copyout</code>. <code>cat</code> reads an
+entire file out of the filesystem and displays it on the console, just like
+the Unix command of the same name. <code>copyin</code> and <code>copyout</code> copy a file from
+the local <a href="https://en.wikipedia.org/wiki/Unix_File_System">Unix file system</a> into your emulated filesystem. For example, to
+    copy the dictionary file into inode <code>10</code> in your filesystem, do the
+    following:</p>
+<div class="codehilite"><pre><span></span><code>sfs&gt;<span class="w"> </span>copyin<span class="w"> </span>/usr/share/dict/words<span class="w"> </span><span class="m">10</span>
+</code></pre></div>
+
+<p>Note that these three commands work by making a large number of calls to
+<code>fs_read()</code> and <code>fs_write()</code> for each file to be copied.</p>
+<h3 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h3>
+<p>To help you verify the correctness of your <strong>SimpleFS</strong> implementation, you
+are provided with the following disk images:</p>
+<ul>
+<li><a href="https://github.com/nd-cse-30341-fa26/project04/raw/master/data/image.5">image.5</a></li>
+<li><a href="https://github.com/nd-cse-30341-fa26/project04/raw/master/data/image.20">image.20</a></li>
+<li><a href="https://github.com/nd-cse-30341-fa26/project04/raw/master/data/image.200">image.200</a></li>
+</ul>
+<p>Likewise, you are also provided a set of unit tests in the <code>src/tests</code>
+directory that will test most of the basic functions in the <code>Disk</code> and
+<code>FileSystem</code> structures:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>make<span class="w"> </span>test-units<span class="w">       </span><span class="c1"># Run all unit tests</span>
+Running<span class="w">   </span>unit_disk<span class="w"> </span><span class="m">0</span>
+Running<span class="w">   </span>unit_disk<span class="w"> </span><span class="m">1</span>
+Running<span class="w">   </span>unit_disk<span class="w"> </span><span class="m">2</span>
+Running<span class="w">   </span>unit_fs<span class="w"> </span><span class="m">0</span>
+Running<span class="w">   </span>unit_fs<span class="w"> </span><span class="m">1</span>
+Running<span class="w">   </span>unit_fs<span class="w"> </span><span class="m">2</span>
+Running<span class="w">   </span>unit_fs<span class="w"> </span><span class="m">3</span>
+
+$<span class="w"> </span>./bin/unit_fs<span class="w"> </span><span class="m">0</span><span class="w">       </span><span class="c1"># Run specific test from FileSystem unit test</span>
+DEBUG<span class="w"> </span>tests/unit_fs.c:23:test_00_fs_mount:<span class="w"> </span>Check<span class="w"> </span>mounting<span class="w"> </span>filesystem
+DEBUG<span class="w"> </span>tests/unit_fs.c:34:test_00_fs_mount:<span class="w"> </span>Check<span class="w"> </span>mounting<span class="w"> </span>filesystem<span class="w"> </span><span class="o">(</span>already<span class="w"> </span>mounted<span class="o">)</span>
+<span class="m">2</span><span class="w"> </span>disk<span class="w"> </span>block<span class="w"> </span>reads
+<span class="m">0</span><span class="w"> </span>disk<span class="w"> </span>block<span class="w"> </span>writes
+DEBUG<span class="w"> </span>tests/unit_fs.c:43:test_00_fs_mount:<span class="w"> </span>Check<span class="w"> </span>mounting<span class="w"> </span>filesystem
+DEBUG<span class="w"> </span>tests/unit_fs.c:69:test_00_fs_mount:<span class="w"> </span>Check<span class="w"> </span>mounting<span class="w"> </span>filesystem<span class="w"> </span><span class="o">(</span>already<span class="w"> </span>mounted<span class="o">)</span>
+<span class="m">4</span><span class="w"> </span>disk<span class="w"> </span>block<span class="w"> </span>reads
+<span class="m">0</span><span class="w"> </span>disk<span class="w"> </span>block<span class="w"> </span>writes
+</code></pre></div>
+
+<div class="alert warning-bg">
+<p><strong>Note</strong>: The <code>FileSystem</code> unit test does not check the behavior of the
+<code>fs_read</code> and <code>fs_write</code> functions.</p>
+</div>
+<p>Additionally, we also provide an extensive suite of test scripts in the
+<code>bin</code> directory that will utilize these disk images to test your file
+system.  You can run all the tests by simply doing <code>make test</code>:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>make<span class="w"> </span>test-shell
+Testing<span class="w"> </span>debug<span class="w"> </span>...
+<span class="w">  </span>debug<span class="w"> </span>on<span class="w"> </span>data/image.5<span class="w">                                     </span>...<span class="w"> </span>Success
+<span class="w">  </span>debug<span class="w"> </span>on<span class="w"> </span>data/image.20<span class="w">                                    </span>...<span class="w"> </span>Success
+<span class="w">  </span>debug<span class="w"> </span>on<span class="w"> </span>data/image.200<span class="w">                                   </span>...<span class="w"> </span>Success
+
+<span class="w">  </span>format<span class="w"> </span>on<span class="w"> </span>data/image.20.formatted<span class="w">                         </span>...<span class="w"> </span>Success
+<span class="w">  </span>format<span class="w"> </span>on<span class="w"> </span>data/image.200.formatted<span class="w">                        </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>mount<span class="w"> </span>...
+<span class="w">  </span>mount<span class="w"> </span>on<span class="w"> </span>data/image.5<span class="w">                                     </span>...<span class="w"> </span>Success
+<span class="w">  </span>mount-mount<span class="w"> </span>on<span class="w"> </span>data/image.5<span class="w">                               </span>...<span class="w"> </span>Success
+<span class="w">  </span>mount-format<span class="w"> </span>on<span class="w"> </span>data/image.5<span class="w">                              </span>...<span class="w"> </span>Success
+<span class="w">  </span>bad-mount<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.bdMLwnZMjD/image.5<span class="w">                  </span>...<span class="w"> </span>Success
+<span class="w">  </span>bad-mount<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.bdMLwnZMjD/image.5<span class="w">                  </span>...<span class="w"> </span>Success
+<span class="w">  </span>bad-mount<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.bdMLwnZMjD/image.5<span class="w">                  </span>...<span class="w"> </span>Success
+<span class="w">  </span>bad-mount<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.bdMLwnZMjD/image.5<span class="w">                  </span>...<span class="w"> </span>Success
+<span class="w">  </span>bad-mount<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.bdMLwnZMjD/image.5<span class="w">                  </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>stat<span class="w"> </span>...
+<span class="w">  </span>stat<span class="w"> </span>on<span class="w"> </span>data/image.5<span class="w">                                      </span>...<span class="w"> </span>Success
+<span class="w">  </span>stat<span class="w"> </span>on<span class="w"> </span>data/image.20<span class="w">                                     </span>...<span class="w"> </span>Success
+<span class="w">  </span>stat<span class="w"> </span>on<span class="w"> </span>data/image.200<span class="w">                                    </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>create<span class="w"> </span>...
+<span class="w">  </span>create<span class="w"> </span>on<span class="w"> </span>data/image.5.create<span class="w">                             </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>copyout<span class="w"> </span>...
+<span class="w">  </span>copyout<span class="w"> </span>on<span class="w"> </span>data/image.5<span class="w">                                   </span>...<span class="w"> </span>Success
+<span class="w">  </span>copyout<span class="w"> </span>on<span class="w"> </span>data/image.20<span class="w">                                  </span>...<span class="w"> </span>Success
+<span class="w">  </span>copyout<span class="w"> </span>on<span class="w"> </span>data/image.200<span class="w">                                 </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>cat<span class="w"> </span>...
+<span class="w">  </span>cat<span class="w"> </span>on<span class="w"> </span>data/image.5<span class="w">                                       </span>...<span class="w"> </span>Success
+<span class="w">  </span>cat<span class="w"> </span>on<span class="w"> </span>data/image.20<span class="w">                                      </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>copyin<span class="w"> </span>...
+<span class="w">  </span>copyin<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.TfojIJ7XFD/image.5<span class="w">                     </span>...<span class="w"> </span>Success
+<span class="w">  </span>copyin<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.TfojIJ7XFD/image.20<span class="w">                    </span>...<span class="w"> </span>Success
+<span class="w">  </span>copyin<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.TfojIJ7XFD/image.200<span class="w">                   </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>remove<span class="w"> </span>...
+<span class="w">  </span>remove<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.7sutsOUIJ9/image.5<span class="w">                     </span>...<span class="w"> </span>Success
+<span class="w">  </span>remove<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.7sutsOUIJ9/image.5<span class="w">                     </span>...<span class="w"> </span>Success
+<span class="w">  </span>remove<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.7sutsOUIJ9/image.20<span class="w">                    </span>...<span class="w"> </span>Success
+
+Testing<span class="w"> </span>valgrind<span class="w"> </span>...
+<span class="w">  </span>valgrind<span class="w"> </span>on<span class="w"> </span>/tmp/tmp.3bgkkDFFXD/image.200<span class="w">                 </span>...<span class="w"> </span>Success
+</code></pre></div>
+
+<div class="alert success-bg">
+<h3 id="code-tags-embed_icon-reads-writes"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>code-tags</title><path d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z" /></svg>
+</i> Reads / Writes<a class="headerlink" href="#code-tags-embed_icon-reads-writes" title="Permanent link">&para;</a></h3>
+<p>Depending on how you implement the various functions, <strong>the number of disk
+reads and writes may not match</strong>.  As long as you are not too far above the
+numbers in the test case, then you will be given credit.</p>
+</div>
+<div class="alert danger-bg">
+<h3 id="download-embed_icon-idempotent"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>download</title><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg>
+</i> Idempotent<a class="headerlink" href="#download-embed_icon-idempotent" title="Permanent link">&para;</a></h3>
+<p>The provided test scripts require that the provided disk images are in
+their original state.  Therefore, if you make any modifications to them
+while developing and testing, you should make sure you restore them to
+their original state before attempting the tests.  Since we are using
+<a href="https://git-scm.com/">git</a>, you can simply do the following to retrieve the original version of
+a disk image:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>data/image.5
+</code></pre></div>
+
+</div>
+<h2 id="reflection">Reflection<a class="headerlink" href="#reflection" title="Permanent link">&para;</a></h2>
+<p>Once you have completed the project, answer the following <a href="static/json/project04.json">Project 04 Quiz</a>
+questions <strong>individually</strong> in your own personal <code>assignments</code> repository on <a href="https://github.com">GitHub</a>:</p>
+<div id="quiz-questions"></div>
+
+<div id="quiz-responses"></div>
+
+<script src="static/js/dredd-quiz.js"></script>
+<script>
+loadQuiz('static/json/project04.json');
+</script>
+
+<pre style="display: none;" id="dr-container" class="codehilite"><code id="dredd-response"></code></pre>
+
+<p>The results of the quiz should look like the following:</p>
+<div class="codehilite"><pre><span></span><code>Checking project04 quiz ...
+      Q1  4.00 /  4.00
+      Q2  4.00 /  4.00
+      Q3  4.00 /  4.00
+      Q4  4.00 /  4.00
+  --------------------
+   Score 16.00 / 16.00
+   Grade  1.00 /  1.00
+  Status Success
+</code></pre></div>
+
+<div class="alert info-bg">
+<h3 id="github-embed_icon-individual-quiz"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>github</title><path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" /></svg>
+</i> Individual Quiz<a class="headerlink" href="#github-embed_icon-individual-quiz" title="Permanent link">&para;</a></h3>
+<p>Each group member should do the quiz on their own and record their answers
+in the <code>project04</code> folder in their <strong>assignments</strong> <a href="https://github.com">GitHub</a> repository.</p>
+<p>Once you have committed your work and pushed it to <a href="https://github.com">GitHub</a>, remember to
+create a <strong>pull request</strong> and assign it to the appropriate <strong>teaching
+assistant</strong> from the <a href="reading11_tas.html">Reading 11 TA List</a>.</p>
+</div>
+<h2 id="grading">Grading<a class="headerlink" href="#grading" title="Permanent link">&para;</a></h2>
+<p>Your project will be graded on the following metrics:</p>
+<table class="bordered">
+<thead>
+    <th>Metric</th>
+    <th>Points</th>
+  </thead>
+<tbody>
+    <tr class="success-bg">
+      <td class="flex-col">
+        <strong>Source Code</strong>
+        <ol>
+          <li>
+          <div class="flex-col">
+          <b>General</b>
+          <ul>
+            <li><b>Builds</b> and <b>cleans</b> without warnings or errors</li>
+            <li><b>Manages</b> resources such as memory and files appropriately</li>
+            <li>Is <b>consistent</b>, <b>readable</b>, and <b>organized</b></li>
+            <li>Has <b>regular commits</b> and <b>submitted on-time</b></li>
+          </ul>
+          </div>
+          </li>
+          <li>
+          <div class="flex-col">
+          <b>Disk</b>
+          <ul>
+            <li><b>Open</b> operation performs correctly</li>
+            <li><b>Close</b> operation performs correctly</li>
+            <li><b>Read</b> operation performs correctly</li>
+            <li><b>Write</b> operation performs correctly</li>
+          </ul>
+          </div>
+          </li>
+          <li>
+          <div class="flex-col">
+          <b>File System</b>
+          <ul>
+            <li><b>Debug</b> operation performs correctly</li>
+            <li><b>Format</b> operation performs correctly</li>
+            <li><b>Mount</b> operation performs correctly</li>
+            <li><b>Create</b> operation performs correctly</li>
+            <li><b>Remove</b> operation performs correctly</li>
+            <li><b>Stat</b> operation performs correctly</li>
+            <li><b>Cat</b> operation performs correctly</li>
+            <li><b>Copyout</b> operation performs correctly</li>
+            <li><b>Copyin</b> operation performs correctly</li>
+          </ul>
+          </div>
+          </li>
+        </ol>
+      </td>
+      <td class="centered">
+        <div class="flex-col">
+        <strong>3.00</strong>
+        <p><b><i>0.40</i></b></p>
+            <p><i>0.10</i></p>
+            <p><i>0.10</i></p>
+            <p><i>0.10</i></p>
+            <p><i>0.10</i></p>
+        <p><b><i>0.50</i></b></p>
+            <p><i>0.15</i></p>
+            <p><i>0.05</i></p>
+            <p><i>0.15</i></p>
+            <p><i>0.15</i></p>
+        <p><b><i>2.10</i></b></p>
+            <p><i>0.30</i></p>
+            <p><i>0.15</i></p>
+            <p><i>0.30</i></p>
+            <p><i>0.15</i></p>
+            <p><i>0.15</i></p>
+            <p><i>0.05</i></p>
+            <p><i>0.20</i></p>
+            <p><i>0.40</i></p>
+            <p><i>0.40</i></p>
+        </div>
+      </td>
+    </tr>
+    <tr class="caution-bg">
+      <td class="flex-col">
+      <p><strong>Reflection</strong></p>
+      <ol>
+        <li><b>Individual Quiz</b></li>
+      </ol>
+      </td>
+      <td class="centered">
+        <div class="flex-col">
+        <p><strong>1.00</strong></p>
+        <p><b>1.00</b></p>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="alert warning-bg">
+<h3 id="git-embed_icon-commit-history"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>git</title><path d="M2.6,10.59L8.38,4.8L10.07,6.5C9.83,7.35 10.22,8.28 11,8.73V14.27C10.4,14.61 10,15.26 10,16A2,2 0 0,0 12,18A2,2 0 0,0 14,16C14,15.26 13.6,14.61 13,14.27V9.41L15.07,11.5C15,11.65 15,11.82 15,12A2,2 0 0,0 17,14A2,2 0 0,0 19,12A2,2 0 0,0 17,10C16.82,10 16.65,10 16.5,10.07L13.93,7.5C14.19,6.57 13.71,5.55 12.78,5.16C12.35,5 11.9,4.96 11.5,5.07L9.8,3.38L10.59,2.6C11.37,1.81 12.63,1.81 13.41,2.6L21.4,10.59C22.19,11.37 22.19,12.63 21.4,13.41L13.41,21.4C12.63,22.19 11.37,22.19 10.59,21.4L2.6,13.41C1.81,12.63 1.81,11.37 2.6,10.59Z" /></svg>
+</i> Commit History<a class="headerlink" href="#git-embed_icon-commit-history" title="Permanent link">&para;</a></h3>
+<p>To encourage you to work on the project <strong>regularly</strong> (rather than leaving
+it until the last second) and to practice performing <strong>incremental
+development</strong>, part of your grade will be based on whether or not you have
+regular and reasonably sized commits in your <a href="https://git-scm.com/">git</a> log.</p>
+<p>That is, you will <strong>lose</strong> a point if you commit everything at once near
+the project deadline.</p>
+</div>
+<div class="alert danger-bg">
+<h3 id="bug-embed_icon-error-handling"><i class="icon icon-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>bug</title><path d="M14,12H10V10H14M14,16H10V14H14M20,8H17.19C16.74,7.22 16.12,6.55 15.37,6.04L17,4.41L15.59,3L13.42,5.17C12.96,5.06 12.5,5 12,5C11.5,5 11.04,5.06 10.59,5.17L8.41,3L7,4.41L8.62,6.04C7.88,6.55 7.26,7.22 6.81,8H4V10H6.09C6.04,10.33 6,10.66 6,11V12H4V14H6V15C6,15.34 6.04,15.67 6.09,16H4V18H6.81C7.85,19.79 9.78,21 12,21C14.22,21 16.15,19.79 17.19,18H20V16H17.91C17.96,15.67 18,15.34 18,15V14H20V12H18V11C18,10.66 17.96,10.33 17.91,10H20V8Z" /></svg>
+</i> Error Handling<a class="headerlink" href="#bug-embed_icon-error-handling" title="Permanent link">&para;</a></h3>
+<p>In addition to meeting the functional requirements of the project (as
+described above), your program <strong>must not exhibit any memory leaks</strong> or
+<strong>invalid memory accesses</strong> as would be detected by <a href="http://valgrind.org/">Valgrind</a>.</p>
+<p>Additionally, because <a href="https://en.wikipedia.org/wiki/System_call">system calls</a> can fail, your program must implement
+<strong>robust error handling</strong> and ensure your code checks the status of <a href="https://en.wikipedia.org/wiki/System_call">system
+calls</a> when reasonable.</p>
+<p>Moreover, you code must compile <strong>without any warnings</strong> (and <code>-Wall</code> must
+be one of the <code>CFLAGS</code>).</p>
+</div>
+</main>
+<footer>
+Built using <a href="https://python.org">Python</a>
+and <a href="https://jinja.palletsprojects.com">Jinja</a>
+with colors from 
+<a href="https://onmessage.nd.edu/university-branding/colors/">Notre Dame</a>, 
+<a href="https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets">Google Docs</a>, and 
+<a href="https://nordtheme.com">Nord Theme</a>,
+and icons from <a href="https://pictogrammers.com/library/mdi/">Material Design Icons</a>.</footer>
+</body>
+</html>
