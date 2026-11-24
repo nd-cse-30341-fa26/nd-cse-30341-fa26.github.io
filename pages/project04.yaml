@@ -252,13 +252,10 @@ body:       |
 
     1. **Student**: This should be your name and email address.
 
-    2. **Demonstration**: This should contain a **link** to a video of your
-      demonstration of your implementation.
-
-    3. **Errata**: This should contain a description of any known errors or
+    2. **Errata**: This should contain a description of any known errors or
     deficiencies in your implementation.
 
-    4. **Acknowledgments**: This should list anyone you collaborated with or
+    3. **Acknowledgments**: This should list anyone you collaborated with or
     received help from (including TAs, students, and AI tools).
 
     You must complete this document report as part of your project.
