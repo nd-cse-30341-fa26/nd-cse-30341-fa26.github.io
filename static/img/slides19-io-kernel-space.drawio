@@ -1,0 +1,46 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="GVV44Brdd7pEe5qwhha-">
+    <mxGraphModel dx="1414" dy="875" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="EAwRQLjFus0zTn1rz2tp-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;verticalAlign=middle;fontColor=#333333;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Monolithic Kernel&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="480" x="40" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;verticalAlign=middle;fontColor=#333333;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Microkernel (IPC)&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="480" x="560" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;scheduler&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="40" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;filesystem&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="160" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;memory manager&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="280" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;drivers&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="400" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;scheduler&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="560" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;filesystem&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="680" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;memory manager&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="800" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;verticalAlign=middle;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;drivers&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="120" x="920" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;verticalAlign=middle;fontColor=#990000;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Same address space&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="320" x="120" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="oz4HH-koKCsR5oAs7Vgp-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;verticalAlign=middle;fontColor=#38761D;" value="&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Separate address space&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;+ Protection!&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;+ Reliability!&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;monospace&quot;&gt;&lt;span style=&quot;font-size: 18px; color: rgb(153, 0, 0);&quot;&gt;&lt;b&gt;- Slower (context switch)&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="160" width="320" x="640" y="440" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

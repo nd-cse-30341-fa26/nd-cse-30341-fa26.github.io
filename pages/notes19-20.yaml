@@ -1,0 +1,709 @@
+title:  "Notes 19, 20: I/O Devices, RAID"
+body:   |
+
+  ## Logistics
+
+  - Return **Exam 03**.
+
+  - Bring **hard drives** / **SSDs** to class.
+
+  ## Review: <span class="gold">Swapping</span>
+
+  -   <div class="flex-col" markdown="1">
+
+      **Swap**: Provide the issue of infinite **RAM** by storing **pages** on **disk**.
+
+      - Use **policy** such as **LRU** to pick which page to **evict** (*timestamps*)
+
+      - Use **clock algorithm** to approximate (*sticky notes*)
+
+  <div class="alert info-bg centered" markdown="1">
+
+  **Analogy**: Shoes by the door (used most, **working set**) and in the closet
+  (**least recently used**).
+
+  </div>
+
+  ## Review: <span class="gold">OS Themes</span>
+
+  1.  <div class="flex-col" markdown="1">
+
+      <strong class="success">Virtualization</strong>: Abstracting hardware resources.
+
+      - **Process (threads)** -> **CPU**
+      - **Address Space** -> **RAM**
+      - **File System** -> **Disk**
+
+  2.  <div class="flex-col" markdown="1">
+
+      <strong class="danger">Concurrency</strong>: Sharing resources safely is difficult.
+
+      - **Locks** / **Condition variables**
+      - **Semaphores**
+      - **Patterns**: Producer / Consumer, Monitor, Barrier, Threadpool, Throttling
+
+  3.  <div class="flex-col" markdown="1">
+
+      <strong class="info">Persistence</strong>: Ensuring data continues to exist.
+
+      - Need **organization** system (**shoes**)
+      - How **space efficient** (*stack*, *flat*, etc.)?
+      - How quickly can I **find** a pair of shoes?
+      - How quickly can I **access** a pair of shoes?
+
+  ## I/O Devices: <span class="gold">System Architecture</span> (<i class="muted">New</i>)
+
+  <div class="centered">
+
+  <img src="static/img/slides19-io-system-architecture-new.svg" class="transparent responsive">
+
+  </div>
+
+  ## I/O Devices: <span class="gold">Memory Mapped I/O</span>
+
+  The <strong class="caution">OS</strong> interacts with a typical <strong
+  class="info">I/O device</strong> in the following manner:
+
+  <div class="centered">
+
+  <img src="static/img/slides19-io-memory-mapped-io.svg" class="transparent responsive">
+
+  </div>
+
+  ```bash
+  # View PCI devices (device registers mapped to physical addresses)
+  $ lspci -v
+  ```
+
+  <div class="alert info-bg centered" markdown="1">
+
+  <strong class="caution">Status</strong>, <strong
+  class="caution">Command</strong> and <strong class="caution">Data</strong> are
+  **device registers** that are mapped to certain **physical memory addresses**.
+
+  </div>
+
+  ```python
+  # Wait until device is not busy
+  while STATUS == BUSY: pass
+
+  # Write data and command to registers
+  Write(DATA, data)
+  Write(COMMAND, command)
+
+  # Wait until request is done
+  while STATUS == BUSY: pass
+  ```
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  **Problem**: This is **busy waiting**!
+
+  </div>
+
+  ## I/O Devices: <span class="gold">Protocol</span>
+
+  There are multiple methods of transfering data between
+  <strong class="info">memory</strong> and <strong class="danger">disk storage</strong>:
+
+  <table class="bordered font-smaller">
+  <thead>
+      <th class="special-bg">Method</th>
+      <th class="special-bg">Description</th>
+      <th class="special-bg">Pros</th>
+      <th class="special-bg">Cons</th>
+  </thead>
+  <tbody>
+  <tr class="danger-bg">
+      <td><b>Programmed I/O (PIO)</b></td>
+      <td>OS is directly involved data movement</td>
+      <td>Simple and works</td>
+      <td>Wastes CPU time polling</td>
+  </tr>
+  <tr class="caution-bg">
+      <td><b>Interrupts</b></td>
+      <td>OS issues command and later handles interrupt on completion</td>
+      <td>Allows for overlap</td>
+      <td>Can be wasteful due to context switch, interrupt storm</td>
+  </tr>
+  <tr class="success-bg">
+      <td><b>Direct Memory Access (DMA)</b></td>
+      <td>OS programs DMA engine to handle data transfers</td>
+      <td>Allows for overlap</td>
+      <td>Need more hardware, synchronization</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  **Analogy**: Program manager delegating work.
+
+  </div>
+
+  ```bash
+  # View hard drive information on xavier
+  $ hdparm -Ii /dev/sda
+  ```
+
+  ## I/O Devices: <span class="gold">Device Drivers</span>
+
+  To interface with different <strong class="warning">devices</strong>, the
+  <strong class="caution">operating system</strong> layers subsystems on top of
+  different hardware specific <strong class="special">device drivers</strong>:
+
+  <div class="centered">
+
+  <img src="static/img/slides19-io-device-drivers.svg" class="transparent responsive">
+
+  </div>
+
+  <div class="alert info-bg centered" markdown="1">
+
+  A [large portion of kernel
+  code](https://commandlinux.com/statistics/linux-kernel-contributors-lines-of-code-statistics/)
+  is <strong class="special">device drivers</strong> such as
+  [ahci.c](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/ata/ahci.c).
+
+  </div>
+
+  ## I/O Devices: <span class="gold">Kernel Space</span>
+
+  <div class="centered">
+
+  <img src="static/img/slides19-io-kernel-space.svg" class="transparent responsive">
+
+  </div>
+
+  ## I/O Devices: <span class="gold">LKM</span>
+
+  We can create <strong class="special">device drivers</strong> as a [Loadable Kernel
+  Module](https://en.wikipedia.org/wiki/Loadable_kernel_module), which can be
+  loaded and unloaded at run-time:
+
+  <table class="bordered">
+  <thead>
+      <th class="special-bg">Command</th>
+      <th class="special-bg">Action</th>
+  </thead>
+  <tbody>
+  <tr class="info-bg">
+      <td><b>lsmod</b></td>
+      <td>List kernel modules</td>
+  </tr>
+  <tr class="success-bg">
+      <td><b>modinfo</b></td>
+      <td>Get module information</td>
+  </tr>
+  <tr class="caution-bg">
+      <td><b>insmod / modprobe</b></td>
+      <td>Install / load kernel module</td>
+  </tr>
+  <tr class="danger-bg">
+      <td><b>rmmod</b></td>
+      <td>Remove kernel module</td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## Hard Disks: <span class="gold">Geometry</span>
+
+  <div class="centered" markdown="1">
+
+  <img src="https://lnx.cx/docs/vdg-2/html/images/disk-structure.png" class="transparent responsive">
+
+  </div>
+
+  <table class="bordered">
+  <thead>
+      <th class="special-bg">Term</th>
+      <th class="special-bg">Description</th>
+  </thead>
+  <tbody>
+  <tr class="info-bg">
+      <td><b>Platter</b></td>
+      <td>Magnentic surface on which data is stored</td>
+  </tr>
+  <tr class="success-bg">
+      <td><b>Spindle</b></td>
+      <td>Platters are bound together around this component which has a motor</td>
+  </tr>
+  <tr class="caution-bg">
+      <td><b>Track</b></td>
+      <td>Data is encoded in these concentric circles</td>
+  </tr>
+  <tr class="warning-bg">
+      <td><b>Disk Head</b></td>
+      <td>This is used to read / write data to and from the platter</td>
+  </tr>
+  <tr class="danger-bg">
+      <td><b>Disk Arm</b></td>
+      <td>This moves the head to the desired track</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <div class="alert info-bg centered" markdown="1">
+
+  Pass **hard drive** around!
+
+  </div>
+
+  ## Hard Disks: <span class="gold">Operations</span>
+
+  Since <strong class="info">platters</strong> are constantly spinning, to read
+  and write data we need to move the <strong class="danger">disk arm</strong> so
+  that the <strong class="warning">disk head</strong> is in the appropriate
+  location:
+
+  - We must account for <strong class="danger">rotational delay</strong> (<i
+    class="muted">single-track latency</i>)
+
+  - We must account for <strong class="danger">seek time</strong> (<i
+    class="muted">moving disk head from one track to another</i>)
+
+  - We must account for <strong class="danger">settling time</strong> (<i
+    class="muted">time required to guarantee correct location</i>)
+
+  <div class="alert info-bg centered" markdown="1">
+
+  **Story**: **PID control** with **flywheel**.
+
+  </div>
+
+  ## Hard Disks: <span class="gold">Seeking</span>
+
+  During a hard disk <strong class="danger">seek</strong> operation, we have the
+  following phases:
+
+  <div class="centered">
+
+  <img src="https://flylib.com/books/2/944/1/html/2/files/04fig01.gif" class="responsive">
+
+  </div>
+
+  1. <strong class="success">Acceleration</strong>: <strong class="danger">disk
+    arm</strong> starts moving
+
+  2. <strong class="warning">Coasting</strong>: <strong class="danger">disk
+    arm</strong> moving at full speed
+
+  3. <strong class="caution">Deceleration</strong>: <strong class="danger">disk
+    arm</strong> slows down
+
+  4. <strong class="danger">Settling</strong>: <strong class="danger">disk
+    arm</strong> positioned over <strong class="caution">track</strong>
+
+  ## Hard Disks: <span class="gold">Scheduling</span>
+
+  As with <strong class="success">processes</strong>, the <strong
+  class="caution">operating system</strong> can schedule <strong class="info">I/O
+  operations</strong>:
+
+  <table class="bordered">
+  <thead>
+      <th class="special-bg">Name</th>
+      <th class="special-bg">Description</th>
+      <th class="special-bg">Problems</th>
+  </thead>
+  <tbody>
+  <tr class="danger-bg">
+      <td><b>Shortest Seek Time First (<i>FIFO</i>)</b></td>
+      <td>Orders the queue of I/O requests by track and picks the nearest tracks to complete first</td>
+      <td>Starvation</td>
+  </tr>
+  <tr class="caution-bg">
+      <td><b>Elevator (<i>RDRN</i>)</b></td>
+      <td>Sweep across the disk and service requests as it moves across the tracks</td>
+      <td>Ignores Rotation</td>
+  </tr>
+  <tr class="success-bg">
+      <td><b>Shortest Position Time First</b></td>
+      <td>Selects the track with the shortest access time, factoring in seek and rotational time</td>
+      <td>Difficult to implement at OS level</td>
+  </tr>
+  </tbody>
+  </table>
+
+  ```bash
+  # See scheduler used for hard drive
+  $ cat /sys/block/sda/queue/scheduler
+  ```
+
+  <div class="alert success-bg" markdown="1">
+
+  - `mq-deadline`: Uses a `sector-sorted structure` (aka `red-black tree`) and `FIFO` queue.
+  - **Elevator** used to be recommended for **SSDs**.
+
+  </div>
+
+  ## Solid State Drives: <span class="gold">Overview</span>
+
+  Rather than use <strong class="danger">slow spinning platters</strong>, we can
+  use <strong class="success">fast non-volatile NAND memory</strong> to store
+  data.
+
+  - <strong class="success">Faster</strong>
+  - <strong class="success">Energy efficient</strong>
+
+  - <strong class="danger">More expensive</strong>
+  - <strong class="danger">Unknown reliability</strong>
+
+  </div>
+
+  <div class="centered">
+
+  <img
+  src="https://media.istockphoto.com/id/501446267/vector/solid-state-drive-diagram.jpg"
+  class="responsive">
+
+  </div>
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  **SSDs** have a rated **write endurance**.
+
+  </div>
+
+  ## Solid State Drives: <span class="gold">Garbage Collection</span>
+
+  Rather than overwrite data, we always write new <strong
+  class="warning">pages</strong> of data and periodically collect any <strong
+  class="danger">garbage</strong>:
+
+  <div class="centered">
+
+  <img src="https://i.extremetech.com/imagery/content-types/00KKObY3jkU1JS7GJSOl61N/images-5.png" height="400px" class="responsive">
+
+  </div>
+
+  ## Solid State Drives: <span class="gold">Wear Leveling</span>
+
+  Since each individual memory cell has a <strong class="danger">limited number of write
+  cycles</strong>, we must avoid repeated writing to the same area.
+
+  - To support this feature, the <strong class="info">device</strong> provides a
+    <strong class="warning">logical block address</strong> to the <strong
+    class="caution">OS</strong> and associates these <strong
+    class="warning">LBAs</strong> to <strong class="info">physical
+    blocks</strong>.
+
+  - The <strong class="success">controller</strong> can then move data to
+    different <strong class="info">physical blocks</strong> to spread out the
+    writes while maintaining the <strong class="warning">logical block address
+    space</strong>.
+
+  <div class="alert success-bg centered" markdown="1">
+
+  **Black Friday**: Buy more **RAM**, Buy a **SSD**.
+
+  </div>
+
+  ## Blaze of Fire: <span class="gold">Hard Drive Reliability</span>
+
+  <div class="centered">
+
+  <a href="https://www.backblaze.com/blog/backblaze-drive-stats-for-q2-2026/">
+  <img src="https://backblazeprod.wpenginepowered.com/wp-content/uploads/2026/09/Q2-2026-Drive-Stats-_-Infographic-1024x864.png" class="responsive">
+  </a>
+
+  </div>
+
+  ### <span class="info">Hard Drives</span>
+
+  - Can be <strong class="caution">slow</strong>.
+
+  - Can have <strong class="warning">limited capacity</strong>.
+
+  - Can <strong class="danger">fail</strong>.
+
+  ## RAID: <span class="gold">Overview</span>
+
+  In a <strong class="warning">RAID</strong>, we combine <strong
+  class="info">multiple disks</strong> into a <strong class="warning">single
+  array</strong> that appears as <strong class="special">virtual disk</strong>.
+
+  <div class="centered">
+
+  <img src="https://www.synology.com/img/products/detail/FS200T/img_og_image.jpg" class="responsive">
+
+  </div>
+
+  - <strong class="success">Performance</strong>: Faster
+  - <strong class="info">Capacity</strong>: Bigger
+  - <strong class="special">Reliability</strong>: Tolerate Failure
+
+  <div class="alert warning-bg centered" markdown="1">
+
+  Combine <strong class="info">multiple disks</strong> into a <strong
+  class="special">virtual disk</strong>!
+
+  </div>
+
+  <div class="alert danger-bg centered" markdown="1">
+
+  Uses a **fail-stop model** where <strong class="info">disks</strong> are in
+  <strong class="success">working state</strong> or <strong
+  class="danger">failed state</strong> (*does not handle <strong
+  class="warning">silent failures</strong>*).
+
+  </div>
+
+  ## RAID: <span class="gold">0</span> (<i class="muted">Striping</i>)
+
+  We can organize data blocks into rows called <strong
+  class="success">stripes</strong> and spread these across <strong
+  class="info">multiple disks</strong>.
+
+  <table class="bordered centered">
+  <thead>
+      <th class="info-bg">Disk A</th>
+      <th class="info-bg">Disk B</th>
+      <th class="info-bg">Disk C</th>
+      <th class="info-bg">Disk D</th>
+  </thead>
+  <tbody>
+  <tr>
+      <td class="caution-bg"><b>0</b></td>
+      <td class="success-bg"><b>2</b></td>
+      <td class="danger-bg"><b>4</b></td>
+      <td class="special-bg"><b>6</b></td>
+  </tr>
+  <tr>
+      <td class="caution-bg"><b>1</b></td>
+      <td class="success-bg"><b>3</b></td>
+      <td class="danger-bg"><b>5</b></td>
+      <td class="special-bg"><b>7</b></td>
+  </tr>
+  <tr>
+      <td class="caution-bg"><b>8</b></td>
+      <td class="success-bg"><b>10</b></td>
+      <td class="danger-bg"><b>12</b></td>
+      <td class="special-bg"><b>14</b></td>
+  </tr>
+  <tr>
+      <td class="caution-bg"><b>9</b></td>
+      <td class="success-bg"><b>11</b></td>
+      <td class="danger-bg"><b>13</b></td>
+      <td class="special-bg"><b>15</b></td>
+  </tr>
+  </tbody>
+  </table>
+
+  We may organize consecutive blocks into <strong class="warning">chunks</strong>:
+
+  - <strong class="caution">Smaller chunk size</strong> -> more <strong
+    class="success">parallelism</strong>.
+
+  - <strong class="special">Larger chunk size</strong> -> less <strong
+    class="danger">repositioning time</strong>.
+
+  <div class="centered">
+
+  <img src="static/img/slides20-raid-0.svg" class="transparent responsive">
+
+  </div>
+
+  In <strong class="warning">RAID 0</strong>, we <strong
+  class="success">stripe</strong> data across <strong class="info">multiple
+  disks</strong>:
+
+  <table class="bordered">
+  <tbody>
+  <tr class="success-bg">
+  <td><b>Performance</b></td>
+  <td>+ I/O in parallel</td>
+  </tr>
+  <tr class="info-bg">
+  <td><b>Capacity</b></td>
+  <td>+ <code>100%</code></td>
+  </tr>
+  <tr class="special-bg">
+  <td><b>Reliability</b></td>
+  <td>- <strong class="danger">No redundancy</strong></td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## RAID: <span class="gold">1</span> (<i class="muted">Mirroring</i>)
+
+  We can copy or <strong class="special">mirror</strong> a block across <strong
+  class="info">multiple disks</strong> to add <strong
+  class="special">redundancy</strong>:
+
+  <table class="bordered centered">
+  <thead>
+      <th class="info-bg">Disk A</th>
+      <th class="info-bg">Disk B</th>
+      <th class="info-bg">Disk C</th>
+      <th class="info-bg">Disk D</th>
+  </thead>
+  <tbody>
+  <tr>
+      <td class="caution-bg"><b>0</b></td>
+      <td class="caution-bg"><b>0</b></td>
+      <td class="success-bg"><b>1</b></td>
+      <td class="success-bg"><b>1</b></td>
+  </tr>
+  <tr>
+      <td class="special-bg"><b>2</b></td>
+      <td class="special-bg"><b>2</b></td>
+      <td class="danger-bg"><b>3</b></td>
+      <td class="danger-bg"><b>3</b></td>
+  </tr>
+  <tr>
+      <td class="caution-bg"><b>4</b></td>
+      <td class="caution-bg"><b>4</b></td>
+      <td class="success-bg"><b>5</b></td>
+      <td class="success-bg"><b>5</b></td>
+  </tr>
+  <tr>
+      <td class="special-bg"><b>6</b></td>
+      <td class="special-bg"><b>6</b></td>
+      <td class="danger-bg"><b>7</b></td>
+      <td class="danger-bg"><b>7</b></td>
+  </tr>
+  </tbody>
+  </table>
+
+  - When <strong class="success">reading</strong>, we can use either copy.
+
+  - When <strong class="danger">writing</strong>, we must perform writes to
+  each <strong class="special">mirror</strong>.
+
+  <div class="centered">
+
+  <img src="static/img/slides20-raid-1.svg" class="transparent responsive">
+
+  </div>
+
+  In <strong class="warning">RAID 1</strong>, we <strong
+  class="special">mirror</strong> data across <strong class="info">at least two
+  disks</strong>:
+
+  <table class="bordered font-small">
+  <tbody>
+  <tr class="success-bg">
+  <td><b>Performance</b></td>
+  <td>~ <b>Read</b> in parallel, but <b>write</b> to multiple disks</td>
+  </tr>
+  <tr class="info-bg">
+  <td><b>Capacity</b></td>
+  <td>- <code>50%</code></td>
+  </tr>
+  <tr class="special-bg">
+  <td><b>Reliability</b></td>
+  <td>+ Can now <strong class="danger">lose</strong> <code>half</code> of disks and still operate</td>
+  </tr>
+  </tbody>
+  </table>
+
+  </div>
+
+  </div>
+
+  ## RAID: <span class="gold">5</span> (<i class="muted">Parity Blocks</i>)
+
+  Rather than storing a copy of data, we can store a <strong class="special">parity
+  block</strong> which serves as an <strong class="warning">error detection code</strong>:
+
+  <table class="bordered centered">
+  <thead>
+      <th class="special-bg">C0</th>
+      <th class="special-bg">C1</th>
+      <th class="special-bg">C2</th>
+      <th class="special-bg">C3</th>
+      <th class="special-bg">Parity</th>
+  </thead>
+  <tbody>
+  <tr class="caution-bg">
+  <td>0</td>
+  <td>0</td>
+  <td>1</td>
+  <td>1</td>
+  <td>XOR(0, 0, 1, 1) = 0</td>
+  </tr>
+  <tr class="success-bg">
+  <td>0</td>
+  <td>1</td>
+  <td>0</td>
+  <td>0</td>
+  <td>XOR(0, 1, 0, 0) = 1</td>
+  </tr>
+  </tbody>
+  </table>
+
+  - We need a <strong class="special">parity block</strong> for each <strong
+    class="success">stripe</strong> of data.
+
+  - If we lose a block, we can use the <strong class="special">parity
+    block</strong> to <strong class="warning">reconstruct</strong> missing
+    portion.
+
+  <strong class="warning">RAID 5</strong> requires at least `3` <strong
+  class="info">disks</strong>, and rotates the <strong
+  class="special">parity</strong> across each <strong class="info">disk</strong>
+  in the <strong class="warning">array</strong>.
+
+  <div class="centered">
+
+  <img src="static/img/slides20-raid-5.svg" class="transparent responsive">
+
+  </div>
+
+  <table class="bordered">
+  <tbody>
+  <tr class="success-bg">
+  <td><b>Performance</b></td>
+  <td>~ <b>Read</b> in parallel, but <b>write</b> to multiple disks</td>
+  </tr>
+  <tr class="info-bg">
+  <td><b>Capacity</b></td>
+  <td>~ At least <code>66%</code></td>
+  </tr>
+  <tr class="special-bg">
+  <td><b>Reliability</b></td>
+  <td>~ Can now <strong class="danger">lose</strong> <code>one</code> disk and still operate</td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## RAID: <span class="gold">10</span> (<i class="muted">Mirroring + Striping</i>)
+
+  <div class="centered">
+
+  <img src="static/img/slides20-raid-10.svg" class="transparent responsive">
+
+  </div>
+
+  <table class="bordered">
+  <tbody>
+  <tr class="success-bg">
+  <td><b>Performance</b></td>
+  <td>+ I/O in parallel</td>
+  </tr>
+  <tr class="info-bg">
+  <td><b>Capacity</b></td>
+  <td>- <code>50%</code></td>
+  </tr>
+  <tr class="special-bg">
+  <td><b>Reliability</b></td>
+  <td>+ Can now <strong class="danger">lose</strong> <code>half</code> of disks and still operate</td>
+  </tr>
+  </tbody>
+  </table>
+
+  ## RAID: <span class="gold">Warnings</span>
+
+  While <strong class="warning">RAID</strong> is a great way to build <strong
+  class="success">faster</strong>, <strong class="info">bigger</strong>, and more
+  <strong class="special">reliable storage systems</strong>, it doesn't address
+  every problem:
+
+  - <strong class="warning">RAID</strong> recovery time is arduous.
+
+  - <strong class="warning">RAID</strong> doesn't handle <strong
+    class="danger">disk corruption</strong> (*or even detects it*).
+
+  - <strong class="warning">RAID</strong> is not a <strong class="success">backup
+    system</strong>.
