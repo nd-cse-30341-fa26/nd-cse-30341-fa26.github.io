@@ -104,6 +104,33 @@ There are multiple methods of transfering data between
 
 # I/O Devices: <span class="gold">Device Drivers</span>
 
+To interface with different <strong class="warning">devices</strong>, the
+<strong class="caution">operating system</strong> layers subsystems on top of
+different hardware specific <strong class="special">device drivers</strong>:
+
+<br>
+
+<div class="centered">
+
+<img src="static/img/slides19-io-device-drivers.svg">
+
+</div>
+
+<br>
+
+<div class="alert info-bg centered">
+
+A [large portion of kernel
+code](https://commandlinux.com/statistics/linux-kernel-contributors-lines-of-code-statistics/)
+is <strong class="special">device drivers</strong> such as
+[ahci.c](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/ata/ahci.c).
+
+</div>
+
+---
+
+# I/O Devices: <span class="gold">Kernel Space</span>
+
 ---
 
 # I/O Devices: <span class="gold">LKM</span>

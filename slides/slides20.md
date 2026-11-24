@@ -48,9 +48,9 @@ theme: domer-slides
 
 - Can be <strong class="caution">slow</strong>.
 
-- Can be <strong class="warning">limiting</strong>.
+- Can have <strong class="warning">limited capacity</strong>.
 
-- Can be <strong class="danger">fail</strong>.
+- Can <strong class="danger">fail</strong>.
 
 </div>
 
